@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FitTracker</string>
+    <string name="title_section1">Track</string>
+    <string name="title_section2">Steps</string>
+    <string name="title_section3">Sleep</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_run">RunActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="username_hint">Username</string>
+    <string name="birth_hint">Birth Day</string>
+    <string name="weight_hint">Weight</string>
+    <string name="height_hint">Height</string>
+    <string name="default_alarm_time">7:00</string>
+    <string name="title_activity_sleep">SleepActivity</string>
+    <string name="done_sleeping_text">Done Sleeping</string>
+    <string name="title_activity_sleep_data">SleepDataActivity</string>
+
+</resources>

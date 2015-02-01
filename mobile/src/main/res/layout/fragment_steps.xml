@@ -1,0 +1,39 @@
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.smartfitness.daniellee.fittracker.StepsFragment">
+
+    <!-- TODO: add fab -->
+    <TextView
+        android:id="@+id/goalTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal"
+        android:textSize="@dimen/goal_text_size"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"/>
+
+    <!-- TODO: change typeface to Roboto -->
+    <TextView
+        android:id="@+id/stepsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Steps"
+        android:textSize="@dimen/steps_text_size"
+        android:layout_above="@id/goalTextView"
+        android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/graphLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/goalTextView" />
+
+</RelativeLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
