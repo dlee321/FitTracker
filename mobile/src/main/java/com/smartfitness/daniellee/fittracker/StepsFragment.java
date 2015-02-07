@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -16,7 +17,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -103,7 +103,13 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     public static GoogleApiClient mClient = null;
 
 
-    // TODO: Rename and change types and number of parameters
+
+    // display width and height
+    float dpHeight;
+    float dpWidth;
+
+    CircleView circleView;
+
     public static StepsFragment newInstance() {
         StepsFragment fragment = new StepsFragment();
         return fragment;
@@ -202,10 +208,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         graphView.setVerticalLabels(new String[]{""});
 
-
-
-        stepsTextView = (TextView)view.findViewById(R.id.stepsTextView);
-
         if (savedInstanceState != null) {
             totalStepsToday = savedInstanceState.getInt(STEPS_KEY);
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
@@ -226,7 +228,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         DisplayMetrics displayMetrics = getActivity().getResources().getDisplayMetrics();
 
-        float dpHeight = displayMetrics.heightPixels;
+        dpHeight = displayMetrics.heightPixels;
+        dpWidth = displayMetrics.widthPixels;
 
         graphLayout = (LinearLayout)view.findViewById(R.id.graphLinearLayout);
         ViewGroup.LayoutParams params = graphLayout.getLayoutParams();
@@ -236,7 +239,13 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         graphLayout.addView(graphView);
 
-        stepsTextView.setText("" + totalStepsToday);
+
+        // get circle view
+        circleView = (CircleView) view.findViewById(R.id.progress_circle);
+
+        // set text in circleView to saved instance
+        circleView.setStepsString(totalStepsToday);
+        circleView.invalidate();
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -245,6 +254,10 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                 getActivity().getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
                 DisplayMetrics dm = getResources().getDisplayMetrics();
                 int height = dm.heightPixels;
+
+                // animate the circle
+                animateIn();
+
                 swipeRefreshLayout.setProgressViewOffset(false, -200, height / 8);
                 swipeRefreshLayout.post(new Runnable() {
                     @Override
@@ -259,23 +272,24 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                     e.printStackTrace();
                 }
                 if (result != null && connected) {
-                    AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
                     AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
                     stepsTextView.setAnimation(fadeOut);
                     fadeOut.setDuration(1200);
-                    fadeOut.setFillAfter(true);
+                    fadeOut.setFillAfter(true);*/
                     List<Bucket> buckets = result.getBuckets();
                     for (int iii = 0; iii < buckets.size(); iii++) {
                         dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
-                    }
+                    }/*
                     stepsTextView.setAnimation(fadeIn);
                     fadeIn.setDuration(1200);
-                    fadeIn.setFillAfter(true);
+                    fadeIn.setFillAfter(true);*/
                     series.resetData(data);
                 }
 
-                stepsTextView.setText("" + totalStepsToday);
+                //stepsTextView.setText("" + totalStepsToday);
 
+                animateOut();
                 swipeRefreshLayout.post(new Runnable() {
                     @Override
                     public void run() {
@@ -292,6 +306,27 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         circle.addArc(box, 0, sweep);*/
         return view;
     }
+
+    /*private void drawCircle() {
+        Bitmap bitmap = Bitmap.createBitmap((int)dpWidth * 3/4, (int)dpWidth * 3/4, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.GRAY);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(1);
+
+        Path circle = new Path();
+
+        RectF box = new RectF(0,0,bitmap.getWidth(),bitmap.getHeight());
+        // TODO: replace with actual goal
+        float sweep = 360 * 50 * 0.01f;
+        circle.addArc(box, 0, sweep);
+
+        canvas.drawPath(circle, paint);
+    }*/
 
     private void buildFitnessClient() {
         // Create the Google API Client
@@ -396,6 +431,66 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                         " Value: " + bucketValue);
             }
         }
+    }
+    int delay = 5;//milli seconds
+
+    int steps;
+
+    boolean done = false;
+
+    public void animateIn() {
+        final Handler h = new Handler();
+        delay = 20;
+
+        steps = totalStepsToday;
+
+        h.postDelayed(new Runnable() {
+
+            public void run() {
+                if (!done) {
+                    //do something
+                    steps = (int) (steps - steps * 0.1);
+                    circleView.setStepsString(steps);
+                    circleView.invalidate();
+                    if (steps > 0) {
+                        h.postDelayed(this, delay);
+                    } else {
+                        done = true;
+                    }
+                }
+            }
+        }, delay);
+    }
+
+
+
+    private void animateOut() {
+        steps = 0;
+        final Handler h = new Handler();
+        delay = 20;
+
+        Log.d("StepsFragmentDebug", "" + totalStepsToday);
+
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("StepsFragmentDone", "" + done);
+                if (done) {
+                    steps = (int) (steps + (totalStepsToday - steps) * 0.1);
+                    circleView.setStepsString(steps);
+                    circleView.invalidate();
+                    if (steps < totalStepsToday - 20) {
+                        h.postDelayed(this, delay);
+                    } else {
+                        circleView.setStepsString(totalStepsToday);
+                        circleView.invalidate();
+                        done = false;
+                    }
+                } else {
+                    h.postDelayed(this, delay);
+                }
+            }
+        }, delay);
     }
 
     @Override

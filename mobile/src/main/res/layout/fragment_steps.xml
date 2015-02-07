@@ -13,27 +13,28 @@
         android:id="@+id/goalTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Goal"
+        android:text=""
         android:textSize="@dimen/goal_text_size"
         android:layout_centerHorizontal="true"
         android:layout_centerInParent="true"/>
 
-    <!-- TODO: change typeface to Roboto -->
-    <TextView
-        android:id="@+id/stepsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Steps"
-        android:textSize="@dimen/steps_text_size"
+    <com.smartfitness.daniellee.fittracker.CircleView
+        android:id="@+id/progress_circle"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_above="@id/goalTextView"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-100dp"/>
+
+    <!-- TODO: change typeface to Roboto -->
 
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/graphLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/goalTextView" />
+        android:layout_below="@id/goalTextView"
+        android:layout_marginTop="30dp"/>
 
 </RelativeLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

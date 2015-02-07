@@ -287,14 +287,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
 
-            try {
+            /*try {
                 // Simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
-            }
+            }*/
 
             rememberUser = mRememberView.isChecked();
 
@@ -311,13 +310,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                         onPostExecute(true);
                     } else {
                         Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
-                        //TODO: start sign up activity
                         startSignUpActivity();
                     }
                 }
             });
-
-            // TODO: register the new account here.
             return false;
         }
 
