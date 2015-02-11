@@ -88,5 +88,9 @@ public class CircleView extends View {
         stepsString  = "" + steps;
     }
 
+    protected String getStepsString() {
+        return stepsString;
+    }
+
 
 }

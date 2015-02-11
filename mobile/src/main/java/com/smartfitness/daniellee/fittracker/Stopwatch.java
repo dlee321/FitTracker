@@ -19,7 +19,7 @@ public class Stopwatch {
 
 
     /**
-     * Return elapsed time (in seconds) since this object was created.
+     * Return elapsed time (in minutes) since this object was created.
      */
     public int elapsedTime() {
         long now = System.currentTimeMillis();
@@ -27,6 +27,10 @@ public class Stopwatch {
         bg = bg.setScale(0, RoundingMode.HALF_UP);
         int time = bg.intValue();
         return time;
+    }
+
+    public long getStart() {
+        return start;
     }
 
 }

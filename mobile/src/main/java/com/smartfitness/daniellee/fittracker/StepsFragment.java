@@ -6,15 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -89,6 +91,20 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
     private boolean connected;
 
+    private int mActionBarSize;
+
+
+    // necessary swipe height to trigger refresh
+    private int mSwipeHeight;
+
+
+    // current y-axis value of swipe
+    double currentY;
+
+
+    // start value of the circleview text
+    int currentSteps;
+
 
     private static final int REQUEST_OAUTH = 1;
 
@@ -102,6 +118,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
     public static GoogleApiClient mClient = null;
 
+
+    // start y-axis of the swipe event
+    double startY = 0;
 
 
     // display width and height
@@ -231,6 +250,14 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         dpHeight = displayMetrics.heightPixels;
         dpWidth = displayMetrics.widthPixels;
 
+        // get the actionbar size
+        final TypedArray styledAttributes = view.getContext().getTheme().obtainStyledAttributes(
+                new int[] { android.R.attr.actionBarSize });
+        mActionBarSize = (int) styledAttributes.getDimension(0, 0);
+        styledAttributes.recycle();
+
+        mSwipeHeight = (int)((dpHeight - 2 * mActionBarSize) * 0.5);
+
         graphLayout = (LinearLayout)view.findViewById(R.id.graphLinearLayout);
         ViewGroup.LayoutParams params = graphLayout.getLayoutParams();
 
@@ -247,55 +274,44 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         circleView.setStepsString(totalStepsToday);
         circleView.invalidate();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        // set ontouchevent to detect swipes
+        view.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onRefresh() {
-                TypedValue typed_value = new TypedValue();
-                getActivity().getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.actionBarSize, typed_value, true);
-                DisplayMetrics dm = getResources().getDisplayMetrics();
-                int height = dm.heightPixels;
+            public boolean onTouch(View view, MotionEvent event) {
 
-                // animate the circle
-                animateIn();
+                int action = MotionEventCompat.getActionMasked(event);
 
-                swipeRefreshLayout.setProgressViewOffset(false, -200, height / 8);
-                swipeRefreshLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(true);
+                if (action == MotionEvent.ACTION_DOWN) {
+                    Log.d(TAG, "ACTION_DOWN");
+                    currentSteps = Integer.parseInt(circleView.getStepsString());
+                } else if (action == MotionEvent.ACTION_MOVE) {
+                    currentY = event.getAxisValue(MotionEvent.AXIS_Y);
+                    if (startY == 0) {
+                        startY = currentY;
+                    } else if (currentY < startY) {
+                        startY = currentY;
+                    } else {
+                        double amount = (currentY - startY) / mSwipeHeight;
+                        int animateTo = (int) (currentSteps - amount * currentSteps);
+                        if (animateTo > 0) {
+                            circleView.setStepsString(animateTo);
+                        } else {
+                            circleView.setStepsString(0);
+                        }
+                        circleView.invalidate();
                     }
-                });
-                totalStepsToday = 0;
-                try {
-                    result = new GetReadResultTask().execute().get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-                if (result != null && connected) {
-                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-                    stepsTextView.setAnimation(fadeOut);
-                    fadeOut.setDuration(1200);
-                    fadeOut.setFillAfter(true);*/
-                    List<Bucket> buckets = result.getBuckets();
-                    for (int iii = 0; iii < buckets.size(); iii++) {
-                        dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
-                    }/*
-                    stepsTextView.setAnimation(fadeIn);
-                    fadeIn.setDuration(1200);
-                    fadeIn.setFillAfter(true);*/
-                    series.resetData(data);
-                }
 
-                //stepsTextView.setText("" + totalStepsToday);
-
-                animateOut();
-                swipeRefreshLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeRefreshLayout.setRefreshing(false);
+                    Log.d(TAG, "X: " + event.getAxisValue(MotionEvent.AXIS_X) + " Y: " + event.getAxisValue(MotionEvent.AXIS_Y));
+                } else if (action == MotionEvent.ACTION_UP) {
+                    Log.d(TAG, "ACTION_UP");
+                    if (currentY - startY > mSwipeHeight) {
+                        refresh();
+                    } else {
+                        animateOut();
                     }
-                });
+                    startY = 0;
+                }
+                return true;
             }
         });
 
@@ -305,6 +321,35 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         float sweep = 360 * 50 * 0.01f;
         circle.addArc(box, 0, sweep);*/
         return view;
+    }
+
+    private void refresh() {
+        totalStepsToday = 0;
+        try {
+            result = new GetReadResultTask().execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (result != null && connected) {
+                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    stepsTextView.setAnimation(fadeOut);
+                    fadeOut.setDuration(1200);
+                    fadeOut.setFillAfter(true);*/
+            List<Bucket> buckets = result.getBuckets();
+            for (int iii = 0; iii < buckets.size(); iii++) {
+                dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
+            }/*
+                    stepsTextView.setAnimation(fadeIn);
+                    fadeIn.setDuration(1200);
+                    fadeIn.setFillAfter(true);*/
+            series.resetData(data);
+        }
+
+        //stepsTextView.setText("" + totalStepsToday);
+
+
+        animateOut();
     }
 
     /*private void drawCircle() {
@@ -465,7 +510,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
 
     private void animateOut() {
-        steps = 0;
+        steps = Integer.parseInt(circleView.getStepsString());
         final Handler h = new Handler();
         delay = 20;
 
@@ -474,20 +519,15 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         h.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Log.d("StepsFragmentDone", "" + done);
-                if (done) {
-                    steps = (int) (steps + (totalStepsToday - steps) * 0.1);
-                    circleView.setStepsString(steps);
-                    circleView.invalidate();
-                    if (steps < totalStepsToday - 20) {
-                        h.postDelayed(this, delay);
-                    } else {
-                        circleView.setStepsString(totalStepsToday);
-                        circleView.invalidate();
-                        done = false;
-                    }
-                } else {
+                steps = (int) (steps + (totalStepsToday - steps) * 0.1);
+                circleView.setStepsString(steps);
+                circleView.invalidate();
+                if (steps < totalStepsToday - 20) {
                     h.postDelayed(this, delay);
+                } else {
+                    circleView.setStepsString(totalStepsToday);
+                    circleView.invalidate();
+                    done = false;
                 }
             }
         }, delay);

@@ -19,5 +19,7 @@
     <string name="title_activity_sleep">SleepActivity</string>
     <string name="done_sleeping_text">Done Sleeping</string>
     <string name="title_activity_sleep_data">SleepDataActivity</string>
+    <string name="total_sleep_label">Total Sleep</string>
+    <string name="deep_sleep_label">Deep Sleep</string>
 
 </resources>

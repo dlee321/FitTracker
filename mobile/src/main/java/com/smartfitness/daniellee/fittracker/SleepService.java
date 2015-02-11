@@ -24,11 +24,13 @@ public class SleepService extends Service implements SensorEventListener {
 
     private double totalMovement1 = 0;
     private double totalMovement2 = 0;
+    private double totalMovement = 0;
     Queue accelerometerData = new Queue();
 
     private BroadcastReceiver broadcastReceiver;
     private int sleepingTimeMinutes;
     private double maxMovement = 0;
+    private double averageMovement = 0;
     private double minMovement = 0;
     private boolean isFirstData = true;
 
@@ -112,18 +114,22 @@ public class SleepService extends Service implements SensorEventListener {
             accelerometerDataArray[iii] = (Double)accelerometerData.dequeue();
         }
         sleepingTimeMinutes = sw.elapsedTime();
-        /*Intent intent = new Intent(this, DataActivity.class);
+        averageMovement = totalMovement/sleepingTimeMinutes;
+        Intent intent = new Intent(this, SleepDataActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(DataActivity.EXTRA_DOUBLE, maxMovement);
-        intent.putExtra(DataActivity.EXTRA_INT, sleepingTimeMinutes);
-        intent.putExtra(DataActivity.EXTRA_ARRAY, accelerometerDataArray);
-        if (hasTempSensor) {
-            intent.putExtra(DataActivity.EXTRA_QUEUE2, temperatureData);
+        intent.putExtra(SleepDataActivity.EXTRA_DOUBLE, averageMovement);
+        intent.putExtra(SleepDataActivity.EXTRA_INT, sleepingTimeMinutes);
+        intent.putExtra(SleepDataActivity.EXTRA_ARRAY, accelerometerDataArray);
+        intent.putExtra(SleepDataActivity.EXTRA_START_TIME, sw.getStart());
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        /*if (hasTempSensor) {
+            intent.putExtra(SleepDataActivity.EXTRA_QUEUE2, temperatureData);
         }
         if (hasHumiditySensor) {
-            intent.putExtra(DataActivity.EXTRA_QUEUE3, humidityData);
-        }
-        startActivity(intent);*/
+            intent.putExtra(SleepDataActivity.EXTRA_QUEUE3, humidityData);
+        }*/
+        startActivity(intent);
         super.onDestroy();
     }
 
@@ -134,6 +140,7 @@ public class SleepService extends Service implements SensorEventListener {
 
     public void addTotalsToQueues() {
         double averageMovement = (totalMovement1 + totalMovement2) / 2;
+        totalMovement += averageMovement;
         accelerometerData.enqueue(averageMovement);
         if (averageMovement > maxMovement) {
             maxMovement = averageMovement;
