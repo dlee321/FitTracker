@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,7 +78,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
     public static int totalStepsToday = 0;
 
-    SwipeRefreshLayout swipeRefreshLayout;
+    //SwipeRefreshLayout swipeRefreshLayout;
 
     LinearLayout graphLayout;
 
@@ -185,8 +184,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         Log.i(TAG, "Connecting...");
         mClient.connect();
 
-        swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_container);
-        swipeRefreshLayout.setColorSchemeResources(R.color.accentColor, R.color.colorPrimary, R.color.colorPrimaryDark);
+        /*swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_container);
+        swipeRefreshLayout.setColorSchemeResources(R.color.accentColor, R.color.colorPrimary, R.color.colorPrimaryDark);*/
 
         data = new GraphView.GraphViewData[24];
 

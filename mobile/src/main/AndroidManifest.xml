@@ -72,7 +72,8 @@
 
         <activity
             android:name=".SleepActivity"
-            android:label="@string/title_activity_sleep" >
+            android:label="@string/title_activity_sleep"
+            android:theme="@style/SleepTheme">
         </activity>
         <activity
             android:name=".SleepDataActivity"

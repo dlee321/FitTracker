@@ -21,5 +21,8 @@
     <string name="title_activity_sleep_data">SleepDataActivity</string>
     <string name="total_sleep_label">Total Sleep</string>
     <string name="deep_sleep_label">Deep Sleep</string>
+    <string name="drawer_open">open drawer</string>
+    <string name="drawer_close">close drawer</string>
+    <string name="drawer_title">Navigation</string>
 
 </resources>

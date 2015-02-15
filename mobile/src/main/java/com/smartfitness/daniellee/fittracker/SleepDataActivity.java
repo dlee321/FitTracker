@@ -2,12 +2,9 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,11 +21,15 @@ public class SleepDataActivity extends ActionBarActivity {
     public static final String EXTRA_DOUBLE = "extra_double";
     public static final String EXTRA_INT = "extra_int";
     public static final String EXTRA_ARRAY = "extra_array";
+    //public static final String EXTRA_ACCURACY_ARRAY = "extra_array";
     public static final String EXTRA_START_TIME = "extra_start_time";
 
     private double averageMovement = 0.0;
     private int sleepTimeMinutes = 0;
     private double[] movementArray = null;
+
+    //private int[] accuracyArray = null;
+
     private long startTime;
 
     private TextView totalSleepTextView;
@@ -45,6 +46,8 @@ public class SleepDataActivity extends ActionBarActivity {
             sleepTimeMinutes = intent.getIntExtra(EXTRA_INT, 0);
             movementArray = intent.getDoubleArrayExtra(EXTRA_ARRAY);
             startTime = intent.getLongExtra(EXTRA_START_TIME, 0);
+
+            //accuracyArray = intent.getIntArrayExtra(EXTRA_ACCURACY_ARRAY);
         }
 
         totalSleepTextView = (TextView) findViewById(R.id.sleepTimeTextView);
@@ -78,26 +81,27 @@ public class SleepDataActivity extends ActionBarActivity {
         minute = c.get(Calendar.MINUTE);
         String endText = hour + ":";
         if (minute >= 10) {
-            sleepText += minute;
+            endText += minute;
         } else {
-            sleepText += "0" + minute;
+            endText += "0" + minute;
         }
 
         GraphView.GraphViewData[] data;
         data = new GraphView.GraphViewData[movementArray.length];
         for (int iii = 0; iii < data.length; iii++) {
-            if (movementArray[iii] < averageMovement * .4) {
+            /*if (movementArray[iii] < averageMovement * .4) {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 1);
             } else {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
-            }
+            }*/
+            data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
         }
         GraphViewSeries series = new GraphViewSeries(data);
 
         GraphView graphView = new BarGraphView(this, "");
         graphView.addSeries(series);
 
-        graphView.setHorizontalLabels(new String[]{startText,"","","","","","","","","","","","","", endText});
+        graphView.setHorizontalLabels(new String[]{startText,"","","","","","","","","", endText});
         graphView.setManualMinY(true);
         graphView.setManualYMinBound(0);
 
