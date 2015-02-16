@@ -3,21 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/pager"
+    <FrameLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity" >
-            <android.support.v4.view.PagerTabStrip
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
-                android:textColor="#FFF"
-                android:background="#333"/>
-        </android.support.v4.view.ViewPager>
+        android:layout_height="match_parent" />
     <!-- the navigation drawer -->
     <ListView
         android:id="@+id/left_drawer"

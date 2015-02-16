@@ -5,12 +5,10 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,13 +17,10 @@ import android.view.View;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.parse.ParseUser;
 
-import java.util.Locale;
 
-
-public class MainActivity extends ActionBarActivity implements StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener {
 
     public static final String PREFS_NAME = "MyPrefsData";
-    private static StepsFragment sf = null;
 
     public static final String TAG = MainActivity.class.getSimpleName();
     /**
@@ -36,17 +31,14 @@ public class MainActivity extends ActionBarActivity implements StepsFragment.OnF
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
 
     static SharedPreferences mSettings;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
 
     ParseUser mParseUser;
-    private static SleepFragment mSleepFragment;
 
     private DrawerLayout mDrawerLayout;
 
@@ -82,22 +74,30 @@ public class MainActivity extends ActionBarActivity implements StepsFragment.OnF
             }
         };
 
+        populateDrawer();
+
+
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+
+        // START MAINFRAGMENT **********************
+        MainFragment fragment = MainFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+
+
         // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
+        //final ActionBar actionBar = getSupportActionBar();
         //actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
 
         // When swiping between different sections, select the corresponding
         // tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -120,8 +120,10 @@ public class MainActivity extends ActionBarActivity implements StepsFragment.OnF
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }*/
+    }
 
-        mViewPager.setCurrentItem(1);
+    private void populateDrawer() {
+
     }
 
     @Override
@@ -137,7 +139,7 @@ public class MainActivity extends ActionBarActivity implements StepsFragment.OnF
     }
 
     public static SleepFragment getSleepFragment() {
-        return mSleepFragment;
+        return MainFragment.mSleepFragment;
     }
 
     @Override
@@ -181,49 +183,6 @@ public class MainActivity extends ActionBarActivity implements StepsFragment.OnF
 
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position == 0) {
-                return TrackFragment.newInstance();
-            } else if (position == 1) {
-                return sf = StepsFragment.newInstance();
-            } else if (position == 2) {
-                return mSleepFragment = SleepFragment.newInstance();
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
-            }
-            return null;
-        }
-    }
 
 }

@@ -38,10 +38,10 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-        <!-- TODO: change key back to other one when working on mac -->
+        <!-- TODO: change key to release key (make it in API Console) -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyAEnqqLwiIruc0mAithdrma1W6MxAtHo0E" />
+            android:value="AIzaSyBFo-GRwhDhwmgCBs7xB6Ww2w-uGJr87Go" />
 
         <activity
             android:name=".RunActivity"
