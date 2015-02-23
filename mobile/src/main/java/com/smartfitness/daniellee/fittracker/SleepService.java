@@ -110,7 +110,7 @@ public class SleepService extends Service implements SensorEventListener {
                 z = -z;
             }
             long tempTime = System.currentTimeMillis();
-            if (x > 0.1 && y > 0.1 && z > 0.1 && (tempTime - mTime) > 200) {
+            if (x > 0.2 || y > 0.2 || z > 0.2 && (tempTime - mTime) > 200) {
                 totalMovement2++;
                 mTime = tempTime;
             }

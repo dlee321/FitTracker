@@ -75,7 +75,8 @@
         <activity
             android:name=".SleepActivity"
             android:label="@string/title_activity_sleep"
-            android:theme="@style/SleepTheme">
+            android:theme="@style/SleepTheme"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".SleepDataActivity"
