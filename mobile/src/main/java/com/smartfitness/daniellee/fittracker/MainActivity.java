@@ -1,10 +1,14 @@
 package com.smartfitness.daniellee.fittracker;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -13,12 +17,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.parse.ParseUser;
 
 
-public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
+
+    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History"};
 
     public static final String PREFS_NAME = "MyPrefsData";
 
@@ -44,6 +53,9 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
     // ActionBar toggle for drawerlayout
     private ActionBarDrawerToggle mDrawerToggle;
+    private ListView mDrawerList;
+
+    FragmentManager mFragmentManager;
 
 
     @Override
@@ -51,7 +63,21 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (isMyServiceRunning(SleepService.class)) {
+            Intent intent = new Intent(this, SleepActivity.class);
+            startActivity(intent);
+        }
+
+        // START MAINFRAGMENT **********************
+        MainFragment fragment = MainFragment.newInstance();
+        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
+
         mSettings = getSharedPreferences(PREFS_NAME, 0);
+
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -64,7 +90,12 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                getSupportActionBar().setTitle(R.string.app_name);
+                int p = mDrawerList.getCheckedItemPosition();
+                if (p == 0) {
+                    getSupportActionBar().setTitle(R.string.app_name);
+                } else if (p == 1) {
+                    getSupportActionBar().setTitle(R.string.history_activity_title);
+                }
             }
 
             @Override
@@ -81,14 +112,6 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
-
-        // START MAINFRAGMENT **********************
-        MainFragment fragment = MainFragment.newInstance();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
 
 
         // Set up the action bar.
@@ -123,7 +146,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     }
 
     private void populateDrawer() {
-
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DRAWER_LIST_ITEMS));
+        mDrawerList.setOnItemClickListener(this);
     }
 
     @Override
@@ -184,5 +208,31 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     }
 
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Fragment fragment = null;
+        if (i == 0) {
+            fragment = MainFragment.newInstance();
+            getSupportActionBar().setTitle(R.string.app_name);
+        } else if (i == 1) {
+            fragment = HistoryFragment.newInstance();
+            getSupportActionBar().setTitle(getString(R.string.history_activity_title));
+        }
+        mFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .commit();
 
+        mDrawerList.setItemChecked(i, true);
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

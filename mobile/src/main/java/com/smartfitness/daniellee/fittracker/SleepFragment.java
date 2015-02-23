@@ -32,7 +32,7 @@ public class SleepFragment extends android.support.v4.app.Fragment {
 
     RelativeLayout layout;
 
-    private Intent mServiceIntent;
+    //private Intent mServiceIntent;
 
     public static SleepFragment newInstance() {
         SleepFragment fragment = new SleepFragment();
@@ -79,10 +79,8 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         sleepTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mServiceIntent = new Intent(getActivity(), SleepService.class);
-                mServiceIntent.putExtra(ALARM_TIME_TAG, alarmTextView.getText());
-                getActivity().startService(mServiceIntent);
                 Intent intent = new Intent(getActivity(), SleepActivity.class);
+                intent.putExtra(ALARM_TIME_TAG, alarmTextView.getText());
                 getActivity().startActivity(intent);
                 getActivity().finish();
             }
@@ -91,9 +89,9 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
-    public Intent getIntent() {
+    /*public Intent getIntent() {
         return mServiceIntent;
-    }
+    }*/
 
     private void showTimePicker() {
         DialogFragment fragment = new TimePickerFragment();

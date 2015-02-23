@@ -19,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -81,8 +80,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     //SwipeRefreshLayout swipeRefreshLayout;
 
     LinearLayout graphLayout;
-
-    TextView stepsTextView;
 
     GraphView graphView;
     GraphViewSeries series;
@@ -272,6 +269,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         // set text in circleView to saved instance
         circleView.setStepsString(totalStepsToday);
         circleView.invalidate();
+
+        // refresh the data when fragment created
+        //refresh();
 
         // set ontouchevent to detect swipes
         view.setOnTouchListener(new View.OnTouchListener() {

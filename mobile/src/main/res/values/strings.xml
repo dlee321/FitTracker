@@ -24,5 +24,6 @@
     <string name="drawer_open">open drawer</string>
     <string name="drawer_close">close drawer</string>
     <string name="drawer_title">Navigation</string>
+    <string name="history_activity_title">History</string>
 
 </resources>
