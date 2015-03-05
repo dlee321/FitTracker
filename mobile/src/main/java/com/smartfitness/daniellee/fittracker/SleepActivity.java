@@ -76,10 +76,4 @@ public class SleepActivity extends ActionBarActivity {
             }
         });
     }
-
-    @Override
-    protected void onStop() {
-        unregisterReceiver(br);
-        super.onStop();
-    }
 }

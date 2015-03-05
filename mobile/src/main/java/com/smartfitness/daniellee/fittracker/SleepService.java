@@ -19,6 +19,7 @@ import java.util.TimerTask;
 public class SleepService extends Service implements SensorEventListener {
 
     SensorManager sensorManagerAccelerometer;
+    Sensor mSensor;
 
     private Stopwatch sw;
 
@@ -65,8 +66,9 @@ public class SleepService extends Service implements SensorEventListener {
 
         sensorManagerAccelerometer=(SensorManager)getSystemService(SENSOR_SERVICE);
 
+        mSensor = sensorManagerAccelerometer.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         sensorManagerAccelerometer.registerListener(this,
-                sensorManagerAccelerometer.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+                mSensor,
                 SensorManager.SENSOR_DELAY_FASTEST);
 
 
@@ -90,6 +92,16 @@ public class SleepService extends Service implements SensorEventListener {
                 }
             }
         };
+        timer.scheduleAtFixedRate(new TimerTask() {
+            // called every hour to reregister sensor
+            @Override
+            public void run() {
+                sensorManagerAccelerometer.unregisterListener(SleepService.this);
+                sensorManagerAccelerometer.registerListener(SleepService.this,
+                        mSensor,
+                        SensorManager.SENSOR_DELAY_FASTEST);
+            }
+        }, 3600000, 3600000);
         registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
