@@ -18,7 +18,7 @@ import java.util.TimerTask;
 
 public class SleepService extends Service implements SensorEventListener {
 
-    SensorManager sensorManagerAccelerometer;
+    SensorManager sensorManagerGyroscope;
     Sensor mSensor;
 
     private Stopwatch sw;
@@ -64,10 +64,10 @@ public class SleepService extends Service implements SensorEventListener {
                 .build();
         startForeground(2014, note);
 
-        sensorManagerAccelerometer=(SensorManager)getSystemService(SENSOR_SERVICE);
+        sensorManagerGyroscope =(SensorManager)getSystemService(SENSOR_SERVICE);
 
-        mSensor = sensorManagerAccelerometer.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        sensorManagerAccelerometer.registerListener(this,
+        mSensor = sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        sensorManagerGyroscope.registerListener(this,
                 mSensor,
                 SensorManager.SENSOR_DELAY_FASTEST);
 
@@ -96,8 +96,8 @@ public class SleepService extends Service implements SensorEventListener {
             // called every hour to reregister sensor
             @Override
             public void run() {
-                sensorManagerAccelerometer.unregisterListener(SleepService.this);
-                sensorManagerAccelerometer.registerListener(SleepService.this,
+                sensorManagerGyroscope.unregisterListener(SleepService.this);
+                sensorManagerGyroscope.registerListener(SleepService.this,
                         mSensor,
                         SensorManager.SENSOR_DELAY_FASTEST);
             }
@@ -180,9 +180,9 @@ public class SleepService extends Service implements SensorEventListener {
         }
         else if (averageMovement < minMovement) {
             minMovement = averageMovement;
-            sensorManagerAccelerometer.unregisterListener(this);
-            sensorManagerAccelerometer.registerListener(this,
-                    sensorManagerAccelerometer.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+            sensorManagerGyroscope.unregisterListener(this);
+            sensorManagerGyroscope.registerListener(this,
+                    sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                     SensorManager.SENSOR_DELAY_FASTEST);
         }
         totalMovement1 = 0;

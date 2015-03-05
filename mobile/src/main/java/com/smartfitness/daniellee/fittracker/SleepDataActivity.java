@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
+import com.jjoe64.graphview.LineGraphView;
 
 import java.util.Calendar;
 
@@ -98,7 +98,7 @@ public class SleepDataActivity extends ActionBarActivity {
         }
         GraphViewSeries series = new GraphViewSeries(data);
 
-        GraphView graphView = new BarGraphView(this, "");
+        GraphView graphView = new LineGraphView(this, "");
         graphView.addSeries(series);
 
         graphView.setHorizontalLabels(new String[]{startText,"","","","","","","","","", endText});
