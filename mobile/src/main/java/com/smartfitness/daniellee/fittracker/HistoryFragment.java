@@ -89,8 +89,7 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_history, container, false);
         mProgress = new ProgressDialog(getActivity());
-        mProgress.setTitle("Loading");
-        mProgress.setMessage("Wait while loading...");
+        mProgress.setMessage("Loading History...");
         mProgress.show();
         listView = (ListView)v.findViewById(R.id.historyList);
         if (savedInstanceState != null) {
@@ -224,6 +223,7 @@ public class HistoryFragment extends Fragment {
             for(Field field : dp.getDataType().getFields()) {
                 int bucketValue = dp.getValue(field).asInt();
                 if (field.getName().equals("steps")) {
+                    Log.d(TAG, "" + index);
                     days[index] = bucketValue;
                     index++;
                 }
@@ -325,8 +325,6 @@ public class HistoryFragment extends Fragment {
 
         @Override
         protected void onPostExecute(DataReadResult dataReadResult) {
-            mProgress.dismiss();
-
             List<Bucket> buckets;
             buckets = dataReadResult.getBuckets();
             days = new Integer[buckets.size()];

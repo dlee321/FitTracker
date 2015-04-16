@@ -2,6 +2,7 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -47,7 +48,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -125,6 +125,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
     CircleView circleView;
 
+    private static ProgressDialog mProgress;
+
     public static StepsFragment newInstance() {
         StepsFragment fragment = new StepsFragment();
         return fragment;
@@ -145,7 +147,15 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_steps, container, false);
 
+        if (savedInstanceState != null) {
+            totalStepsToday = savedInstanceState.getInt(STEPS_KEY);
+            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
+        }
+
         connected = false;
+
+        mProgress = new ProgressDialog(getActivity());
+        mProgress.setMessage("Loading Step Data...");
         /*try {
             result = new MainActivity.GetReadResultTask().execute().get();
         } catch (Exception e) {
@@ -178,6 +188,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
                     }
                 });
+        mProgress.show();
         Log.i(TAG, "Connecting...");
         mClient.connect();
 
@@ -223,11 +234,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         graphView.setVerticalLabels(new String[]{""});
 
-        if (savedInstanceState != null) {
-            totalStepsToday = savedInstanceState.getInt(STEPS_KEY);
-            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
-        }
-
         SharedPreferences sp;
 
         if ((sp = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0)) != null) {
@@ -272,6 +278,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         // refresh the data when fragment created
         //refresh();
+
 
         // set ontouchevent to detect swipes
         view.setOnTouchListener(new View.OnTouchListener() {
@@ -323,32 +330,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     }
 
     private void refresh() {
-        totalStepsToday = 0;
-        try {
-            result = new GetReadResultTask().execute().get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        if (result != null && connected) {
-                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-                    stepsTextView.setAnimation(fadeOut);
-                    fadeOut.setDuration(1200);
-                    fadeOut.setFillAfter(true);*/
-            List<Bucket> buckets = result.getBuckets();
-            for (int iii = 0; iii < buckets.size(); iii++) {
-                dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
-            }/*
-                    stepsTextView.setAnimation(fadeIn);
-                    fadeIn.setDuration(1200);
-                    fadeIn.setFillAfter(true);*/
-            series.resetData(data);
-        }
-
-        //stepsTextView.setText("" + totalStepsToday);
-
-
-        animateOut();
+        mProgress.show();
+        new GetReadResultTask().execute();
     }
 
     /*private void drawCircle() {
@@ -386,6 +369,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                                 Log.i(TAG, "Connected!!!");
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
+                                new GetReadResultTask().execute();
+                                mProgress.dismiss();
                             }
 
                             @Override
@@ -633,6 +618,32 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             DataReadResult result =
                     Fitness.HistoryApi.readData(mClient, readRequest).await(1, TimeUnit.MINUTES);
             return result;
+        }
+
+        @Override
+        protected void onPostExecute(DataReadResult dataReadResult) {
+            totalStepsToday = 0;
+            if (dataReadResult != null && connected) {
+                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    stepsTextView.setAnimation(fadeOut);
+                    fadeOut.setDuration(1200);
+                    fadeOut.setFillAfter(true);*/
+                List<Bucket> buckets = dataReadResult.getBuckets();
+                for (int iii = 0; iii < buckets.size(); iii++) {
+                    dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
+                }/*
+                    stepsTextView.setAnimation(fadeIn);
+                    fadeIn.setDuration(1200);
+                    fadeIn.setFillAfter(true);*/
+                series.resetData(data);
+            }
+
+            //stepsTextView.setText("" + totalStepsToday);
+
+            mProgress.dismiss();
+
+            animateOut();
         }
     }
 }

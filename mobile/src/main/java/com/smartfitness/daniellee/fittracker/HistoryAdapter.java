@@ -15,37 +15,46 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
     Context mContext;
     int mLayoutResource;
     Integer[] mObjects;
+    int count;
 
     public HistoryAdapter(Context context, int resource, Integer[] objects) {
         super(context, resource, objects);
         mContext = context;
         mLayoutResource = resource;
         mObjects = objects;
+        count = mObjects.length;
+        for (int iii = mObjects.length - 1; objects[iii] == null; iii--) {
+            count--;
+        }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int data = mObjects[position];
-        if (convertView == null) {
-            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-            convertView = inflater.inflate(mLayoutResource, parent, false);
+        try {
+            int data = mObjects[count - position - 1];
+            if (convertView == null) {
+                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+                convertView = inflater.inflate(mLayoutResource, parent, false);
+            }
+            CardView cardView = (CardView) convertView.findViewById(R.id.cardView);
+            CircleView2 circleView = (CircleView2) cardView.findViewById(R.id.circleView);
+            int parentHeight = cardView.getHeight();
+            int circleHeight = cardView.getHeight();
+            int circleWidth = cardView.getHeight();
+            int margin = (parentHeight - circleHeight) / 2;
+            circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
+            circleView.setStepsString(data);
+            circleView.invalidate();
+            return convertView;
+        } catch (NullPointerException e) {
+            return null;
         }
-        CardView cardView = (CardView) convertView.findViewById(R.id.cardView);
-        CircleView2 circleView = (CircleView2) cardView.findViewById(R.id.circleView);
-        int parentHeight = cardView.getHeight();
-        int circleHeight = cardView.getHeight();
-        int circleWidth = cardView.getHeight();
-        int margin = (parentHeight - circleHeight)/2;
-        circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
-        circleView.setStepsString(data);
-        circleView.invalidate();
-        return convertView;
     }
 
     @Override
     public int getCount() {
         Log.d("HistoryAdapter", "getCount");
-        return mObjects.length;
+        return count;
     }
 
     @Override
