@@ -34,6 +34,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseACL;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -46,8 +47,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RunActivity extends ActionBarActivity implements LocationListener {
 
-    protected static final String RUN_ARRAY_KEY = "runs";
-    protected static final String CALORIES_KEY = "caloriesperrun";
+    protected static final String RUN_KEY = "runs";
 
     public static final String IDENTIFIER = RunActivity.class.getCanonicalName();
 
@@ -142,12 +142,6 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                         LinearLayout.LayoutParams.MATCH_PARENT);
                 input.setLayoutParams(lp);
 
-                // add time of run
-                coordinateList.add(new double[] {new Date().getTime(), 0});
-
-                user.add(RUN_ARRAY_KEY, coordinateList.toArray());
-                user.add(CALORIES_KEY, mCalories);
-
                 AlertDialog dialog = new AlertDialog.Builder(RunActivity.this)
                         .setTitle("Description")
                         .setMessage("Enter Description")
@@ -157,7 +151,25 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String description = input.getText().toString();
 
+                                user.remove(RUN_KEY);
+                                user.saveInBackground();
+                                Run run = new Run();
+                                run.setCoordinates(coordinateList);
+                                run.setCalories(mCalories);
+                                run.setStartTime(startTime + (pauseLength / 2));
+                                run.setEndTime(endTime - (pauseLength / 2));
+                                run.setACL(new ParseACL(user));
+                                user.add(RUN_KEY, run);
+                                user.saveInBackground();
+
                                 new InputSessionTask().execute(description);
+                                Intent intent = new Intent(RunActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                        })
+                        .setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
                                 Intent intent = new Intent(RunActivity.this, MainActivity.class);
                                 startActivity(intent);
                             }

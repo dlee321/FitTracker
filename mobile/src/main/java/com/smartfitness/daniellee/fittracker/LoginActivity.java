@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
@@ -62,14 +61,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        try {
-            Parse.enableLocalDatastore(this);
-
-            Parse.initialize(this, "lz7HKIzCQV2i7x0YtxbxgYGuXd0P4phmYXDm292d", "pguHKsDRwYhB8iZiD8ntv5XE8VTPmR0t2e4n3U0V");
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
 
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         boolean remember = settings.getBoolean(REMEMBER_USER_PREF, false);

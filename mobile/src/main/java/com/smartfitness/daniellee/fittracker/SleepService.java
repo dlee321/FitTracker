@@ -12,11 +12,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SleepService extends Service implements SensorEventListener {
+
+    public static final String TAG = SleepService.class.getSimpleName();
 
     SensorManager sensorManagerGyroscope;
     Sensor mSensor;
@@ -122,7 +125,8 @@ public class SleepService extends Service implements SensorEventListener {
                 z = -z;
             }
             long tempTime = System.currentTimeMillis();
-            if (x > 0.2 || y > 0.2 || z > 0.2 && (tempTime - mTime) > 200) {
+            if ((x > 0.2 || y > 0.2 || z > 0.2) && (tempTime - mTime) > 1000) {
+                Log.d(TAG, "" + totalMovement2);
                 totalMovement2++;
                 mTime = tempTime;
             }
@@ -133,6 +137,9 @@ public class SleepService extends Service implements SensorEventListener {
     public void onDestroy() {
         if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
+        }
+        if (sensorManagerGyroscope != null) {
+            sensorManagerGyroscope.unregisterListener(this);
         }
         double [] gyroDataArray = new double[gyroData.size()];
         for (int iii = 0; iii < gyroData.size(); iii++) {
