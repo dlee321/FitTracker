@@ -348,7 +348,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         Path circle = new Path();
 
         RectF box = new RectF(0,0,bitmap.getWidth(),bitmap.getHeight());
-        // TODO: replace with actual goal
         float sweep = 360 * 50 * 0.01f;
         circle.addArc(box, 0, sweep);
 
@@ -430,7 +429,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -587,7 +585,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 

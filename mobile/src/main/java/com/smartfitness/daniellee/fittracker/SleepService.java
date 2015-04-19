@@ -26,8 +26,7 @@ public class SleepService extends Service implements SensorEventListener {
 
     private Stopwatch sw;
 
-    private double totalMovement1 = 0;
-    private double totalMovement2 = 0;
+    private double minuteMovement = 0;
     private double totalMovement = 0;
     Queue gyroData = new Queue();
     //Queue accelerometerAccuracy = new Queue();
@@ -38,9 +37,6 @@ public class SleepService extends Service implements SensorEventListener {
     private double averageMovement = 0;
     private double minMovement = 0;
     private boolean isFirstData = true;
-
-    private int timesCalledFirst = 0;
-    private int timesCalled = 0;
 
     Timer timer;
 
@@ -79,19 +75,7 @@ public class SleepService extends Service implements SensorEventListener {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
-                    if (timesCalledFirst == 0) {
-                        timesCalledFirst = timesCalled;
-                    }
                     addTotalsToQueues();
-                    TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            totalMovement1 = totalMovement2;
-                            totalMovement2 = 0;
-                            this.cancel();
-                        }
-                    };
-                    timer.schedule(timerTask, 30000);
                 }
             }
         };
@@ -104,14 +88,13 @@ public class SleepService extends Service implements SensorEventListener {
                         mSensor,
                         SensorManager.SENSOR_DELAY_FASTEST);
             }
-        }, 3600000, 3600000);
+        }, 36000000, 3600000);
         registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if(sensorEvent.sensor.getType()==Sensor.TYPE_GYROSCOPE) {
-            timesCalled++;
             double x = sensorEvent.values[0];
             if (x < 0) {
                 x = -x;
@@ -126,8 +109,8 @@ public class SleepService extends Service implements SensorEventListener {
             }
             long tempTime = System.currentTimeMillis();
             if ((x > 0.2 || y > 0.2 || z > 0.2) && (tempTime - mTime) > 1000) {
-                Log.d(TAG, "" + totalMovement2);
-                totalMovement2++;
+                Log.d(TAG, "" + minuteMovement);
+                minuteMovement++;
                 mTime = tempTime;
             }
         }
@@ -142,8 +125,10 @@ public class SleepService extends Service implements SensorEventListener {
             sensorManagerGyroscope.unregisterListener(this);
         }
         double [] gyroDataArray = new double[gyroData.size()];
-        for (int iii = 0; iii < gyroData.size(); iii++) {
-            gyroDataArray[iii] = (Double) gyroData.dequeue();
+        for (int iii = 0; iii < gyroDataArray.length; iii++) {
+            Double data = (Double) gyroData.dequeue();
+            Log.d(TAG, "" + data);
+            gyroDataArray[iii] = data;
         }
         sleepingTimeMinutes = sw.elapsedTime();
         averageMovement = totalMovement/sleepingTimeMinutes;
@@ -174,26 +159,20 @@ public class SleepService extends Service implements SensorEventListener {
     }
 
     public void addTotalsToQueues() {
-        double averageMovement = ((totalMovement1 + totalMovement2) / 2) * timesCalledFirst/timesCalled;
-        timesCalled = 0;
-        totalMovement += averageMovement;
-        gyroData.enqueue(averageMovement);
-        if (averageMovement > maxMovement) {
-            maxMovement = averageMovement;
+        Log.d(TAG, "addTotalsToQueues: " + minuteMovement);
+        totalMovement += minuteMovement;
+        gyroData.enqueue(minuteMovement);
+        if (minuteMovement > maxMovement) {
+            maxMovement = minuteMovement;
         }
         if (isFirstData) {
-            minMovement = averageMovement;
+            minMovement = minuteMovement;
             isFirstData = false;
         }
-        else if (averageMovement < minMovement) {
-            minMovement = averageMovement;
-            sensorManagerGyroscope.unregisterListener(this);
-            sensorManagerGyroscope.registerListener(this,
-                    sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-                    SensorManager.SENSOR_DELAY_FASTEST);
+        else if (minuteMovement < minMovement) {
+            minMovement = minuteMovement;
         }
-        totalMovement1 = 0;
-        totalMovement2 = 0;
+        minuteMovement = 0;
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {

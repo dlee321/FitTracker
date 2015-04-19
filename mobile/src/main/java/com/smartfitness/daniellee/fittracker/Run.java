@@ -15,9 +15,18 @@ public class Run extends ParseObject {
     private double calories;
     private long startTime;
     private long endTime;
+    private double distance;
 
     public Run() {
 
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
     public void setCoordinates(ArrayList<double[]> coordinates) {

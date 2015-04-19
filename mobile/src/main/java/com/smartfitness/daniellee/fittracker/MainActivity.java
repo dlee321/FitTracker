@@ -27,7 +27,7 @@ import com.parse.ParseUser;
 
 public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
 
-    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History"};
+    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities"};
 
     public static final String PREFS_NAME = "MyPrefsData";
 

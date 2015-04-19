@@ -25,5 +25,7 @@
     <string name="drawer_close">close drawer</string>
     <string name="drawer_title">Navigation</string>
     <string name="history_activity_title">History</string>
+    <string name="title_activity_run_data">RunDataActivity</string>
+    <string name="action_discard">Discard</string>
 
 </resources>

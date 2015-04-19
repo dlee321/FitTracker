@@ -71,7 +71,9 @@ public class SleepActivity extends ActionBarActivity {
         doneSleepingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                wl.release();
+                if (wl.isHeld()) {
+                    wl.release();
+                }
                 stopService(serviceIntent);
             }
         });

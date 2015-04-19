@@ -33,8 +33,6 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
 
     private OnFragmentInteractionListener mListener;
 
-
-    // TODO: Rename and change types and number of parameters
     public static MainFragment newInstance() {
         MainFragment fragment = new MainFragment();
         return fragment;
@@ -68,7 +66,6 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -108,7 +105,6 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 

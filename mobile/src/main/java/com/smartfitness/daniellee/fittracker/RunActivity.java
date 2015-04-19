@@ -1,16 +1,17 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,8 +24,6 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
-import com.google.android.gms.fitness.data.Session;
-import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -34,22 +33,14 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.parse.ParseACL;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 
 public class RunActivity extends ActionBarActivity implements LocationListener {
-
-    protected static final String RUN_KEY = "runs";
-
-    public static final String IDENTIFIER = RunActivity.class.getCanonicalName();
 
     public static final String TAG = RunActivity.class.getSimpleName();
 
@@ -111,19 +102,24 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
 
     SharedPreferences mSettings;
 
-    ParseUser user;
-
     ArrayList<double[]> coordinateList;
     long coordinateNumber = 0;
+
+
+
+    Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run);
 
-        coordinateList = new ArrayList<double[]>();
+        // make sure CPU doesn't sleep
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
+        wl.acquire();
 
-        user = ParseUser.getCurrentUser();
+        coordinateList = new ArrayList<double[]>();
 
         mSettings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
 
@@ -151,27 +147,27 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 String description = input.getText().toString();
 
-                                user.remove(RUN_KEY);
-                                user.saveInBackground();
-                                Run run = new Run();
-                                run.setCoordinates(coordinateList);
-                                run.setCalories(mCalories);
-                                run.setStartTime(startTime + (pauseLength / 2));
-                                run.setEndTime(endTime - (pauseLength / 2));
-                                run.setACL(new ParseACL(user));
-                                user.add(RUN_KEY, run);
-                                user.saveInBackground();
-
-                                new InputSessionTask().execute(description);
-                                Intent intent = new Intent(RunActivity.this, MainActivity.class);
+                                Intent intent = new Intent(RunActivity.this, RunDataActivity.class);
+                                intent.putExtra("coordinates", coordinateList);
+                                intent.putExtra("calories", mCalories);
+                                intent.putExtra("description", description);
+                                intent.putExtra("pace", averagePace);
+                                intent.putExtra("distance", mTotalDistance);
+                                intent.putExtra("duration", mDurationTextView.getText());
+                                intent.putExtra("starttime", startTime);
+                                intent.putExtra("endtime", endTime);
+                                intent.putExtra("pauselength", pauseLength);
+                                wl.release();
                                 startActivity(intent);
+                                timer.cancel();
+                                finish();
                             }
                         })
-                        .setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent(RunActivity.this, MainActivity.class);
-                                startActivity(intent);
+                                dialog.dismiss();
+                                paused = false;
                             }
                         })
                         .create();
@@ -220,7 +216,6 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 if (calculateWorkoutType().equals(FitnessActivities.RUNNING) || calculateWorkoutType().equals(FitnessActivities.RUNNING_JOGGING)) {
                     double TF = 0.84;
                     double vO2max = 15.03 * ((208 - 0.7*age)/70);
-                    // TODO: calculate actual CFF
                     double CFF;
                     if (vO2max >= 56) {
                         CFF = 1.00;
@@ -256,7 +251,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         mCaloriesTextView = (TextView)findViewById(R.id.caloriesTextView);
         mPaceTextView = (TextView)findViewById(R.id.paceTextView);
 
-        Timer timer = new Timer();
+        timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -417,51 +412,8 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         return d;
     }
 
-    public class InputSessionTask extends AsyncTask<String, Void, Void> {
 
-        protected Void doInBackground(String... description) {
-            String workoutType = calculateWorkoutType();
-            Calendar c = Calendar.getInstance();
-            c.setTime(new Date());
-            int day = c.get(Calendar.DAY_OF_MONTH);
-            int month = c.get(Calendar.MONTH);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
 
-            Session session = new Session.Builder()
-                    .setName(workoutType + month + "-" + day + ":" + hour + ":" + minute)
-                    .setIdentifier(IDENTIFIER)
-                    .setDescription(description[0])
-                    .setActivity(workoutType)
-                    .setStartTime(startTime + (pauseLength/2), TimeUnit.MILLISECONDS)
-                    .setEndTime(endTime - (pauseLength/2), TimeUnit.MILLISECONDS)
-                    .build();
-
-            SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                    .setSession(session)
-                    .build();
-
-            // Then, invoke the Sessions API to insert the session and await the result,
-            // which is possible here because of the AsyncTask. Always include a timeout when
-            // calling await() to avoid hanging that can occur from the service being shutdown
-            // because of low memory or other conditions.
-            Log.i(TAG, "Inserting the session in the History API");
-            com.google.android.gms.common.api.Status insertStatus =
-                    Fitness.SessionsApi.insertSession(mGoogleApiClient, insertRequest)
-                            .await(1, TimeUnit.MINUTES);
-
-            // Before querying the session, check to see if the insertion succeeded.
-            if (!insertStatus.isSuccess()) {
-                Log.i(TAG, "There was a problem inserting the session: " +
-                        insertStatus.getStatusMessage());
-            }
-
-            // At this point, the session has been inserted and can be read.
-            Log.i(TAG, "Session insert was successful!");
-
-            return null;
-        }
-    }
 
     private String calculateWorkoutType() {
         String workoutType = "";
@@ -478,4 +430,5 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         }
         return workoutType;
     }
+
 }

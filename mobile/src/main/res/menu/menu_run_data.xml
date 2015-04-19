@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fittracker="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_discard"
+        android:icon="@drawable/ic_action_discard"
+        android:title="@string/action_discard"
+        fittracker:showAsAction="ifRoom" />
+
+</menu>
