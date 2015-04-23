@@ -91,11 +91,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
                 int p = mDrawerList.getCheckedItemPosition();
-                if (p == 0) {
-                    getSupportActionBar().setTitle(R.string.app_name);
-                } else if (p == 1) {
-                    getSupportActionBar().setTitle(R.string.history_activity_title);
-                }
+                getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[p]);
             }
 
             @Override
@@ -162,10 +158,6 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    public static SleepFragment getSleepFragment() {
-        return MainFragment.mSleepFragment;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -211,12 +203,13 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Fragment fragment = null;
+        getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[i]);
         if (i == 0) {
             fragment = MainFragment.newInstance();
-            getSupportActionBar().setTitle(R.string.app_name);
         } else if (i == 1) {
             fragment = HistoryFragment.newInstance();
-            getSupportActionBar().setTitle(getString(R.string.history_activity_title));
+        } else if (i == 2) {
+            fragment = ActivityHistoryFragment.newInstance();
         }
         mFragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)

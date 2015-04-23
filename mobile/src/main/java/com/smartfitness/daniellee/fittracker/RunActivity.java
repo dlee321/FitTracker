@@ -190,8 +190,9 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
             }
         });
 
-        mHandler = new Handler() {
-            public void handleMessage(Message msg) {
+        // TODO: Add support for hours
+        mHandler = new Handler(new Handler.Callback() {
+            public boolean handleMessage(Message msg) {
                 String minutes = "" + timeMinutes;
                 String seconds = "" + timeSeconds;
                 if (timeSeconds < 10) {
@@ -241,8 +242,9 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 }
                 long calories = Math.round(mCalories);
                 mCaloriesTextView.setText("" + calories);
+                return true;
             }
-        };
+        });
 
         mTotalDistance = 0.0;
 

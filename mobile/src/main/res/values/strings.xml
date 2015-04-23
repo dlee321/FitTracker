@@ -27,5 +27,6 @@
     <string name="history_activity_title">History</string>
     <string name="title_activity_run_data">RunDataActivity</string>
     <string name="action_discard">Discard</string>
+    <string name="run_key">runs</string>
 
 </resources>

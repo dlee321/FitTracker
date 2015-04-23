@@ -329,7 +329,7 @@ public class HistoryFragment extends Fragment {
             for (int iii = 0; iii < buckets.size(); iii++) {
                 dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
             }
-            HistoryAdapter adapter = new HistoryAdapter(getActivity(), R.layout.list_item, days);
+            HistoryAdapter adapter = new HistoryAdapter(getActivity(), R.layout.history_list_item, days);
             listView.setAdapter(adapter);
             mProgress.dismiss();
         }

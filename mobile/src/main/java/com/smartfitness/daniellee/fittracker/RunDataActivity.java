@@ -40,8 +40,6 @@ public class RunDataActivity extends ActionBarActivity {
 
     public static final String IDENTIFIER = RunDataActivity.class.getCanonicalName();
 
-    protected static final String RUN_KEY = "runs";
-
     private static final String TAG = RunDataActivity.class.getSimpleName();
 
     private static final int REQUEST_OAUTH = 1;
@@ -127,6 +125,8 @@ public class RunDataActivity extends ActionBarActivity {
             TextView paceTextView = (TextView) findViewById(R.id.endPaceTextView);
             TextView caloriesTextView = (TextView) findViewById(R.id.endCaloriesTextView);
 
+            final TextView notesTextView = (TextView) findViewById(R.id.noteTextView);
+
             durationTextView.setText(duration);
 
             // round distance to 2 decimal places
@@ -144,7 +144,7 @@ public class RunDataActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
 
-                    user.remove(RUN_KEY);
+                    user.remove(getString(R.string.run_key));
                     user.saveInBackground();
                     Run run = new Run();
                     run.setCoordinates(coordinateList);
@@ -153,7 +153,15 @@ public class RunDataActivity extends ActionBarActivity {
                     run.setEndTime(endTime - (pauseLength / 2));
                     run.setDistance(distance);
                     run.setACL(new ParseACL(user));
-                    user.add(RUN_KEY, run);
+                    String workoutType = calculateWorkoutType();
+                    if (workoutType.equals(FitnessActivities.WALKING) || workoutType.equals(FitnessActivities.WALKING_FITNESS)) {
+                        run.setActivityType(Run.WALKING);
+                    } else if (workoutType.equals(FitnessActivities.RUNNING) || workoutType.equals(FitnessActivities.RUNNING_JOGGING)) {
+                        run.setActivityType(Run.RUNNING);
+                    }
+                    run.setDescription(description);
+                    run.setNotes(notesTextView.getText().toString());
+                    user.add(getString(R.string.run_key), run);
                     user.saveInBackground();
 
                     new InputSessionTask().execute(description);
