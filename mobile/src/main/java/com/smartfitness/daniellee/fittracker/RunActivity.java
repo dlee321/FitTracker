@@ -22,7 +22,6 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -345,7 +344,6 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                         }
                 )
                 .addApi(LocationServices.API)
-                .addApi(Fitness.API)
                 .build();
     }
 
@@ -371,6 +369,11 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }

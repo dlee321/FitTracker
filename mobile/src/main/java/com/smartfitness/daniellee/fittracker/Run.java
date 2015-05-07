@@ -14,7 +14,7 @@ public class Run extends ParseObject {
     public static final byte WALKING = 0;
     public static final byte RUNNING = 1;
 
-    private ArrayList<double[]> coordinates;
+    /*private ArrayList<double[]> coordinates;
     private double calories;
     private long startTime;
     private long endTime;
@@ -22,75 +22,77 @@ public class Run extends ParseObject {
     private String description;
     private String notes;
 
-    private byte activityType;
+    private byte activityType;*/
 
     public Run() {
 
     }
 
     public byte getActivityType() {
-        return activityType;
+        return (Byte) this.get(Keys.ACTIVITY_TYPE);
     }
 
     public void setActivityType(byte activityType) {
-        this.activityType = activityType;
+        //this.activityType = activityType;
+        this.add(Keys.ACTIVITY_TYPE, activityType);
     }
 
     public String getDescription() {
-        return description;
+        return (String) this.get(Keys.DESCRIPTION);
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.add(Keys.DESCRIPTION, description);
     }
 
     public String getNotes() {
-        return notes;
+        return (String) this.get(Keys.NOTES);
     }
 
     public void setNotes(String notes) {
-        this.notes = notes;
+        this.add(Keys.NOTES, notes);
     }
 
     public double getDistance() {
-        return distance;
+        return (Double) this.get(Keys.DISTANCE);
     }
 
     public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public void setCoordinates(ArrayList<double[]> coordinates) {
-        this.coordinates = coordinates;
-    }
-
-    public void setCalories(double calories) {
-        this.calories = calories;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
-    }
-
-    public double getCalories() {
-        return calories;
+        this.add(Keys.DISTANCE, distance);
     }
 
     public ArrayList<double[]> getCoordinates() {
-        return coordinates;
+        return (ArrayList<double[]>) this.get(Keys.COORDINATES);
     }
 
+    public void setCoordinates(ArrayList<double[]> coordinates) {
+        this.add(Keys.COORDINATES, coordinates);
+    }
 
-    public long getEndTime() {
-        return endTime;
+    public double getCalories() {
+        return (Double) this.get(Keys.CALORIES);
+    }
+
+    public void setCalories(double calories) {
+        this.add(Keys.CALORIES, calories);
     }
 
     public long getStartTime() {
-        return startTime;
+        return (Long) this.get(Keys.START_TIME);
     }
+
+    public void setStartTime(long startTime) {
+        this.add(Keys.START_TIME, startTime);
+    }
+
+    public long getEndTime() {
+        return (Long) this.get(Keys.END_TIME);
+    }
+
+    public void setEndTime(long endTime) {
+        this.add(Keys.END_TIME, endTime);
+    }
+
+
 
 }

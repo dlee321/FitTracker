@@ -94,11 +94,19 @@ public class SleepDataActivity extends ActionBarActivity {
             } else {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
             }*/
+
             data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
+
+            /*if (movementArray[iii] > 1) {
+                data[iii] = new GraphView.GraphViewData(iii + 1, 2);
+            } else {
+                data[iii] = new GraphView.GraphViewData(iii + 1, 1);
+            }*/
         }
         GraphViewSeries series = new GraphViewSeries(data);
 
         GraphView graphView = new LineGraphView(this, "");
+        //GraphView graphView = new BarGraphView(this, "");
         graphView.addSeries(series);
 
         graphView.setHorizontalLabels(new String[]{startText,"","","","","","","","","", endText});

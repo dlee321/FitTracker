@@ -38,6 +38,10 @@ public class SleepService extends Service implements SensorEventListener {
     private double minMovement = 0;
     private boolean isFirstData = true;
 
+    private boolean notStartTracking = true;
+    private boolean nextStartTracking = false;
+    private boolean secondMinute = true;
+
     Timer timer;
 
     private long mTime = 0;
@@ -75,7 +79,21 @@ public class SleepService extends Service implements SensorEventListener {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
-                    addTotalsToQueues();
+                    // make sleep tracking only start after 1st full minute
+                    if (notStartTracking) {
+                        if (nextStartTracking) {
+                            notStartTracking = false;
+                            sw = new Stopwatch();
+                        } else {
+                            nextStartTracking = true;
+                        }
+                    } else {
+                        // use secondMinute variable to make intervals 2 minutes
+                        if (secondMinute) {
+                            addTotalsToQueues();
+                        }
+                        secondMinute = !secondMinute;
+                    }
                 }
             }
         };
@@ -94,24 +112,26 @@ public class SleepService extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        if(sensorEvent.sensor.getType()==Sensor.TYPE_GYROSCOPE) {
-            double x = sensorEvent.values[0];
-            if (x < 0) {
-                x = -x;
-            }
-            double y = sensorEvent.values[1];
-            if (y < 0) {
-                y = -y;
-            }
-            double z = sensorEvent.values[2];
-            if (z < 0) {
-                z = -z;
-            }
-            long tempTime = System.currentTimeMillis();
-            if ((x > 0.2 || y > 0.2 || z > 0.2) && (tempTime - mTime) > 1000) {
-                Log.d(TAG, "" + minuteMovement);
-                minuteMovement++;
-                mTime = tempTime;
+        if (!notStartTracking) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                double x = sensorEvent.values[0];
+                if (x < 0) {
+                    x = -x;
+                }
+                double y = sensorEvent.values[1];
+                if (y < 0) {
+                    y = -y;
+                }
+                double z = sensorEvent.values[2];
+                if (z < 0) {
+                    z = -z;
+                }
+                long tempTime = System.currentTimeMillis();
+                if ((x > 0.04 || y > 0.04 || z > 0.04) && (tempTime - mTime) > 1000) {
+                    Log.d(TAG, "" + minuteMovement);
+                    minuteMovement++;
+                    mTime = tempTime;
+                }
             }
         }
     }

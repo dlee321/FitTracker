@@ -11,8 +11,7 @@
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        card_view:cardCornerRadius="10dp"
-        card_view:cardElevation="20dp">
+        card_view:cardCornerRadius="10dp">
 
             <com.smartfitness.daniellee.fittracker.CircleView2
                 android:id="@+id/circleView"

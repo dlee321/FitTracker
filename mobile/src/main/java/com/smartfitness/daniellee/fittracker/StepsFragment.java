@@ -68,14 +68,12 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     private static final String STEPS_KEY = "TotalStepsKey";
 
     private static final String FILE_NAME = "graph_file";
-
-    public DataReadResult result = null;
-
-    private OnFragmentInteractionListener mListener;
     public static final String DATE_FORMAT = "HH:mm:ss:SSSS";
     public static final String TAG = "StepsFragment";
 
     public static int totalStepsToday = 0;
+
+    private OnFragmentInteractionListener mListener;
 
     //SwipeRefreshLayout swipeRefreshLayout;
 
@@ -128,8 +126,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     private static ProgressDialog mProgress;
 
     public static StepsFragment newInstance() {
-        StepsFragment fragment = new StepsFragment();
-        return fragment;
+        return new StepsFragment();
     }
 
     public StepsFragment() {
@@ -154,8 +151,10 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         connected = false;
 
+        // show progress dialog while loading
         mProgress = new ProgressDialog(getActivity());
         mProgress.setMessage("Loading Step Data...");
+        mProgress.show();
         /*try {
             result = new MainActivity.GetReadResultTask().execute().get();
         } catch (Exception e) {
@@ -168,6 +167,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }*/
 
 
+        // build fitness client then subscribe if not already subscribed
         buildFitnessClient();
 
         Fitness.RecordingApi.subscribe(mClient, DataType.AGGREGATE_STEP_COUNT_DELTA)
@@ -188,7 +188,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
                     }
                 });
-        mProgress.show();
         Log.i(TAG, "Connecting...");
         mClient.connect();
 
@@ -357,7 +356,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     private void buildFitnessClient() {
         // Create the Google API Client
         mClient = new GoogleApiClient.Builder(getActivity())
-                .addApi(Fitness.API)
+                .addApi(Fitness.RECORDING_API)
+                .addApi(Fitness.HISTORY_API)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
                 .addScope(new Scope(Scopes.FITNESS_BODY_READ_WRITE))
                 .addConnectionCallbacks(
@@ -635,6 +635,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                     fadeIn.setFillAfter(true);*/
                 series.resetData(data);
             }
+            Log.d(TAG, "" + totalStepsToday);
 
             //stepsTextView.setText("" + totalStepsToday);
 

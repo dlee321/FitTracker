@@ -3,6 +3,8 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,8 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  */
 public class ActivityHistoryFragment extends Fragment {
+
+    private static final String TAG = ActivityHistoryFragment.class.getSimpleName();
 
 
     public ActivityHistoryFragment() {
@@ -36,8 +40,14 @@ public class ActivityHistoryFragment extends Fragment {
         ListView listView = (ListView) view.findViewById(R.id.activityList);
         ParseUser user = ParseUser.getCurrentUser();
         ArrayList<Run> runs = (ArrayList<Run>) user.get(getString(R.string.run_key));
-        ActivityHistoryAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
-        listView.setAdapter(adapter);
+        Log.d(TAG, "" + runs.get(0).getStartTime());
+        if (runs.size() == 1 && runs.get(0).getStartTime() == 0) {
+            CardView cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
+            cardView.setVisibility(CardView.VISIBLE);
+        } else {
+            ActivityHistoryAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+            listView.setAdapter(adapter);
+        }
         return view;
     }
 

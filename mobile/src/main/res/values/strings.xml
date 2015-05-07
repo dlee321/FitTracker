@@ -28,5 +28,7 @@
     <string name="title_activity_run_data">RunDataActivity</string>
     <string name="action_discard">Discard</string>
     <string name="run_key">runs</string>
+    <string name="no_activities_text">No activities recorded yet</string>
+    <string name="label_activitytype">ActivityType</string>
 
 </resources>

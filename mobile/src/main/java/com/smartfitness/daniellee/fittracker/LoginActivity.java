@@ -62,6 +62,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+        // If the user is already logged in, go to MainActivity
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         boolean remember = settings.getBoolean(REMEMBER_USER_PREF, false);
         if (remember) {
@@ -70,8 +72,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             finish();
         }
 
+        /*=======================================
+            Set up layout views
+         ========================================*/
+
+        // remember user checkbox
         mRememberView = (CheckBox) findViewById(R.id.checkBox);
 
+        // button for sign up if user does not have account yet
         signUpTextView = (TextView)findViewById(R.id.signUpTextView);
         signUpTextView.setOnClickListener(new OnClickListener() {
             @Override
@@ -88,6 +96,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                // attempt login when enter pressed
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
@@ -96,6 +105,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
         });
 
+        // attempt login when sign in button pressed
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override

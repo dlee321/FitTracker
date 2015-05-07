@@ -86,8 +86,9 @@ public class RunDataActivity extends ActionBarActivity {
             final String description = intent.getStringExtra("description");
             setTitle(description);
 
-            final ArrayList<double[]> coordinateList = (ArrayList<double[]>) intent.getSerializableExtra("coordinate");
+            final ArrayList<double[]> coordinateList = (ArrayList<double[]>) intent.getSerializableExtra("coordinates");
 
+            // coordinates for the bounds of the map
             double minX = Integer.MAX_VALUE;
             double minY = Integer.MAX_VALUE;
             double maxX = Integer.MIN_VALUE;
@@ -107,9 +108,12 @@ public class RunDataActivity extends ActionBarActivity {
                 }
             }
 
-            LatLngBounds bounds = new LatLngBounds(new LatLng(minX, minY), new LatLng(maxX, maxY));
             map.addPolyline(mPoly);
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 1));
+
+            if (maxX > -90) {
+                LatLngBounds bounds = new LatLngBounds(new LatLng(minX, minY), new LatLng(maxX, maxY));
+                map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, this.getResources().getDisplayMetrics().widthPixels, this.getResources().getDisplayMetrics().heightPixels, 1));
+            }
 
             final double calories = intent.getDoubleExtra("calories", 0.0);
             averagePace = intent.getDoubleExtra("pace", 0.0);
@@ -144,7 +148,7 @@ public class RunDataActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
 
-                    user.remove(getString(R.string.run_key));
+                    //user.remove(getString(R.string.run_key));
                     user.saveInBackground();
                     Run run = new Run();
                     run.setCoordinates(coordinateList);
@@ -225,7 +229,8 @@ public class RunDataActivity extends ActionBarActivity {
                         }
                 )
                 .addApi(LocationServices.API)
-                .addApi(Fitness.API)
+                .addApi(Fitness.SESSIONS_API)
+                .addApi(Fitness.RECORDING_API)
                 .build();
     }
 

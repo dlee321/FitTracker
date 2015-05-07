@@ -22,7 +22,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.parse.ParseUser;
 
 
 public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
@@ -47,8 +46,6 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
      * The {@link ViewPager} that will host the section contents.
      */
 
-    ParseUser mParseUser;
-
     private DrawerLayout mDrawerLayout;
 
     // ActionBar toggle for drawerlayout
@@ -57,12 +54,17 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
     FragmentManager mFragmentManager;
 
+    private String currentFragmentName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mSettings = getSharedPreferences(PREFS_NAME, 0);
+
+        // if currently sleep tracking, start SleepActivity
         if (isMyServiceRunning(SleepService.class)) {
             Intent intent = new Intent(this, SleepActivity.class);
             startActivity(intent);
@@ -75,8 +77,9 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
                 .replace(R.id.content_frame, fragment)
                 .commit();
 
-        mSettings = getSharedPreferences(PREFS_NAME, 0);
+        currentFragmentName = DRAWER_LIST_ITEMS[0];
 
+        // Setup Navigation Drawer
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -91,7 +94,11 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
                 int p = mDrawerList.getCheckedItemPosition();
-                getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[p]);
+                if (p >= 0 && p < DRAWER_LIST_ITEMS.length) {
+                    getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[p]);
+                } else if (p < 0) {
+                    getSupportActionBar().setTitle(currentFragmentName);
+                }
             }
 
             @Override
@@ -211,6 +218,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
         } else if (i == 2) {
             fragment = ActivityHistoryFragment.newInstance();
         }
+        currentFragmentName = DRAWER_LIST_ITEMS[i];
         mFragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
