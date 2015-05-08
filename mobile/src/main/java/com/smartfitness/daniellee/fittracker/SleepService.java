@@ -69,7 +69,8 @@ public class SleepService extends Service implements SensorEventListener {
 
         sensorManagerGyroscope =(SensorManager)getSystemService(SENSOR_SERVICE);
 
-        mSensor = sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+       // mSensor = sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        mSensor = sensorManagerGyroscope.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         sensorManagerGyroscope.registerListener(this,
                 mSensor,
                 SensorManager.SENSOR_DELAY_FASTEST);
@@ -113,7 +114,8 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (!notStartTracking) {
-            if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            //if (sensorEvent.sensor.getType() == Sensor.) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
                 double x = sensorEvent.values[0];
                 if (x < 0) {
                     x = -x;
@@ -127,9 +129,10 @@ public class SleepService extends Service implements SensorEventListener {
                     z = -z;
                 }
                 long tempTime = System.currentTimeMillis();
-                if ((x > 0.04 || y > 0.04 || z > 0.04) && (tempTime - mTime) > 1000) {
-                    Log.d(TAG, "" + minuteMovement);
+                if ((tempTime - mTime) > 1000 && (x > 0.1 || y > 0.1 || z > 0.1)) {
+                    Log.d(TAG, x + " " + y + " " + z);
                     minuteMovement++;
+                    Log.d(TAG, "" + minuteMovement);
                     mTime = tempTime;
                 }
             }

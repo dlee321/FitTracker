@@ -3,7 +3,11 @@ package com.smartfitness.daniellee.fittracker;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by danie_000 on 4/18/2015.
@@ -28,69 +32,72 @@ public class Run extends ParseObject {
 
     }
 
-    public byte getActivityType() {
-        return (Byte) this.get(Keys.ACTIVITY_TYPE);
+    public int getActivityType() {
+        return this.getInt(Keys.ACTIVITY_TYPE);
     }
 
     public void setActivityType(byte activityType) {
         //this.activityType = activityType;
-        this.add(Keys.ACTIVITY_TYPE, activityType);
+        this.put(Keys.ACTIVITY_TYPE, activityType);
     }
 
     public String getDescription() {
-        return (String) this.get(Keys.DESCRIPTION);
+        return this.getString(Keys.DESCRIPTION);
     }
 
     public void setDescription(String description) {
-        this.add(Keys.DESCRIPTION, description);
+        this.put(Keys.DESCRIPTION, description);
     }
 
     public String getNotes() {
-        return (String) this.get(Keys.NOTES);
+        return this.getString(Keys.NOTES);
     }
 
     public void setNotes(String notes) {
-        this.add(Keys.NOTES, notes);
+        this.put(Keys.NOTES, notes);
     }
 
     public double getDistance() {
-        return (Double) this.get(Keys.DISTANCE);
+        return this.getDouble(Keys.DISTANCE);
     }
 
     public void setDistance(double distance) {
-        this.add(Keys.DISTANCE, distance);
+        this.put(Keys.DISTANCE, distance);
     }
 
-    public ArrayList<double[]> getCoordinates() {
-        return (ArrayList<double[]>) this.get(Keys.COORDINATES);
+    public ArrayList<JSONArray> getCoordinates() {
+        return (ArrayList<JSONArray>) this.get(Keys.COORDINATES);
     }
 
     public void setCoordinates(ArrayList<double[]> coordinates) {
-        this.add(Keys.COORDINATES, coordinates);
+        for (double[] coordinate: coordinates) {
+            JSONArray temp = new JSONArray(Arrays.asList(coordinate));
+            this.add(Keys.COORDINATES, temp);
+        }
     }
 
     public double getCalories() {
-        return (Double) this.get(Keys.CALORIES);
+        return this.getDouble(Keys.CALORIES);
     }
 
     public void setCalories(double calories) {
-        this.add(Keys.CALORIES, calories);
+        this.put(Keys.CALORIES, calories);
     }
 
     public long getStartTime() {
-        return (Long) this.get(Keys.START_TIME);
+        return this.getLong(Keys.START_TIME);
     }
 
     public void setStartTime(long startTime) {
-        this.add(Keys.START_TIME, startTime);
+        this.put(Keys.START_TIME, startTime);
     }
 
     public long getEndTime() {
-        return (Long) this.get(Keys.END_TIME);
+        return this.getLong(Keys.END_TIME);
     }
 
     public void setEndTime(long endTime) {
-        this.add(Keys.END_TIME, endTime);
+        this.put(Keys.END_TIME, endTime);
     }
 
 

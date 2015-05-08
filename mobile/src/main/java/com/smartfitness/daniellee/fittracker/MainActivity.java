@@ -62,6 +62,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         mSettings = getSharedPreferences(PREFS_NAME, 0);
 
         // if currently sleep tracking, start SleepActivity

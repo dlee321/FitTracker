@@ -66,7 +66,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // If the user is already logged in, go to MainActivity
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         boolean remember = settings.getBoolean(REMEMBER_USER_PREF, false);
-        if (remember) {
+        if (remember && (ParseUser.getCurrentUser() != null)) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();

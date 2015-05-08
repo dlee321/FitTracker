@@ -40,8 +40,7 @@ public class ActivityHistoryFragment extends Fragment {
         ListView listView = (ListView) view.findViewById(R.id.activityList);
         ParseUser user = ParseUser.getCurrentUser();
         ArrayList<Run> runs = (ArrayList<Run>) user.get(getString(R.string.run_key));
-        Log.d(TAG, "" + runs.get(0).getStartTime());
-        if (runs.size() == 1 && runs.get(0).getStartTime() == 0) {
+        if (runs.size() == 0) {
             CardView cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
             cardView.setVisibility(CardView.VISIBLE);
         } else {

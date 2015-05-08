@@ -149,6 +149,9 @@ public class RunDataActivity extends ActionBarActivity {
                 public void onClick(View v) {
 
                     //user.remove(getString(R.string.run_key));
+                    if (user == null) {
+                        user = ParseUser.getCurrentUser();
+                    }
                     user.saveInBackground();
                     Run run = new Run();
                     run.setCoordinates(coordinateList);
