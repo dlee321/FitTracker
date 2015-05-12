@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
@@ -53,14 +55,7 @@ public class SleepDataActivity extends ActionBarActivity {
         totalSleepTextView = (TextView) findViewById(R.id.sleepTimeTextView);
         deepSleepTextView = (TextView) findViewById(R.id.deepSleepTextView);
 
-        int sleepTimeHours = sleepTimeMinutes / 60;
-        int addedMinutes = sleepTimeMinutes % 60;
-        String sleepText = sleepTimeHours + ":";
-        if (addedMinutes >= 10) {
-            sleepText += addedMinutes;
-        } else {
-            sleepText += "0" + addedMinutes;
-        }
+        String sleepText = calculateTimeString(sleepTimeMinutes);
         totalSleepTextView.setText(sleepText);
 
 
@@ -71,9 +66,9 @@ public class SleepDataActivity extends ActionBarActivity {
         int minute = c.get(Calendar.MINUTE);
         String startText = hour + ":";
         if (minute >= 10) {
-            sleepText += minute;
+            startText += minute;
         } else {
-            sleepText += "0" + minute;
+            startText += "0" + minute;
         }
 
         c.setTimeInMillis(startTime + sleepTimeMinutes * 60000);
@@ -86,6 +81,8 @@ public class SleepDataActivity extends ActionBarActivity {
             endText += "0" + minute;
         }
 
+        int minutes = 0;
+        boolean  lightSleep = false;
         GraphView.GraphViewData[] data;
         data = new GraphView.GraphViewData[movementArray.length];
         for (int iii = 0; iii < data.length; iii++) {
@@ -95,18 +92,46 @@ public class SleepDataActivity extends ActionBarActivity {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
             }*/
 
-            data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
+            //data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
 
-            /*if (movementArray[iii] > 1) {
+            if (movementArray[iii] > 0) {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
+                if (minutes > 0) {
+                    for (int jjj = 1; jjj <= minutes; jjj++) {
+                        data[iii-jjj] = new GraphView.GraphViewData(iii - jjj + 1, 2);
+                    }
+                }
+                lightSleep = true;
+                minutes = 0;
+
             } else {
+                if (lightSleep) {
+                    minutes++;
+                }
+                if (minutes > 5) {
+                    minutes = 0;
+                    lightSleep = false;
+                }
                 data[iii] = new GraphView.GraphViewData(iii + 1, 1);
-            }*/
+            }
         }
+
         GraphViewSeries series = new GraphViewSeries(data);
 
-        GraphView graphView = new LineGraphView(this, "");
-        //GraphView graphView = new BarGraphView(this, "");
+        // calculate deep sleep time hours:mins
+        int deepSleepMins = 0;
+        for (GraphView.GraphViewData d: data) {
+            if (d.getY() == 1) {
+                deepSleepMins++;
+            }
+        }
+        //Log.d("SleepDataActivity", deepSleepMins + "");
+        String deepSleepString = calculateTimeString(deepSleepMins);
+        deepSleepTextView.setText(deepSleepString);
+
+
+        //GraphView graphView = new LineGraphView(this, "");
+        GraphView graphView = new BarGraphView(this, "");
         graphView.addSeries(series);
 
         graphView.setHorizontalLabels(new String[]{startText,"","","","","","","","","", endText});
@@ -126,6 +151,18 @@ public class SleepDataActivity extends ActionBarActivity {
 
 
         graphLayout.addView(graphView);
+    }
+
+    private String calculateTimeString(int minutes) {
+        int hours = minutes / 60;
+        int addedMinutes = minutes % 60;
+        String sleepText = hours + ":";
+        if (addedMinutes >= 10) {
+            sleepText += addedMinutes;
+        } else {
+            sleepText += "0" + addedMinutes;
+        }
+        return sleepText;
     }
 
     @Override

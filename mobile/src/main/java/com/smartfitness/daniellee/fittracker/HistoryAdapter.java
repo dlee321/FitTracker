@@ -2,6 +2,7 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
 import android.content.Context;
+import android.nfc.Tag;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import android.widget.ArrayAdapter;
 
 
 public class HistoryAdapter extends ArrayAdapter<Integer> {
+
+    private static final String TAG = HistoryAdapter.class.getSimpleName();
 
     Context mContext;
     int mLayoutResource;
@@ -30,6 +33,7 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        Log.d(TAG, "GetView " + position + " " + (convertView == null));
         try {
             int data = mObjects[count - position - 1];
             if (convertView == null) {

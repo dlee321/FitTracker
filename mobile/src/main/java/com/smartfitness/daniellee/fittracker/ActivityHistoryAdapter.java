@@ -41,9 +41,14 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
     public View getView(int position, View convertView, ViewGroup parent) {
         String id = mObjects.get(count - position - 1).getObjectId();
         ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
-        Run data = null;
+        Run data;
         try {
             data = query.get(id);
+
+            if (data == null) {
+                mObjects.remove(count-position-1);
+                return convertView;
+            }
 
             if (convertView == null) {
                 LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();

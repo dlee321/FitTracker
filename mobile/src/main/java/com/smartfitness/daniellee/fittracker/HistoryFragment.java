@@ -332,6 +332,9 @@ public class HistoryFragment extends Fragment {
             }
             HistoryAdapter adapter = new HistoryAdapter(getActivity(), R.layout.history_list_item, days);
             listView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            listView.invalidate();
+            listView.invalidateViews();
             mProgress.dismiss();
         }
     }

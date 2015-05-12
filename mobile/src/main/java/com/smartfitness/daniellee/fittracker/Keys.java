@@ -5,6 +5,9 @@ package com.smartfitness.daniellee.fittracker;
  */
 public class Keys {
 
+    public static final String RUNS_KEY = "runs";
+
+    // Run ParseObject keys
     public static final String ACTIVITY_TYPE = "activitytype",
             DESCRIPTION = "description",
             NOTES = "notes",

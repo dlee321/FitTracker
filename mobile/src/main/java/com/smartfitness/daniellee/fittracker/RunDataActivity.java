@@ -152,7 +152,6 @@ public class RunDataActivity extends ActionBarActivity {
                     if (user == null) {
                         user = ParseUser.getCurrentUser();
                     }
-                    user.saveInBackground();
                     Run run = new Run();
                     run.setCoordinates(coordinateList);
                     run.setCalories(calories);
@@ -168,7 +167,7 @@ public class RunDataActivity extends ActionBarActivity {
                     }
                     run.setDescription(description);
                     run.setNotes(notesTextView.getText().toString());
-                    user.add(getString(R.string.run_key), run);
+                    user.add(Keys.RUNS_KEY, run);
                     user.saveInBackground();
 
                     new InputSessionTask().execute(description);

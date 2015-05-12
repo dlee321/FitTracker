@@ -1,18 +1,26 @@
 package com.smartfitness.daniellee.fittracker;
 
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -22,6 +30,14 @@ public class ActivityHistoryFragment extends Fragment {
 
     private static final String TAG = ActivityHistoryFragment.class.getSimpleName();
 
+
+    ArrayList<Run> runs;
+
+    ActivityHistoryAdapter adapter;
+
+    private static ProgressDialog mProgress;
+
+    CardView cardView;
 
     public ActivityHistoryFragment() {
         // Required empty public constructor
@@ -38,17 +54,64 @@ public class ActivityHistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_activity_history, container, false);
         ListView listView = (ListView) view.findViewById(R.id.activityList);
+        registerForContextMenu(listView);
         ParseUser user = ParseUser.getCurrentUser();
-        ArrayList<Run> runs = (ArrayList<Run>) user.get(getString(R.string.run_key));
+        runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+        cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
         if (runs.size() == 0) {
-            CardView cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
             cardView.setVisibility(CardView.VISIBLE);
         } else {
-            ActivityHistoryAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+            adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
             listView.setAdapter(adapter);
         }
         return view;
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if (v.getId() == R.id.activityList) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.menu_activity_item, menu);
+        }
+    }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_edit:
+                return true;
+            case R.id.action_delete:
+                Log.d(TAG, info.id + " " + info.position);
+                mProgress = new ProgressDialog(getActivity());
+                mProgress.setMessage("Deleting activity...");
+                mProgress.show();
+                deleteItem(info.position);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    private void deleteItem(int position) {
+        ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
+        try {
+            Run data = query.get(runs.get(position).getObjectId());
+            runs.remove(position);
+            if (runs.size() > 0) {
+                adapter.addAll(runs);
+                adapter.notifyDataSetChanged();
+            } else {
+                cardView.setVisibility(CardView.VISIBLE);
+            }
+            // update runs list in parse
+            ParseUser user = ParseUser.getCurrentUser();
+            user.removeAll(Keys.RUNS_KEY, Arrays.asList(data));
+            data.deleteInBackground();
+            mProgress.dismiss();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 }
