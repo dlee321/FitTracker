@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
         android:required="true" />
@@ -24,6 +25,10 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
+    <!--permission to use vibrating after sensor calibration-->
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:name=".FitTracker"
@@ -87,6 +92,16 @@
             android:name=".RunDataActivity"
             android:label="@string/title_activity_run_data" >
         </activity>
+        <activity
+            android:name=".CalibrateActivity"
+            android:label="@string/title_activity_calibrate" >
+        </activity>
+
+        <service
+            android:name=".CalibrationService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

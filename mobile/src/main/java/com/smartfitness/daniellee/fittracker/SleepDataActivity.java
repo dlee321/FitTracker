@@ -94,7 +94,7 @@ public class SleepDataActivity extends ActionBarActivity {
 
             //data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
 
-            if (movementArray[iii] > 0) {
+            if (movementArray[iii] > 1) {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
                 if (minutes > 0) {
                     for (int jjj = 1; jjj <= minutes; jjj++) {
@@ -108,11 +108,33 @@ public class SleepDataActivity extends ActionBarActivity {
                 if (lightSleep) {
                     minutes++;
                 }
-                if (minutes > 5) {
+                if (minutes > 3) {
                     minutes = 0;
                     lightSleep = false;
                 }
                 data[iii] = new GraphView.GraphViewData(iii + 1, 1);
+            }
+        }
+
+        boolean deepSleep = false;
+        minutes = 0;
+        for (int iii = 0; iii < data.length; iii++) {
+            if (data[iii].getY() == 2) {
+                if (deepSleep) {
+                    minutes++;
+                    if (minutes > 2) {
+                        minutes = 0;
+                        deepSleep = false;
+                    }
+                }
+            } else {
+                if (minutes > 0) {
+                    for (int jjj = 1; jjj <= minutes; jjj++) {
+                        data[iii-jjj] = new GraphView.GraphViewData(iii - jjj + 1, 1);
+                    }
+                }
+                deepSleep = true;
+                minutes = 0;
             }
         }
 
@@ -125,6 +147,9 @@ public class SleepDataActivity extends ActionBarActivity {
                 deepSleepMins++;
             }
         }
+
+        // double because each data point is 2 minutes
+        deepSleepMins *= 2;
         //Log.d("SleepDataActivity", deepSleepMins + "");
         String deepSleepString = calculateTimeString(deepSleepMins);
         deepSleepTextView.setText(deepSleepString);

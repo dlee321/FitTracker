@@ -154,21 +154,30 @@ public class RunDataActivity extends ActionBarActivity {
                     }
                     Run run = new Run();
                     run.setCoordinates(coordinateList);
+                    Log.d(TAG, "Coordinates set");
                     run.setCalories(calories);
+                    Log.d(TAG, "Calories set");
                     run.setStartTime(startTime + (pauseLength / 2));
+                    Log.d(TAG, "Start time set");
                     run.setEndTime(endTime - (pauseLength / 2));
+                    Log.d(TAG, "End time set");
                     run.setDistance(distance);
+                    Log.d(TAG, "Distance set");
                     run.setACL(new ParseACL(user));
+                    Log.d(TAG, "ACL set");
                     String workoutType = calculateWorkoutType();
                     if (workoutType.equals(FitnessActivities.WALKING) || workoutType.equals(FitnessActivities.WALKING_FITNESS)) {
                         run.setActivityType(Run.WALKING);
                     } else if (workoutType.equals(FitnessActivities.RUNNING) || workoutType.equals(FitnessActivities.RUNNING_JOGGING)) {
                         run.setActivityType(Run.RUNNING);
                     }
+                    Log.d(TAG, "Activity type set");
                     run.setDescription(description);
                     run.setNotes(notesTextView.getText().toString());
                     user.add(Keys.RUNS_KEY, run);
+                    Log.d(TAG, "Run added");
                     user.saveInBackground();
+                    Log.d(TAG, "Saving user");
 
                     new InputSessionTask().execute(description);
 

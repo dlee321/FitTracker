@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
@@ -74,6 +75,8 @@ public class SleepActivity extends ActionBarActivity {
                 if (wl.isHeld()) {
                     wl.release();
                 }
+                // increment days calibrated
+                MainActivity.mSettings.edit().putInt(Keys.DAYS_CALIBRATED, MainActivity.mSettings.getInt(Keys.DAYS_CALIBRATED, 0) + 1).apply();
                 stopService(serviceIntent);
             }
         });

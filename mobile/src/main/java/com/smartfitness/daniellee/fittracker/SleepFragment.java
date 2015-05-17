@@ -6,6 +6,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,7 +80,14 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         sleepTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), SleepActivity.class);
+                Intent intent;
+                int daysCalibrated = MainActivity.mSettings.getInt(Keys.DAYS_CALIBRATED, -1);
+                Log.d("SleepFragment", daysCalibrated + "");
+                if (daysCalibrated == -1 || daysCalibrated >= 7) {
+                    intent = new Intent(getActivity(), CalibrateActivity.class);
+                } else {
+                    intent = new Intent(getActivity(), SleepActivity.class);
+                }
                 intent.putExtra(ALARM_TIME_TAG, alarmTextView.getText());
                 getActivity().startActivity(intent);
                 getActivity().finish();

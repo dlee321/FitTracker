@@ -17,4 +17,10 @@ public class Keys {
             START_TIME = "startttime",
             END_TIME = "endtime";
 
+    // Shared Preferences keys
+    public static final String SENSORX = "minX",
+            SENSORY = "minY",
+            SENSORZ = "minZ",
+            DAYS_CALIBRATED = "dayscalibrated";
+
 }
