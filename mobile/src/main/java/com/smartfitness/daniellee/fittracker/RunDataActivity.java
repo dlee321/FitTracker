@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -61,6 +62,12 @@ public class RunDataActivity extends ActionBarActivity {
     long startTime;
     long endTime;
     long pauseLength;
+    double calories;
+    double distance;
+    ArrayList<double[]> coordinateList;
+
+
+    TextView notesTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +93,7 @@ public class RunDataActivity extends ActionBarActivity {
             final String description = intent.getStringExtra("description");
             setTitle(description);
 
-            final ArrayList<double[]> coordinateList = (ArrayList<double[]>) intent.getSerializableExtra("coordinates");
+            coordinateList = (ArrayList<double[]>) intent.getSerializableExtra("coordinates");
 
             // coordinates for the bounds of the map
             double minX = Integer.MAX_VALUE;
@@ -115,9 +122,9 @@ public class RunDataActivity extends ActionBarActivity {
                 map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, this.getResources().getDisplayMetrics().widthPixels, this.getResources().getDisplayMetrics().heightPixels, 1));
             }
 
-            final double calories = intent.getDoubleExtra("calories", 0.0);
+            calories = intent.getDoubleExtra("calories", 0.0);
             averagePace = intent.getDoubleExtra("pace", 0.0);
-            final double distance = intent.getDoubleExtra("distance", 0.0);
+            distance = intent.getDoubleExtra("distance", 0.0);
             String duration = intent.getStringExtra("duration");
 
             startTime = intent.getLongExtra("starttime", 0);
@@ -129,7 +136,7 @@ public class RunDataActivity extends ActionBarActivity {
             TextView paceTextView = (TextView) findViewById(R.id.endPaceTextView);
             TextView caloriesTextView = (TextView) findViewById(R.id.endCaloriesTextView);
 
-            final TextView notesTextView = (TextView) findViewById(R.id.noteTextView);
+            notesTextView = (TextView) findViewById(R.id.noteTextView);
 
             durationTextView.setText(duration);
 
@@ -149,35 +156,7 @@ public class RunDataActivity extends ActionBarActivity {
                 public void onClick(View v) {
 
                     //user.remove(getString(R.string.run_key));
-                    if (user == null) {
-                        user = ParseUser.getCurrentUser();
-                    }
-                    Run run = new Run();
-                    run.setCoordinates(coordinateList);
-                    Log.d(TAG, "Coordinates set");
-                    run.setCalories(calories);
-                    Log.d(TAG, "Calories set");
-                    run.setStartTime(startTime + (pauseLength / 2));
-                    Log.d(TAG, "Start time set");
-                    run.setEndTime(endTime - (pauseLength / 2));
-                    Log.d(TAG, "End time set");
-                    run.setDistance(distance);
-                    Log.d(TAG, "Distance set");
-                    run.setACL(new ParseACL(user));
-                    Log.d(TAG, "ACL set");
-                    String workoutType = calculateWorkoutType();
-                    if (workoutType.equals(FitnessActivities.WALKING) || workoutType.equals(FitnessActivities.WALKING_FITNESS)) {
-                        run.setActivityType(Run.WALKING);
-                    } else if (workoutType.equals(FitnessActivities.RUNNING) || workoutType.equals(FitnessActivities.RUNNING_JOGGING)) {
-                        run.setActivityType(Run.RUNNING);
-                    }
-                    Log.d(TAG, "Activity type set");
-                    run.setDescription(description);
-                    run.setNotes(notesTextView.getText().toString());
-                    user.add(Keys.RUNS_KEY, run);
-                    Log.d(TAG, "Run added");
-                    user.saveInBackground();
-                    Log.d(TAG, "Saving user");
+                    Toast.makeText(RunDataActivity.this, "Saving activity...", Toast.LENGTH_LONG).show();
 
                     new InputSessionTask().execute(description);
 
@@ -185,6 +164,12 @@ public class RunDataActivity extends ActionBarActivity {
 
                 }
             });
+        }
+    }
+
+    private void reduceArrayList(ArrayList<double[]> coordinateList) {
+        for (int iii = 1; iii < coordinateList.size(); iii++) {
+            coordinateList.remove(iii);
         }
     }
 
@@ -271,7 +256,43 @@ public class RunDataActivity extends ActionBarActivity {
     public class InputSessionTask extends AsyncTask<String, Void, Void> {
 
         protected Void doInBackground(String... description) {
+            // PARSE
+            if (user == null) {
+                user = ParseUser.getCurrentUser();
+            }
+            Run run = new Run();
+            boolean outOfMemory = run.setCoordinates(coordinateList);
+            while (outOfMemory) {
+                run = new Run();
+                reduceArrayList(coordinateList);
+                outOfMemory = run.setCoordinates(coordinateList);
+            }
+            Log.d(TAG, "Coordinates set");
+            run.setCalories(calories);
+            Log.d(TAG, "Calories set");
+            run.setStartTime(startTime + (pauseLength / 2));
+            Log.d(TAG, "Start time set");
+            run.setEndTime(endTime - (pauseLength / 2));
+            Log.d(TAG, "End time set");
+            run.setDistance(distance);
+            Log.d(TAG, "Distance set");
+            run.setACL(new ParseACL(user));
+            Log.d(TAG, "ACL set");
             String workoutType = calculateWorkoutType();
+            if (workoutType.equals(FitnessActivities.WALKING) || workoutType.equals(FitnessActivities.WALKING_FITNESS)) {
+                run.setActivityType(Run.WALKING);
+            } else if (workoutType.equals(FitnessActivities.RUNNING) || workoutType.equals(FitnessActivities.RUNNING_JOGGING)) {
+                run.setActivityType(Run.RUNNING);
+            }
+            Log.d(TAG, "Activity type set");
+            run.setDescription(description[0]);
+            run.setNotes(notesTextView.getText().toString());
+            user.add(Keys.RUNS_KEY, run);
+            Log.d(TAG, "Run added");
+            user.saveInBackground();
+            Log.d(TAG, "Saving user");
+
+            // GOOGLE FIT
             Calendar c = Calendar.getInstance();
             c.setTime(new Date());
             int day = c.get(Calendar.DAY_OF_MONTH);

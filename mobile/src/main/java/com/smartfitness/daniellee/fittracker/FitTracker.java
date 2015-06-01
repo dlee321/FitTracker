@@ -16,6 +16,7 @@ public class FitTracker extends Application{
 
         try {
             ParseObject.registerSubclass(Run.class);
+            ParseObject.registerSubclass(Sleep.class);
 
             Parse.enableLocalDatastore(this);
 

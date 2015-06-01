@@ -6,6 +6,7 @@ package com.smartfitness.daniellee.fittracker;
 public class Keys {
 
     public static final String RUNS_KEY = "runs";
+    public static final String SLEEPS_KEY = "sleep";
 
     // Run ParseObject keys
     public static final String ACTIVITY_TYPE = "activitytype",
@@ -16,6 +17,11 @@ public class Keys {
             CALORIES = "calories",
             START_TIME = "startttime",
             END_TIME = "endtime";
+
+    // Sleep ParseObject keys
+    public static final String START = "start",
+            END = "end",
+            VALUES = "values";
 
     // Shared Preferences keys
     public static final String SENSORX = "minX",

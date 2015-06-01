@@ -100,11 +100,11 @@ public class SleepService extends Service implements SensorEventListener {
                         }
                     } else {*/
                         // use secondMinute variable to make intervals 2 minutes
-                        if (secondMinute) {
+                        //if (secondMinute) {
                             //Log.d(TAG, "" + minuteMovement);
                             addTotalsToQueues();
-                        }
-                        secondMinute = !secondMinute;
+                        //}
+                        //secondMinute = !secondMinute;
                     //}
                 }
             }

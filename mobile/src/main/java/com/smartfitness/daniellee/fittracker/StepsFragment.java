@@ -369,7 +369,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
                                 new GetReadResultTask().execute();
-                                mProgress.dismiss();
                             }
 
                             @Override
@@ -518,14 +517,18 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        //Log.d(TAG, "onStart");
         // Connect to the Fitness API
-
+        if (!mClient.isConnected()) {
+            mClient.connect();
+        }
 
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
         if (mClient.isConnected()) {
             mClient.disconnect();
         }

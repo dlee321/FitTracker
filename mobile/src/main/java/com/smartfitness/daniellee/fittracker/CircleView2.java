@@ -18,7 +18,7 @@ public class CircleView2 extends View {
     int width;
     int height;
 
-    static String stepsString;
+    String stepsString;
 
     RectF box;
 

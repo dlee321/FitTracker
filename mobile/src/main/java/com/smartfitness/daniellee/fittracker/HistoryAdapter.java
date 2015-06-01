@@ -33,22 +33,31 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d(TAG, "GetView " + position + " " + (convertView == null));
         try {
             int data = mObjects[count - position - 1];
+            Log.d(TAG, "GetView " + position + " " + (convertView == null) + "  " + data);
+            ViewHolder holder;
             if (convertView == null) {
-                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-                convertView = inflater.inflate(mLayoutResource, parent, false);
+                LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(mLayoutResource, null);
+
+                holder = new ViewHolder();
+                holder.circleView = (CircleView2) convertView.findViewById(R.id.circleView);
+                holder.position = position;
+                holder.height = convertView.getHeight();
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
             }
-            CardView cardView = (CardView) convertView.findViewById(R.id.cardView);
-            CircleView2 circleView = (CircleView2) cardView.findViewById(R.id.circleView);
-            int parentHeight = cardView.getHeight();
-            int circleHeight = cardView.getHeight();
-            int circleWidth = cardView.getHeight();
+            int parentHeight = holder.height;
+            int circleHeight = holder.height;
+            int circleWidth = holder.height;
             int margin = (parentHeight - circleHeight) / 2;
-            circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
-            circleView.setStepsString(data);
-            circleView.invalidate();
+            Log.d(TAG, parentHeight + " " + circleHeight + " " + circleWidth + "  " + margin);
+            Log.d(TAG, "" + holder.circleView.toString());
+            holder.circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
+            holder.circleView.setStepsString(data);
+            holder.circleView.invalidate();
             return convertView;
         } catch (NullPointerException e) {
             return null;
@@ -57,12 +66,18 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
 
     @Override
     public int getCount() {
-        Log.d("HistoryAdapter", "getCount");
+        //Log.d("HistoryAdapter", "getCount");
         return count;
     }
 
     @Override
     public Integer getItem(int position) {
         return mObjects[position];
+    }
+
+    static class ViewHolder {
+        CircleView2 circleView;
+        int position;
+        int height;
     }
 }

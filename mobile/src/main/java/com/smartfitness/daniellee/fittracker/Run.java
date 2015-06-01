@@ -1,5 +1,7 @@
 package com.smartfitness.daniellee.fittracker;
 
+import android.util.Log;
+
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
@@ -69,12 +71,23 @@ public class Run extends ParseObject {
         return (ArrayList<JSONArray>) this.get(Keys.COORDINATES);
     }
 
-    public void setCoordinates(ArrayList<double[]> coordinates) {
-        for (double[] coordinate: coordinates) {
-            JSONArray temp = new JSONArray(Arrays.asList(coordinate));
-            this.add(Keys.COORDINATES, temp);
+    public boolean setCoordinates(ArrayList<double[]> coordinates) {
+        int count = 1;
+        Double[] coordinateD;
+        try {
+            for (double[] coordinate : coordinates) {
+                coordinateD = new Double[2];
+                coordinateD[0] = coordinate[0];
+                coordinateD[1] = coordinate[1];
+                Log.d("RUN", "" + count);
+                this.add(Keys.COORDINATES, Arrays.asList(coordinateD));
+            }
+        } catch (OutOfMemoryError e) {
+            return true;
         }
+        return false;
     }
+
 
     public double getCalories() {
         return this.getDouble(Keys.CALORIES);

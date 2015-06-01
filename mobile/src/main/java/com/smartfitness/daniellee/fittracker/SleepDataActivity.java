@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -14,7 +16,9 @@ import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
+import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 
@@ -36,6 +40,14 @@ public class SleepDataActivity extends ActionBarActivity {
 
     private TextView totalSleepTextView;
     private TextView deepSleepTextView;
+
+
+    // start and end times
+    String startText;
+    String endText;
+
+
+    ArrayList<Boolean> values;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +76,7 @@ public class SleepDataActivity extends ActionBarActivity {
         c.setTimeInMillis(startTime);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
-        String startText = hour + ":";
+        startText = hour + ":";
         if (minute >= 10) {
             startText += minute;
         } else {
@@ -74,7 +86,7 @@ public class SleepDataActivity extends ActionBarActivity {
         c.setTimeInMillis(startTime + sleepTimeMinutes * 60000);
         hour = c.get(Calendar.HOUR_OF_DAY);
         minute = c.get(Calendar.MINUTE);
-        String endText = hour + ":";
+        endText = hour + ":";
         if (minute >= 10) {
             endText += minute;
         } else {
@@ -94,7 +106,7 @@ public class SleepDataActivity extends ActionBarActivity {
 
             //data[iii] = new GraphView.GraphViewData(iii + 1, movementArray[iii]);
 
-            if (movementArray[iii] > 1) {
+            if (movementArray[iii] > 0) {
                 data[iii] = new GraphView.GraphViewData(iii + 1, 2);
                 if (minutes > 0) {
                     for (int jjj = 1; jjj <= minutes; jjj++) {
@@ -108,7 +120,7 @@ public class SleepDataActivity extends ActionBarActivity {
                 if (lightSleep) {
                     minutes++;
                 }
-                if (minutes > 3) {
+                if (minutes > 6) {
                     minutes = 0;
                     lightSleep = false;
                 }
@@ -122,7 +134,7 @@ public class SleepDataActivity extends ActionBarActivity {
             if (data[iii].getY() == 2) {
                 if (deepSleep) {
                     minutes++;
-                    if (minutes > 2) {
+                    if (minutes > 5) {
                         minutes = 0;
                         deepSleep = false;
                     }
@@ -142,14 +154,25 @@ public class SleepDataActivity extends ActionBarActivity {
 
         // calculate deep sleep time hours:mins
         int deepSleepMins = 0;
+        // get values to be passed to Sleep ParseObject
+        values = new ArrayList<>();
+        boolean everyOther = false;
         for (GraphView.GraphViewData d: data) {
             if (d.getY() == 1) {
                 deepSleepMins++;
+                if (everyOther) {
+                    values.add(false);
+                }
+            } else {
+                if (everyOther) {
+                    values.add(true);
+                }
             }
+            everyOther = !everyOther;
         }
 
         // double because each data point is 2 minutes
-        deepSleepMins *= 2;
+        //deepSleepMins *= 2;
         //Log.d("SleepDataActivity", deepSleepMins + "");
         String deepSleepString = calculateTimeString(deepSleepMins);
         deepSleepTextView.setText(deepSleepString);
@@ -191,17 +214,34 @@ public class SleepDataActivity extends ActionBarActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_run_data, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            // save sleep on parse
+            ParseUser user = ParseUser.getCurrentUser();
+            Sleep sleep = new Sleep();
+            sleep.setStart(startText);
+            sleep.setEnd(endText);
+            sleep.setValues(values);
+            user.add(Keys.SLEEPS_KEY, sleep);
+            user.saveInBackground();
+            returnToMainActivity();
+        } else if (item.getItemId() == R.id.action_discard) {
+            returnToMainActivity();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-        startActivity(new Intent(this, MainActivity.class));
+    private void returnToMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
         finish();
     }
 }
