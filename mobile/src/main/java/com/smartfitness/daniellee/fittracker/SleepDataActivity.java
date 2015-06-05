@@ -16,6 +16,7 @@ import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
+import com.parse.ParseACL;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -229,6 +230,7 @@ public class SleepDataActivity extends ActionBarActivity {
             sleep.setStart(startText);
             sleep.setEnd(endText);
             sleep.setValues(values);
+            sleep.setACL(new ParseACL(user));
             user.add(Keys.SLEEPS_KEY, sleep);
             user.saveInBackground();
             returnToMainActivity();

@@ -1,6 +1,7 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -19,8 +20,11 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -41,11 +45,13 @@ import com.google.android.gms.fitness.result.DataReadResult;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
+import com.parse.ParseUser;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -278,6 +284,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         // get circle view
         circleView = (CircleView) view.findViewById(R.id.progress_circle);
 
+
+        final LayoutInflater inflater1 = inflater;
+
         // set text in circleView to saved instance
         circleView.setStepsString(totalStepsToday);
         circleView.invalidate();
@@ -285,6 +294,44 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View view) {
                 animateEnlarge();
+                mProgress.setMessage("Loading activities...");
+                mProgress.show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                View v = inflater1.inflate(R.layout.daily_activity_detail_dialog, null);
+                TextView textView1 = (TextView) v.findViewById(R.id.noActivitiesTextView);
+                ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
+
+                ParseUser user = ParseUser.getCurrentUser();
+                ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+                if (runs.size() > 0) {
+                    Run run = runs.get(0);
+                    int secondsInADay   = 60*60*24;
+                    long timestamp1 = new Date().getTime();
+                    int daysSinceEpoch1 = (int)(timestamp1/secondsInADay);
+                    int ind = 0;
+                    try {
+                        while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
+                            ind++;
+                            run = runs.get(ind);
+                        }
+                    } catch (NullPointerException e) {
+
+                    }
+                    if (ind > 0) {
+                        textView1.setVisibility(View.GONE);
+                        listView1.setVisibility(View.VISIBLE);
+                        runs.subList(ind + 1, runs.size()).clear();
+
+                        ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+                        listView1.setAdapter(adapter);
+                    }
+                }
+
+                builder.setView(v);
+
+                builder.create().show();
+                mProgress.dismiss();
             }
         });
 
@@ -365,6 +412,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     }
 
     private void refresh() {
+        mProgress.setMessage("Loading Step Data...");
         mProgress.show();
         new GetReadResultTask().execute();
     }
