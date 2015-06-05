@@ -1,18 +1,17 @@
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.smartfitness.daniellee.fittracker.StepsFragment">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <!-- TODO: add fab -->
     <TextView
         android:id="@+id/goalTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="@dimen/goal_text_size"
         android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:text=""
+        android:textSize="@dimen/goal_text_size" />
 
     <com.smartfitness.daniellee.fittracker.CircleView
         android:id="@+id/progress_circle"
@@ -20,16 +19,17 @@
         android:layout_height="300dp"
         android:layout_above="@id/goalTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="-100dp"/>
+        android:layout_marginBottom="-100dp"
+        android:clickable="true"/>
 
     <!-- TODO: change typeface to Roboto -->
 
     <LinearLayout
-        android:orientation="horizontal"
         android:id="@+id/graphLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/goalTextView"
-        android:layout_marginTop="30dp"/>
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal" />
 
 </RelativeLayout>

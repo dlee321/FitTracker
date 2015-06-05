@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -48,6 +49,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 
@@ -124,6 +127,10 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     CircleView circleView;
 
     private static ProgressDialog mProgress;
+
+    // variables used in animateEnlarge()
+    int x = 0;
+    float totalScale = 1;
 
     public static StepsFragment newInstance() {
         return new StepsFragment();
@@ -274,6 +281,12 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         // set text in circleView to saved instance
         circleView.setStepsString(totalStepsToday);
         circleView.invalidate();
+        circleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateEnlarge();
+            }
+        });
 
         // refresh the data when fragment created
         //refresh();
@@ -326,6 +339,29 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         float sweep = 360 * 50 * 0.01f;
         circle.addArc(box, 0, sweep);*/
         return view;
+    }
+
+    private void animateEnlarge() {
+        Log.d(TAG, "onClick worked");
+        //final ViewGroup.LayoutParams params = circleView.getLayoutParams();
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "" + x);
+                float scale = (float) (1 + (-0.2 * x*x + 10)/100.0);
+                totalScale *= scale;
+                Log.d(TAG, "Scales: " + scale + " " + totalScale);
+                circleView.setScaleX(scale);
+                circleView.setScaleY(scale);
+                if (totalScale > 1) {
+                    h.postDelayed(this, 10);
+                }
+                x++;
+            }
+        }, 10);
+        x = 0;
+        totalScale = 1;
     }
 
     private void refresh() {

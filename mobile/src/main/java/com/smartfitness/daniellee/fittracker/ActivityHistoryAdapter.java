@@ -44,7 +44,7 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
         Run data;
         try {
             data = query.get(id);
-
+            ViewHolder holder;
             if (data == null) {
                 mObjects.remove(count-position-1);
                 return convertView;
@@ -53,31 +53,42 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
             if (convertView == null) {
                 LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
                 convertView = inflater.inflate(mLayoutResource, parent, false);
+
+                holder = new ViewHolder();
+                holder.imageView = (ImageView) convertView.findViewById(R.id.activityImage);
+                holder.durationTextView = (TextView) convertView.findViewById(R.id.listTimeTextView);
+                holder.distanceTextView = (TextView) convertView.findViewById(R.id.listDistanceTextView);
+                holder.paceTextView = (TextView) convertView.findViewById(R.id.listPaceTextView);
+                holder.calorieTextView = (TextView) convertView.findViewById(R.id.listCalorieTextView);
+                holder.dateTextView = (TextView) convertView.findViewById(R.id.listDateTextView);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
             }
-            CardView cardView = (CardView) convertView.findViewById(R.id.activityCardView);
+            /*CardView cardView = (CardView) convertView.findViewById(R.id.activityCardView);
             ImageView imageView = (ImageView) cardView.findViewById(R.id.activityImage);
             TextView durationTextView = (TextView) cardView.findViewById(R.id.listTimeTextView);
             TextView distanceTextView = (TextView) cardView.findViewById(R.id.listDistanceTextView);
             TextView paceTextView = (TextView) cardView.findViewById(R.id.listPaceTextView);
             TextView calorieTextView = (TextView) cardView.findViewById(R.id.listCalorieTextView);
-            TextView dateTextView = (TextView) cardView.findViewById(R.id.listDateTextView);
+            TextView dateTextView = (TextView) cardView.findViewById(R.id.listDateTextView);*/
 
             if (data.getActivityType() == Run.WALKING) {
-                imageView.setImageResource(R.drawable.walking);
+                holder.imageView.setImageResource(R.drawable.walking);
             } else if (data.getActivityType() == Run.RUNNING) {
-                imageView.setImageResource(R.drawable.running);
+                holder.imageView.setImageResource(R.drawable.running);
             }
 
             long duration = data.getEndTime() - data.getStartTime();
             double distance = data.getDistance();
 
-            durationTextView.setText(convertToTimeString(duration));
-            distanceTextView.setText((((double)Math.round(distance*100.0))/100.0) + "\nmi");
-            paceTextView.setText(convertToTimeString(Math.round(duration/distance)));
-            calorieTextView.setText("" + Math.round(data.getCalories()));
+            holder.durationTextView.setText(convertToTimeString(duration));
+            holder.distanceTextView.setText((((double)Math.round(distance*100.0))/100.0) + "\nmi");
+            holder.paceTextView.setText(convertToTimeString(Math.round(duration/distance)));
+            holder.calorieTextView.setText("" + Math.round(data.getCalories()));
 
             String date = calculateDate(data.getStartTime());
-            dateTextView.setText(date);
+            holder.dateTextView.setText(date);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -123,5 +134,16 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
     @Override
     public Run getItem(int position) {
         return mObjects.get(position);
+    }
+
+    static class ViewHolder {
+        ImageView imageView;
+        TextView durationTextView;
+        TextView distanceTextView;
+        TextView paceTextView;
+        TextView calorieTextView;
+        TextView dateTextView;
+        int position;
+        int height;
     }
 }
