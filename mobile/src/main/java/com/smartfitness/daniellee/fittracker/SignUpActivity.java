@@ -29,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,12 +48,6 @@ import java.util.List;
  */
 public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    public static final String WEIGHT_TAG = "weight";
-    public static final String HEIGHT_FEET_TAG = "heightft";
-    public static final String HEIGHT_INCH_TAG = "heightin";
-    public static final String DATE_BIRTH_TAG = "dateofbirth";
-    public static final String AGE_TAG = "age";
-
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -66,6 +61,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
     private EditText mBirthDayView;
     private View mProgressView;
     private View mLoginFormView;
+    private RadioGroup mRadioGroup;
 
 
     static SharedPreferences mSettings;
@@ -108,8 +104,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                                     mFeet = ftPicker.getValue();
                                     mInches = inPicker.getValue();
                                     SharedPreferences.Editor editor = mSettings.edit();
-                                    editor.putInt(HEIGHT_FEET_TAG, mFeet);
-                                    editor.putInt(HEIGHT_INCH_TAG, mInches);
+                                    editor.putInt(Keys.HEIGHT_FEET_TAG, mFeet);
+                                    editor.putInt(Keys.HEIGHT_INCH_TAG, mInches);
                                     setHeightText();
                                 }
                             })
@@ -148,6 +144,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                 return false;
             }
         });
+
+        mRadioGroup = (RadioGroup) findViewById(R.id.gender_radio);
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -371,16 +369,26 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             Calendar c3 = Calendar.getInstance();
             c3.setTimeInMillis(difference);
             int age = c3.get(Calendar.YEAR);
-            mSettings.edit().putInt(AGE_TAG, age).apply();
+            mSettings.edit().putInt(Keys.AGE_TAG, age).apply();
 
             ParseUser user = new ParseUser();
             user.setUsername(mEmail.split("@")[0]);
             user.setEmail(mEmail);
             user.setPassword(mPassword);
-            user.put(WEIGHT_TAG, Double.parseDouble(mWeightView.getText().toString()));
-            user.put(HEIGHT_FEET_TAG, mFeet);
-            user.put(HEIGHT_INCH_TAG, mInches);
-            user.put(DATE_BIRTH_TAG, mBirthDayView.getText().toString());
+            user.put(Keys.WEIGHT_TAG, Double.parseDouble(mWeightView.getText().toString()));
+            user.put(Keys.HEIGHT_FEET_TAG, mFeet);
+            user.put(Keys.HEIGHT_INCH_TAG, mInches);
+            user.put(Keys.DATE_BIRTH_TAG, mBirthDayView.getText().toString());
+
+            int radioButtonID = mRadioGroup.getCheckedRadioButtonId();
+            View radioButton = mRadioGroup.findViewById(radioButtonID);
+            int idx = mRadioGroup.indexOfChild(radioButton);
+
+            switch (idx) {
+                case 0: user.put(Keys.GENDER_TAG, Keys.MALE);
+                    break;
+                case 1: user.put(Keys.GENDER_TAG, Keys.FEMALE);
+            }
 
             user.signUpInBackground(new SignUpCallback() {
                 @Override

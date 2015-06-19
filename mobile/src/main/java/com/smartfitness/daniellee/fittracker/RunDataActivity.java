@@ -256,6 +256,9 @@ public class RunDataActivity extends ActionBarActivity {
     public class InputSessionTask extends AsyncTask<String, Void, Void> {
 
         protected Void doInBackground(String... description) {
+
+            // set that there is an activity today
+            MainActivity.mSettings.edit().putBoolean(Keys.ACTIVITY_YET_TODAY, true).apply();
             // PARSE
             if (user == null) {
                 user = ParseUser.getCurrentUser();

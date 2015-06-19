@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -45,6 +44,8 @@ import com.google.android.gms.fitness.result.DataReadResult;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.io.IOException;
@@ -55,8 +56,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 
@@ -70,9 +69,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class StepsFragment extends android.support.v4.app.Fragment {
 
+    private static final double MINUTES_PER_DAY = 1440;
 
-    public static final String STEP_PREF = "stepdata";
-    public static final String TIME_PREF = "time";
+    SharedPreferences sp;
+
 
     private static final String STEPS_KEY = "TotalStepsKey";
 
@@ -91,6 +91,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     GraphView graphView;
     GraphViewSeries series;
     GraphView.GraphViewData[] data;
+
+    // calories text
+    TextView caloriesTextView;
 
     private boolean connected;
 
@@ -246,16 +249,11 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         graphView.setVerticalLabels(new String[]{""});
 
-        SharedPreferences sp;
-
         if ((sp = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0)) != null) {
-            Calendar c1 = Calendar.getInstance();
-            c1.setTime(new Date());
-
-            Calendar c2 = Calendar.getInstance();
-            c2.setTimeInMillis(sp.getLong(TIME_PREF, 0));
-            if (c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)) {
-                totalStepsToday = sp.getInt(STEP_PREF, 0);
+            if (isTimeToday(sp.getLong(Keys.TIME_PREF, 0))) {
+                totalStepsToday = sp.getInt(Keys.STEP_PREF, 0);
+            } else {
+                sp.edit().putBoolean(Keys.ACTIVITY_YET_TODAY, false).apply();
             }
         }
 
@@ -302,29 +300,31 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                 TextView textView1 = (TextView) v.findViewById(R.id.noActivitiesTextView);
                 ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
 
-                ParseUser user = ParseUser.getCurrentUser();
-                ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
-                if (runs.size() > 0) {
-                    Run run = runs.get(0);
-                    int secondsInADay   = 60*60*24;
-                    long timestamp1 = new Date().getTime();
-                    int daysSinceEpoch1 = (int)(timestamp1/secondsInADay);
-                    int ind = 0;
-                    try {
-                        while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
-                            ind++;
-                            run = runs.get(ind);
+                if (sp.getBoolean(Keys.ACTIVITY_YET_TODAY, true)) {
+                    ParseUser user = ParseUser.getCurrentUser();
+                    ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+                    if (runs.size() > 0) {
+                        Run run = runs.get(0);
+                        int secondsInADay = 60 * 60 * 24;
+                        long timestamp1 = new Date().getTime();
+                        int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
+                        int ind = 0;
+                        try {
+                            while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
+                                ind++;
+                                run = runs.get(ind);
+                            }
+                        } catch (NullPointerException e) {
+
                         }
-                    } catch (NullPointerException e) {
+                        if (ind > 0) {
+                            textView1.setVisibility(View.GONE);
+                            listView1.setVisibility(View.VISIBLE);
+                            runs.subList(ind + 1, runs.size()).clear();
 
-                    }
-                    if (ind > 0) {
-                        textView1.setVisibility(View.GONE);
-                        listView1.setVisibility(View.VISIBLE);
-                        runs.subList(ind + 1, runs.size()).clear();
-
-                        ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
-                        listView1.setAdapter(adapter);
+                            ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+                            listView1.setAdapter(adapter);
+                        }
                     }
                 }
 
@@ -380,6 +380,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             }
         });
 
+        caloriesTextView = (TextView) view.findViewById(R.id.dailyCaloriesTextView);
+
         /*Path circle = new Path();
 
         RectF box = new RectF(0,0, 200, 200);
@@ -409,6 +411,18 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }, 10);
         x = 0;
         totalScale = 1;
+    }
+
+    private static boolean isTimeToday(long time2) {
+        Calendar cal1 = Calendar.getInstance();
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTimeInMillis(time2);
+
+        int cal1Day = cal1.get(Calendar.DAY_OF_MONTH);
+        int cal2Day = cal2.get(Calendar.DAY_OF_MONTH);
+        Log.d(TAG, "Days: " + cal1Day + " " + cal2Day);
+        return cal1Day == cal2Day;
     }
 
     private void refresh() {
@@ -621,9 +635,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             MainActivity.mSettings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         }
         SharedPreferences.Editor editor = MainActivity.mSettings.edit();
-        editor.putInt(STEP_PREF, totalStepsToday);
+        editor.putInt(Keys.STEP_PREF, totalStepsToday);
 
-        editor.putLong(TIME_PREF, new Date().getTime());
+        editor.putLong(Keys.TIME_PREF, new Date().getTime());
 
         editor.apply();
 
@@ -724,11 +738,90 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             }
             Log.d(TAG, "" + totalStepsToday);
 
+            int calories = calculateCalories(totalStepsToday);
+
+            caloriesTextView.setText("" + calories);
+
             //stepsTextView.setText("" + totalStepsToday);
 
             mProgress.dismiss();
 
             animateOut();
         }
+    }
+
+    private static int calculateCalories(int totalStepsToday) {
+        Log.d(TAG, "calculateCalories");
+        int cals;
+        ParseUser user = ParseUser.getCurrentUser();
+        double height = user.getInt(Keys.HEIGHT_FEET_TAG) + user.getInt(Keys.HEIGHT_INCH_TAG)/12.0;
+        double stride = .414 * height;
+        double weight = user.getDouble(Keys.WEIGHT_TAG);
+        double weightKG = weight * 0.453592;
+        double caloriesPerMile = weight * .57;
+        double miles = stride * totalStepsToday/5280;
+        cals = (int) (caloriesPerMile * miles);
+        if (MainActivity.mSettings.getBoolean(Keys.ACTIVITY_YET_TODAY, true)) {
+            Log.d(TAG, "Adding activity calories");
+            boolean first = true;
+            ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+            for (int iii = runs.size() - 1; iii >= 0; iii--) {
+                try {
+                    String id = runs.get(iii).getObjectId();
+                    ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
+                    Run run = query.get(id);
+                    long time = run.getCreatedAt().getTime();
+                    if (!isTimeToday(time)) {
+                        break;
+                    }
+                    Log.d(TAG, "RunEndTime: " + time);
+                    cals += run.getCalories();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // add resting metabolic calories
+        int restingCals;
+        if (user.getBoolean(Keys.GENDER_TAG) == Keys.MALE) {
+            restingCals = (int) Math.round((88.4 + 13.4 * weightKG) + 2.54 * 4.8 * height - 5.68 * calculateAge(user.getString(Keys.DATE_BIRTH_TAG)));
+        }
+        else {
+            restingCals = (int) Math.round((447.6 + 9.25 * weightKG) + 2.54 * 3.1 * height - 4.33 * calculateAge(user.getString(Keys.DATE_BIRTH_TAG)));
+        }
+        Log.d(TAG, "RestingCals: " + restingCals);
+        double factor = fractionOfDay();
+        cals += factor * restingCals;
+        return cals;
+    }
+
+    private static double fractionOfDay() {
+        Calendar c = Calendar.getInstance();
+        int minutes = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
+        Log.d(TAG, "Minute: " + minutes);
+        double factor = minutes/ MINUTES_PER_DAY;
+        Log.d(TAG, "Factor: " + factor);
+        return factor;
+    }
+
+    private static int calculateAge(String date) {
+        String[] splits = date.split("-");
+        int month = Integer.parseInt(splits[0]);
+        int day = Integer.parseInt(splits[1]);
+        int year = Integer.parseInt(splits[2]);
+        Calendar a = Calendar.getInstance();
+        a.set(Calendar.MONTH, month);
+        a.set(Calendar.DAY_OF_MONTH, day);
+        a.set(Calendar.YEAR, year);
+        Calendar b = Calendar.getInstance();
+
+        int age = b.get(Calendar.YEAR) - a.get(Calendar.YEAR);
+        if (a.get(Calendar.MONTH) > b.get(Calendar.MONTH) ||
+                (a.get(Calendar.MONTH) == b.get(Calendar.MONTH) && a.get(Calendar.DATE) > b.get(Calendar.DATE))) {
+            age--;
+        }
+        Log.d(TAG, "Age: " + age);
+        return age;
     }
 }

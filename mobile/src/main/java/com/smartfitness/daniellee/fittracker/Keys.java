@@ -5,6 +5,10 @@ package com.smartfitness.daniellee.fittracker;
  */
 public class Keys {
 
+    // stored constants
+    public static final boolean MALE = true;
+    public static final boolean FEMALE = false;
+
     public static final String RUNS_KEY = "runs";
     public static final String SLEEPS_KEY = "sleep";
 
@@ -29,4 +33,15 @@ public class Keys {
             SENSORZ = "minZ",
             DAYS_CALIBRATED = "dayscalibrated";
 
+    public static final String STEP_PREF = "stepdata";
+    public static final String TIME_PREF = "time",
+            ACTIVITY_YET_TODAY = "actvitiytoday";
+
+    // ParseUser data keys
+    public static final String WEIGHT_TAG = "weight",
+            HEIGHT_FEET_TAG = "heightft",
+            HEIGHT_INCH_TAG = "heightin",
+            DATE_BIRTH_TAG = "dateofbirth",
+            AGE_TAG = "age",
+            GENDER_TAG="gender";
 }

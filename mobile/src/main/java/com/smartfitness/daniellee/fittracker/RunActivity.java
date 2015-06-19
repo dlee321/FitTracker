@@ -210,9 +210,9 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                     seconds = "0" + seconds;
                 }
                 mPaceTextView.setText(minutes + ":" + seconds);
-                int weight = (int) (0.453592 * mSettings.getInt(SignUpActivity.WEIGHT_TAG, 150));
+                int weight = (int) (0.453592 * mSettings.getInt(Keys.WEIGHT_TAG, 150));
                 int timeHours = (timeMinutes + timeSeconds/60)/60;
-                int age = mSettings.getInt(SignUpActivity.AGE_TAG, 20);
+                int age = mSettings.getInt(Keys.AGE_TAG, 20);
                 if (calculateWorkoutType().equals(FitnessActivities.RUNNING) || calculateWorkoutType().equals(FitnessActivities.RUNNING_JOGGING)) {
                     double TF = 0.84;
                     double vO2max = 15.03 * ((208 - 0.7*age)/70);
