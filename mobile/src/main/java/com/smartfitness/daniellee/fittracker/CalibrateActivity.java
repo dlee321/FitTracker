@@ -31,7 +31,7 @@ public class CalibrateActivity extends ActionBarActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Calibrate Sensors")
-                .setMessage("Please place your phone face down on your bed and don't move it. Your phone will vibrate when calibration is finished.")
+                .setMessage("Please place your phone on your bed and don't move it. Your phone will vibrate when calibration is finished.")
                 .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {

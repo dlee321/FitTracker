@@ -62,13 +62,17 @@ public class SleepService extends Service implements SensorEventListener {
     Timer timer;
 
     private String mAlarmTime;
+    Calendar mAlarmCalendar;
     //MediaPlayer mMediaPlayer;
 
     private long mTime = 0;
 
-    private Runnable runnable;
+    private Runnable alarmRunnable;
+    Handler handler;
     AlertDialog dialog;
     PowerManager.WakeLock wl;
+
+    private int currentLightSleepMins;
 
     public SleepService() {
     }
@@ -114,6 +118,7 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onDestroy() {
         // increment days calibrated
+        handler.removeCallbacks(alarmRunnable);
         if (wl.isHeld()) {
             wl.release();
         }
@@ -160,6 +165,11 @@ public class SleepService extends Service implements SensorEventListener {
 
     public void addTotalsToQueues() {
         Log.d(TAG, "add totals to queue: " + minuteMovement);
+        if (minuteMovement == 0) {
+            currentLightSleepMins = 0;
+        } else {
+            currentLightSleepMins++;
+        }
         totalMovement += minuteMovement;
         gyroData.enqueue(minuteMovement);
         if (minuteMovement > maxMovement) {
@@ -223,6 +233,13 @@ public class SleepService extends Service implements SensorEventListener {
                     //if (secondMinute) {
                     //Log.d(TAG, "" + minuteMovement);
                     addTotalsToQueues();
+
+                    Calendar c = Calendar.getInstance();
+                    if (mAlarmCalendar.getTimeInMillis() - c.getTimeInMillis() < 30 * 60000) {
+                        if (currentLightSleepMins >= 10) {
+                            alarmRunnable.run();
+                        }
+                    }
                     //}
                     //secondMinute = !secondMinute;
                     //}
@@ -250,13 +267,13 @@ public class SleepService extends Service implements SensorEventListener {
         Date alarmDate = new Date();
         // get hour and minute of alarm time
         String[] splits = mAlarmTime.split(":");
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, Integer.parseInt(splits[0]));
-        c.set(Calendar.MINUTE, Integer.parseInt(splits[1]));
-        c.set(Calendar.SECOND, 0);
-        if (alarmDate.getTime() >= c.getTimeInMillis()) {
+        mAlarmCalendar = Calendar.getInstance();
+        mAlarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(splits[0]));
+        mAlarmCalendar.set(Calendar.MINUTE, Integer.parseInt(splits[1]));
+        mAlarmCalendar.set(Calendar.SECOND, 0);
+        if (alarmDate.getTime() >= mAlarmCalendar.getTimeInMillis()) {
             Log.d(TAG, "Add a day");
-            c.add(Calendar.DAY_OF_MONTH, 1);
+            mAlarmCalendar.add(Calendar.DAY_OF_MONTH, 1);
         }
         /*alarmDate.setTime(c.getTimeInMillis());
         final TimerTask timerTask = new TimerTask() {
@@ -283,11 +300,14 @@ public class SleepService extends Service implements SensorEventListener {
             }
         };
         timer.schedule(timerTask, alarmDate);*/
-
-        final Handler handler = new Handler();
-        runnable = new Runnable() {
+        handler = new Handler();
+        alarmRunnable = new Runnable() {
             @Override
             public void run() {
+                // stop recording sleep
+                if (broadcastReceiver != null) {
+                    unregisterReceiver(broadcastReceiver);
+                }
                 // wake-up phone
                 PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
                 final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
@@ -325,7 +345,7 @@ public class SleepService extends Service implements SensorEventListener {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 mMediaPlayer.stop();
-                                handler.postDelayed(runnable, 300000);
+                                handler.postDelayed(alarmRunnable, 300000);
                                 dialog.dismiss();
                                 wakeLock.release();
                                 keyguardLock.reenableKeyguard();
@@ -338,7 +358,7 @@ public class SleepService extends Service implements SensorEventListener {
             }
         };
         long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();
-        handler.postAtTime(runnable, c.getTimeInMillis() - timeDifference);
+        handler.postAtTime(alarmRunnable, mAlarmCalendar.getTimeInMillis() - timeDifference);
         return START_STICKY;
     }
 }
