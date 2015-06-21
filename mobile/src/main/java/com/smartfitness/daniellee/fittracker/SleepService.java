@@ -290,11 +290,11 @@ public class SleepService extends Service implements SensorEventListener {
             public void run() {
                 // wake-up phone
                 PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-                PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+                final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
                 wakeLock.acquire();
                 // unlock phone
                 KeyguardManager keyguardManager = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-                KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
+                final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
                 keyguardLock.disableKeyguard();
                 // play sounds
                 final MediaPlayer mMediaPlayer = new MediaPlayer();
@@ -310,12 +310,14 @@ public class SleepService extends Service implements SensorEventListener {
                 // show wake up dialog
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);
                 dialog = dialogBuilder.setTitle("Wake Up!")
-                        .setMessage("Good morning! Time to wake up!")
+                        .setMessage("Good morning. Time to wake up!")
                         .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 dialog.dismiss();
                                 mMediaPlayer.stop();
+                                wakeLock.release();
+                                keyguardLock.reenableKeyguard();
                                 stopSelf();
                             }
                         })
@@ -325,10 +327,13 @@ public class SleepService extends Service implements SensorEventListener {
                                 mMediaPlayer.stop();
                                 handler.postDelayed(runnable, 300000);
                                 dialog.dismiss();
+                                wakeLock.release();
+                                keyguardLock.reenableKeyguard();
                             }
                         })
                         .create();
                 dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                dialog.setCancelable(false);
                 dialog.show();
             }
         };
