@@ -42,9 +42,7 @@ public class SleepActivity extends ActionBarActivity {
         startService(serviceIntent);
 
         // make sure CPU doesn't sleep
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
-        wl.acquire();
+
 
         View v = findViewById(android.R.id.content);
         v.setBackgroundColor(getResources().getColor(R.color.material_blue_grey_800));
@@ -72,11 +70,6 @@ public class SleepActivity extends ActionBarActivity {
         doneSleepingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (wl.isHeld()) {
-                    wl.release();
-                }
-                // increment days calibrated
-                MainActivity.mSettings.edit().putInt(Keys.DAYS_CALIBRATED, MainActivity.mSettings.getInt(Keys.DAYS_CALIBRATED, 0) + 1).apply();
                 stopService(serviceIntent);
             }
         });
