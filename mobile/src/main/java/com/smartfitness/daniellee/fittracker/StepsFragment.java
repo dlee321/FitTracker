@@ -288,7 +288,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         // set text in circleView to saved instance
         circleView.setStepsString(totalStepsToday);
         circleView.invalidate();
-        circleView.setOnClickListener(new View.OnClickListener() {
+        /*circleView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 animateEnlarge();
@@ -333,7 +333,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                 builder.create().show();
                 mProgress.dismiss();
             }
-        });
+        });*/
 
         // refresh the data when fragment created
         //refresh();
@@ -390,7 +390,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         return view;
     }
 
-    private void animateEnlarge() {
+    /*private void animateEnlarge() {
         Log.d(TAG, "onClick worked");
         //final ViewGroup.LayoutParams params = circleView.getLayoutParams();
         final Handler h = new Handler();
@@ -411,7 +411,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }, 10);
         x = 0;
         totalScale = 1;
-    }
+    }*/
 
     private static boolean isTimeToday(long time2) {
         Calendar cal1 = Calendar.getInstance();
@@ -562,7 +562,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
     boolean done = false;
 
-    public void animateIn() {
+    /*public void animateIn() {
         final Handler h = new Handler();
         delay = 20;
 
@@ -584,7 +584,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                 }
             }
         }, delay);
-    }
+    }*/
 
 
 

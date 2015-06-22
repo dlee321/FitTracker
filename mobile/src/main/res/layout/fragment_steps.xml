@@ -19,8 +19,7 @@
         android:layout_height="300dp"
         android:layout_above="@id/goalTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="-100dp"
-        android:clickable="true"/>
+        android:layout_marginBottom="-100dp"/>
 
     <!-- TODO: change typeface to Roboto -->
 

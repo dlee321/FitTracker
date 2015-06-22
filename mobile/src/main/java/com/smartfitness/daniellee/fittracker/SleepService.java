@@ -208,6 +208,66 @@ public class SleepService extends Service implements SensorEventListener {
                 .build();
         startForeground(2014, note);
 
+        handler = new Handler();
+        alarmRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // stop recording sleep
+                if (broadcastReceiver != null) {
+                    unregisterReceiver(broadcastReceiver);
+                }
+                // wake-up phone
+                PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+                wakeLock.acquire();
+                // unlock phone
+                KeyguardManager keyguardManager = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+                final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
+                keyguardLock.disableKeyguard();
+                // play sounds
+                final MediaPlayer mMediaPlayer = new MediaPlayer();
+                try {
+                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                    mMediaPlayer.setDataSource(SleepService.this, Uri.parse("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm));
+                    mMediaPlayer.setLooping(true);
+                    mMediaPlayer.prepare();
+                    mMediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                // show wake up dialog
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);
+                dialog = dialogBuilder.setTitle("Wake Up!")
+                        .setMessage("Good morning. Time to wake up!")
+                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialog.dismiss();
+                                mMediaPlayer.stop();
+                                wakeLock.release();
+                                keyguardLock.reenableKeyguard();
+                                stopSelf();
+                            }
+                        })
+                        .setPositiveButton("Snooze", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                mMediaPlayer.stop();
+                                handler.postDelayed(alarmRunnable, 300000);
+                                dialog.dismiss();
+                                wakeLock.release();
+                                keyguardLock.reenableKeyguard();
+                            }
+                        })
+                        .create();
+                dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                dialog.setCancelable(false);
+                dialog.show();
+            }
+        };
+        long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();
+        handler.postAtTime(alarmRunnable, mAlarmCalendar.getTimeInMillis() - timeDifference);
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         mSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -300,65 +360,7 @@ public class SleepService extends Service implements SensorEventListener {
             }
         };
         timer.schedule(timerTask, alarmDate);*/
-        handler = new Handler();
-        alarmRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // stop recording sleep
-                if (broadcastReceiver != null) {
-                    unregisterReceiver(broadcastReceiver);
-                }
-                // wake-up phone
-                PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-                final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-                wakeLock.acquire();
-                // unlock phone
-                KeyguardManager keyguardManager = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-                final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
-                keyguardLock.disableKeyguard();
-                // play sounds
-                final MediaPlayer mMediaPlayer = new MediaPlayer();
-                try {
-                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                    mMediaPlayer.setDataSource(SleepService.this, Uri.parse("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm));
-                    mMediaPlayer.setLooping(true);
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // show wake up dialog
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);
-                dialog = dialogBuilder.setTitle("Wake Up!")
-                        .setMessage("Good morning. Time to wake up!")
-                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialog.dismiss();
-                                mMediaPlayer.stop();
-                                wakeLock.release();
-                                keyguardLock.reenableKeyguard();
-                                stopSelf();
-                            }
-                        })
-                        .setPositiveButton("Snooze", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                mMediaPlayer.stop();
-                                handler.postDelayed(alarmRunnable, 300000);
-                                dialog.dismiss();
-                                wakeLock.release();
-                                keyguardLock.reenableKeyguard();
-                            }
-                        })
-                        .create();
-                dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-                dialog.setCancelable(false);
-                dialog.show();
-            }
-        };
-        long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();
-        handler.postAtTime(alarmRunnable, mAlarmCalendar.getTimeInMillis() - timeDifference);
+
         return START_STICKY;
     }
 }
