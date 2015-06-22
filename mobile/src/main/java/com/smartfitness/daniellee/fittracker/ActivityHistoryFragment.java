@@ -56,7 +56,7 @@ public class ActivityHistoryFragment extends Fragment {
         ListView listView = (ListView) view.findViewById(R.id.activityList);
         registerForContextMenu(listView);
         ParseUser user = ParseUser.getCurrentUser();
-        runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+        runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
         cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
         if (runs.size() == 0) {
             cardView.setVisibility(CardView.VISIBLE);
@@ -107,7 +107,7 @@ public class ActivityHistoryFragment extends Fragment {
             }
             // update runs list in parse
             ParseUser user = ParseUser.getCurrentUser();
-            user.removeAll(Keys.RUNS_KEY, Arrays.asList(data));
+            user.removeAll(Constants.RUNS_KEY, Arrays.asList(data));
             data.deleteInBackground();
             mProgress.dismiss();
         } catch (ParseException e) {

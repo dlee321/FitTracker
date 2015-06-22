@@ -1,7 +1,6 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,9 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -249,11 +246,11 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         graphView.setVerticalLabels(new String[]{""});
 
-        if ((sp = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0)) != null) {
-            if (isTimeToday(sp.getLong(Keys.TIME_PREF, 0))) {
-                totalStepsToday = sp.getInt(Keys.STEP_PREF, 0);
+        if ((sp = getActivity().getSharedPreferences(FitTracker.PREFS_NAME, 0)) != null) {
+            if (isTimeToday(sp.getLong(Constants.TIME_PREF, 0))) {
+                totalStepsToday = sp.getInt(Constants.STEP_PREF, 0);
             } else {
-                sp.edit().putBoolean(Keys.ACTIVITY_YET_TODAY, false).apply();
+                sp.edit().putBoolean(Constants.ACTIVITY_YET_TODAY, false).apply();
             }
         }
 
@@ -631,13 +628,13 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             mClient.disconnect();
         }
 
-        if (MainActivity.mSettings == null) {
-            MainActivity.mSettings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        if (FitTracker.mSettings == null) {
+            FitTracker.mSettings = getActivity().getSharedPreferences(FitTracker.PREFS_NAME, 0);
         }
-        SharedPreferences.Editor editor = MainActivity.mSettings.edit();
-        editor.putInt(Keys.STEP_PREF, totalStepsToday);
+        SharedPreferences.Editor editor = FitTracker.mSettings.edit();
+        editor.putInt(Constants.STEP_PREF, totalStepsToday);
 
-        editor.putLong(Keys.TIME_PREF, new Date().getTime());
+        editor.putLong(Constants.TIME_PREF, new Date().getTime());
 
         editor.apply();
 
@@ -754,17 +751,17 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         Log.d(TAG, "calculateCalories");
         int cals;
         ParseUser user = ParseUser.getCurrentUser();
-        double height = user.getInt(Keys.HEIGHT_FEET_TAG) + user.getInt(Keys.HEIGHT_INCH_TAG)/12.0;
+        double height = user.getInt(Constants.HEIGHT_FEET_TAG) + user.getInt(Constants.HEIGHT_INCH_TAG)/12.0;
         double stride = .414 * height;
-        double weight = user.getDouble(Keys.WEIGHT_TAG);
+        double weight = user.getDouble(Constants.WEIGHT_TAG);
         double weightKG = weight * 0.453592;
         double caloriesPerMile = weight * .57;
         double miles = stride * totalStepsToday/5280;
         cals = (int) (caloriesPerMile * miles);
-        if (MainActivity.mSettings.getBoolean(Keys.ACTIVITY_YET_TODAY, true)) {
+        if (FitTracker.mSettings.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
             Log.d(TAG, "Adding activity calories");
             boolean first = true;
-            ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
+            ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
             for (int iii = runs.size() - 1; iii >= 0; iii--) {
                 try {
                     String id = runs.get(iii).getObjectId();
@@ -784,11 +781,11 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         // add resting metabolic calories
         int restingCals;
-        if (user.getBoolean(Keys.GENDER_TAG) == Keys.MALE) {
-            restingCals = (int) Math.round((88.4 + 13.4 * weightKG) + 2.54 * 4.8 * height - 5.68 * calculateAge(user.getString(Keys.DATE_BIRTH_TAG)));
+        if (user.getBoolean(Constants.GENDER_TAG) == Constants.MALE) {
+            restingCals = (int) Math.round((88.4 + 13.4 * weightKG) + 2.54 * 4.8 * height - 5.68 * calculateAge(user.getString(Constants.DATE_BIRTH_TAG)));
         }
         else {
-            restingCals = (int) Math.round((447.6 + 9.25 * weightKG) + 2.54 * 3.1 * height - 4.33 * calculateAge(user.getString(Keys.DATE_BIRTH_TAG)));
+            restingCals = (int) Math.round((447.6 + 9.25 * weightKG) + 2.54 * 3.1 * height - 4.33 * calculateAge(user.getString(Constants.DATE_BIRTH_TAG)));
         }
         Log.d(TAG, "RestingCals: " + restingCals);
         double factor = fractionOfDay();

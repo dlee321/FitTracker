@@ -22,6 +22,40 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"/>
 
+    <CheckBox
+        android:id="@+id/disableAlarmCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disable Alarm"
+        android:layout_below="@id/alarmTextView"
+        android:layout_centerHorizontal="true"/>
+
+    <LinearLayout
+        android:id="@+id/smartAlarmLinearLayout"
+        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/disableAlarmCheckBox"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Smart alarm time:"
+            android:textColor="#000"
+            />
+
+        <Spinner
+            android:id="@+id/smartAlarmTimeSpinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+        </Spinner>
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/sleepTextView"
         android:layout_width="wrap_content"

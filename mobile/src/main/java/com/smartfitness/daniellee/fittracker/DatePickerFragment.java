@@ -57,7 +57,7 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 
     @Override
     public void onDateSet(DatePicker datePicker, int i, int i2, int i3) {
-        SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        SharedPreferences preferences = getActivity().getSharedPreferences(FitTracker.PREFS_NAME, 0);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(YEAR_PREF, i);
         editor.putInt(MONTH_PREF, i2 + 1);

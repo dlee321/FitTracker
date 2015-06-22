@@ -92,11 +92,11 @@ public class CalibrationService extends Service implements SensorEventListener {
         }
         Log.d("Calibration", maxX + " " + maxY + " " + maxZ);
 
-        SharedPreferences.Editor editor = MainActivity.mSettings.edit();
-        editor.putLong(Keys.SENSORX, Double.doubleToRawLongBits(maxX * 2));
-        editor.putLong(Keys.SENSORY, Double.doubleToRawLongBits(maxY * 2));
-        editor.putLong(Keys.SENSORZ, Double.doubleToRawLongBits(maxZ * 4));
-        editor.putInt(Keys.DAYS_CALIBRATED, 0);
+        SharedPreferences.Editor editor = FitTracker.mSettings.edit();
+        editor.putLong(Constants.SENSORX, Double.doubleToRawLongBits(maxX * 2));
+        editor.putLong(Constants.SENSORY, Double.doubleToRawLongBits(maxY * 2));
+        editor.putLong(Constants.SENSORZ, Double.doubleToRawLongBits(maxZ * 4));
+        editor.putInt(Constants.DAYS_CALIBRATED, 0);
         editor.apply();
 
         super.onDestroy();

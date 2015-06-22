@@ -3,7 +3,7 @@ package com.smartfitness.daniellee.fittracker;
 /**
  * Created by danie_000 on 5/6/2015.
  */
-public class Keys {
+public class Constants {
 
     // stored constants
     public static final boolean MALE = true;
@@ -31,7 +31,10 @@ public class Keys {
     public static final String SENSORX = "minX",
             SENSORY = "minY",
             SENSORZ = "minZ",
-            DAYS_CALIBRATED = "dayscalibrated";
+            DAYS_CALIBRATED = "dayscalibrated",
+
+            DISABLE_ALARM = "disablealarm",
+            SMART_ALARM_TIME_INDEX = "smartalarmtime";
 
     public static final String STEP_PREF = "stepdata";
     public static final String TIME_PREF = "time",
@@ -44,4 +47,7 @@ public class Keys {
             DATE_BIRTH_TAG = "dateofbirth",
             AGE_TAG = "age",
             GENDER_TAG="gender";
+
+
+    public static final String[] SMART_ALARM_TIMES = new String[]{"30", "25", "20", "15", "10", "None"};
 }

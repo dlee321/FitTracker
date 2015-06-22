@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
-import com.jjoe64.graphview.LineGraphView;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
 
@@ -231,7 +229,7 @@ public class SleepDataActivity extends ActionBarActivity {
             sleep.setEnd(endText);
             sleep.setValues(values);
             sleep.setACL(new ParseACL(user));
-            user.add(Keys.SLEEPS_KEY, sleep);
+            user.add(Constants.SLEEPS_KEY, sleep);
             user.saveInBackground();
             returnToMainActivity();
         } else if (item.getItemId() == R.id.action_discard) {

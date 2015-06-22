@@ -3,14 +3,12 @@ package com.smartfitness.daniellee.fittracker;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -28,19 +26,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
     public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities"};
 
-    public static final String PREFS_NAME = "MyPrefsData";
 
     public static final String TAG = MainActivity.class.getSimpleName();
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-
-    static SharedPreferences mSettings;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -61,10 +48,6 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-
-        mSettings = getSharedPreferences(PREFS_NAME, 0);
 
         // if currently sleep tracking, start SleepActivity
         if (isMyServiceRunning(SleepService.class)) {

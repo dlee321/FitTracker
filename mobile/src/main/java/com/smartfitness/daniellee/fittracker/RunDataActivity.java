@@ -258,7 +258,7 @@ public class RunDataActivity extends ActionBarActivity {
         protected Void doInBackground(String... description) {
 
             // set that there is an activity today
-            MainActivity.mSettings.edit().putBoolean(Keys.ACTIVITY_YET_TODAY, true).apply();
+            FitTracker.mSettings.edit().putBoolean(Constants.ACTIVITY_YET_TODAY, true).apply();
             // PARSE
             if (user == null) {
                 user = ParseUser.getCurrentUser();
@@ -290,7 +290,7 @@ public class RunDataActivity extends ActionBarActivity {
             Log.d(TAG, "Activity type set");
             run.setDescription(description[0]);
             run.setNotes(notesTextView.getText().toString());
-            user.add(Keys.RUNS_KEY, run);
+            user.add(Constants.RUNS_KEY, run);
             Log.d(TAG, "Run added");
             user.saveInBackground();
             Log.d(TAG, "Saving user");

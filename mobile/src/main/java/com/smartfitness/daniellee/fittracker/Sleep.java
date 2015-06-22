@@ -3,7 +3,6 @@ package com.smartfitness.daniellee.fittracker;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
-import java.security.spec.KeySpec;
 import java.util.ArrayList;
 
 /**
@@ -17,26 +16,26 @@ public class Sleep extends ParseObject{
     }
 
     public void setStart(String start) {
-        this.put(Keys.START, start);
+        this.put(Constants.START, start);
     }
 
     public String getStart() {
-        return this.getString(Keys.START);
+        return this.getString(Constants.START);
     }
 
     public void setEnd(String end) {
-        this.put(Keys.END, end);
+        this.put(Constants.END, end);
     }
 
     public String getEnd() {
-        return this.getString(Keys.END);
+        return this.getString(Constants.END);
     }
 
     public void setValues(ArrayList<Boolean> values) {
-        this.put(Keys.VALUES, values);
+        this.put(Constants.VALUES, values);
     }
 
     public ArrayList<Boolean> getValues() {
-        return (ArrayList<Boolean>) this.get(Keys.VALUES);
+        return (ArrayList<Boolean>) this.get(Constants.VALUES);
     }
 }

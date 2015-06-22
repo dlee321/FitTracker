@@ -74,7 +74,7 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
         setContentView(R.layout.activity_sign_up);
 
 
-        mSettings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        mSettings = getSharedPreferences(FitTracker.PREFS_NAME, 0);
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -104,8 +104,8 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
                                     mFeet = ftPicker.getValue();
                                     mInches = inPicker.getValue();
                                     SharedPreferences.Editor editor = mSettings.edit();
-                                    editor.putInt(Keys.HEIGHT_FEET_TAG, mFeet);
-                                    editor.putInt(Keys.HEIGHT_INCH_TAG, mInches);
+                                    editor.putInt(Constants.HEIGHT_FEET_TAG, mFeet);
+                                    editor.putInt(Constants.HEIGHT_INCH_TAG, mInches);
                                     setHeightText();
                                 }
                             })
@@ -369,25 +369,25 @@ public class SignUpActivity extends Activity implements LoaderCallbacks<Cursor> 
             Calendar c3 = Calendar.getInstance();
             c3.setTimeInMillis(difference);
             int age = c3.get(Calendar.YEAR);
-            mSettings.edit().putInt(Keys.AGE_TAG, age).apply();
+            mSettings.edit().putInt(Constants.AGE_TAG, age).apply();
 
             ParseUser user = new ParseUser();
             user.setUsername(mEmail.split("@")[0]);
             user.setEmail(mEmail);
             user.setPassword(mPassword);
-            user.put(Keys.WEIGHT_TAG, Double.parseDouble(mWeightView.getText().toString()));
-            user.put(Keys.HEIGHT_FEET_TAG, mFeet);
-            user.put(Keys.HEIGHT_INCH_TAG, mInches);
-            user.put(Keys.DATE_BIRTH_TAG, mBirthDayView.getText().toString());
+            user.put(Constants.WEIGHT_TAG, Double.parseDouble(mWeightView.getText().toString()));
+            user.put(Constants.HEIGHT_FEET_TAG, mFeet);
+            user.put(Constants.HEIGHT_INCH_TAG, mInches);
+            user.put(Constants.DATE_BIRTH_TAG, mBirthDayView.getText().toString());
 
             int radioButtonID = mRadioGroup.getCheckedRadioButtonId();
             View radioButton = mRadioGroup.findViewById(radioButtonID);
             int idx = mRadioGroup.indexOfChild(radioButton);
 
             switch (idx) {
-                case 0: user.put(Keys.GENDER_TAG, Keys.MALE);
+                case 0: user.put(Constants.GENDER_TAG, Constants.MALE);
                     break;
-                case 1: user.put(Keys.GENDER_TAG, Keys.FEMALE);
+                case 1: user.put(Constants.GENDER_TAG, Constants.FEMALE);
             }
 
             user.signUpInBackground(new SignUpCallback() {

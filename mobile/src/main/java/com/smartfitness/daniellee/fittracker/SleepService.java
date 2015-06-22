@@ -122,7 +122,7 @@ public class SleepService extends Service implements SensorEventListener {
         if (wl.isHeld()) {
             wl.release();
         }
-        MainActivity.mSettings.edit().putInt(Keys.DAYS_CALIBRATED, MainActivity.mSettings.getInt(Keys.DAYS_CALIBRATED, 0) + 1).apply();
+        FitTracker.mSettings.edit().putInt(Constants.DAYS_CALIBRATED, FitTracker.mSettings.getInt(Constants.DAYS_CALIBRATED, 0) + 1).apply();
         if (broadcastReceiver != null) {
             unregisterReceiver(broadcastReceiver);
         }
@@ -195,9 +195,9 @@ public class SleepService extends Service implements SensorEventListener {
         timer = new Timer();
 
         // get calibrated values for minx, miny, and minz
-        minX = Double.longBitsToDouble(MainActivity.mSettings.getLong(Keys.SENSORX, 0));
-        minY = Double.longBitsToDouble(MainActivity.mSettings.getLong(Keys.SENSORY, 0));
-        minZ = Double.longBitsToDouble(MainActivity.mSettings.getLong(Keys.SENSORZ, 0));
+        minX = Double.longBitsToDouble(FitTracker.mSettings.getLong(Constants.SENSORX, 0));
+        minY = Double.longBitsToDouble(FitTracker.mSettings.getLong(Constants.SENSORY, 0));
+        minZ = Double.longBitsToDouble(FitTracker.mSettings.getLong(Constants.SENSORZ, 0));
 
         Log.d(TAG, minX + " " + minY + " " + minZ);
 
@@ -208,65 +208,67 @@ public class SleepService extends Service implements SensorEventListener {
                 .build();
         startForeground(2014, note);
 
-        handler = new Handler();
-        alarmRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // stop recording sleep
-                if (broadcastReceiver != null) {
-                    unregisterReceiver(broadcastReceiver);
+        if (!FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false)) {
+            handler = new Handler();
+            alarmRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    // stop recording sleep
+                    if (broadcastReceiver != null) {
+                        unregisterReceiver(broadcastReceiver);
+                    }
+                    // wake-up phone
+                    PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                    final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
+                    wakeLock.acquire();
+                    // unlock phone
+                    KeyguardManager keyguardManager = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
+                    final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
+                    keyguardLock.disableKeyguard();
+                    // play sounds
+                    final MediaPlayer mMediaPlayer = new MediaPlayer();
+                    try {
+                        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                        mMediaPlayer.setDataSource(SleepService.this, Uri.parse("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm));
+                        mMediaPlayer.setLooping(true);
+                        mMediaPlayer.prepare();
+                        mMediaPlayer.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // show wake up dialog
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);
+                    dialog = dialogBuilder.setTitle("Wake Up!")
+                            .setMessage("Good morning. Time to wake up!")
+                            .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialog.dismiss();
+                                    mMediaPlayer.stop();
+                                    wakeLock.release();
+                                    keyguardLock.reenableKeyguard();
+                                    stopSelf();
+                                }
+                            })
+                            .setPositiveButton("Snooze", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    mMediaPlayer.stop();
+                                    handler.postDelayed(alarmRunnable, 300000);
+                                    dialog.dismiss();
+                                    wakeLock.release();
+                                    keyguardLock.reenableKeyguard();
+                                }
+                            })
+                            .create();
+                    dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                    dialog.setCancelable(false);
+                    dialog.show();
                 }
-                // wake-up phone
-                PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
-                final PowerManager.WakeLock wakeLock = pm.newWakeLock((PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP), "TAG");
-                wakeLock.acquire();
-                // unlock phone
-                KeyguardManager keyguardManager = (KeyguardManager) getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
-                final KeyguardManager.KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
-                keyguardLock.disableKeyguard();
-                // play sounds
-                final MediaPlayer mMediaPlayer = new MediaPlayer();
-                try {
-                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                    mMediaPlayer.setDataSource(SleepService.this, Uri.parse("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm));
-                    mMediaPlayer.setLooping(true);
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // show wake up dialog
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);
-                dialog = dialogBuilder.setTitle("Wake Up!")
-                        .setMessage("Good morning. Time to wake up!")
-                        .setNegativeButton("Dismiss", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialog.dismiss();
-                                mMediaPlayer.stop();
-                                wakeLock.release();
-                                keyguardLock.reenableKeyguard();
-                                stopSelf();
-                            }
-                        })
-                        .setPositiveButton("Snooze", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                mMediaPlayer.stop();
-                                handler.postDelayed(alarmRunnable, 300000);
-                                dialog.dismiss();
-                                wakeLock.release();
-                                keyguardLock.reenableKeyguard();
-                            }
-                        })
-                        .create();
-                dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-                dialog.setCancelable(false);
-                dialog.show();
-            }
-        };
-        long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();
-        handler.postAtTime(alarmRunnable, mAlarmCalendar.getTimeInMillis() - timeDifference);
+            };
+            long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();
+            handler.postAtTime(alarmRunnable, mAlarmCalendar.getTimeInMillis() - timeDifference);
+        }
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -295,9 +297,14 @@ public class SleepService extends Service implements SensorEventListener {
                     addTotalsToQueues();
 
                     Calendar c = Calendar.getInstance();
-                    if (mAlarmCalendar.getTimeInMillis() - c.getTimeInMillis() < 30 * 60000) {
-                        if (currentLightSleepMins >= 10) {
-                            alarmRunnable.run();
+                    if (!FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false)) {
+                        int smartAlarmTimeIndex = FitTracker.mSettings.getInt(Constants.SMART_ALARM_TIME_INDEX, 0);
+                        if (!(smartAlarmTimeIndex== 5)) {
+                            if (mAlarmCalendar.getTimeInMillis() - c.getTimeInMillis() < Integer.parseInt(Constants.SMART_ALARM_TIMES[smartAlarmTimeIndex]) * 60000) {
+                                if (currentLightSleepMins >= 5) {
+                                    alarmRunnable.run();
+                                }
+                            }
                         }
                     }
                     //}

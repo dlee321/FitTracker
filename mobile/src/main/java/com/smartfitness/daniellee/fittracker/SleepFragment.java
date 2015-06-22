@@ -1,6 +1,7 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.support.v4.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
@@ -10,7 +11,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -30,6 +36,8 @@ public class SleepFragment extends android.support.v4.app.Fragment {
 
     TextView sleepTextView;
     TextView alarmTextView;
+    CheckBox disableAlarmCheckBox;
+    Spinner smartAlarmTimeSpinner;
 
     RelativeLayout layout;
 
@@ -58,16 +66,38 @@ public class SleepFragment extends android.support.v4.app.Fragment {
 
         alarmTextView = (TextView)v.findViewById(R.id.alarmTextView);
 
-        if (MainActivity.mSettings == null) {
-            MainActivity.mSettings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
+        if (FitTracker.mSettings == null) {
+            FitTracker.mSettings = getActivity().getSharedPreferences(FitTracker.PREFS_NAME, 0);
         }
         String alarm = null;
-        if ((alarm = (MainActivity.mSettings.getString(ALARM_TIME_TAG, ""))).equals("")) {
-            MainActivity.mSettings.edit().putString(ALARM_TIME_TAG, getActivity().getString(R.string.default_alarm_time)).apply();
+        if ((alarm = (FitTracker.mSettings.getString(ALARM_TIME_TAG, ""))).equals("")) {
+            FitTracker.mSettings.edit().putString(ALARM_TIME_TAG, getActivity().getString(R.string.default_alarm_time)).apply();
             alarmTextView.setText(R.string.default_alarm_time);
         } else {
             alarmTextView.setText(alarm);
         }
+
+        final LinearLayout smartAlarmLinearLayout = (LinearLayout) v.findViewById(R.id.smartAlarmLinearLayout);
+
+        disableAlarmCheckBox = (CheckBox) v.findViewById(R.id.disableAlarmCheckBox);
+
+        disableAlarmCheckBox.setChecked(FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false));
+        disableAlarmCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    smartAlarmLinearLayout.setVisibility(View.INVISIBLE);
+                } else {
+                    smartAlarmLinearLayout.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        smartAlarmTimeSpinner = (Spinner) v.findViewById(R.id.smartAlarmTimeSpinner);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Constants.SMART_ALARM_TIMES);
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        smartAlarmTimeSpinner.setAdapter(spinnerArrayAdapter);
+        smartAlarmTimeSpinner.setSelection(FitTracker.mSettings.getInt(Constants.SMART_ALARM_TIME_INDEX, 0));
 
         alarmTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,8 +110,15 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         sleepTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean disableAlarm = disableAlarmCheckBox.isChecked();
+                int smartAlarmTimeIndex = smartAlarmTimeSpinner.getSelectedItemPosition();
+                SharedPreferences.Editor editor = FitTracker.mSettings.edit();
+                editor.putBoolean(Constants.DISABLE_ALARM, disableAlarm);
+                editor.putInt(Constants.SMART_ALARM_TIME_INDEX, smartAlarmTimeIndex);
+                editor.commit();
+
                 Intent intent;
-                int daysCalibrated = MainActivity.mSettings.getInt(Keys.DAYS_CALIBRATED, -1);
+                int daysCalibrated = FitTracker.mSettings.getInt(Constants.DAYS_CALIBRATED, -1);
                 Log.d("SleepFragment", daysCalibrated + "");
                 if (daysCalibrated == -1 || daysCalibrated >= 7) {
                     intent = new Intent(getActivity(), CalibrateActivity.class);
