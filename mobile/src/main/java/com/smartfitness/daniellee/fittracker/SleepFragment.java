@@ -69,8 +69,8 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         if (FitTracker.mSettings == null) {
             FitTracker.mSettings = getActivity().getSharedPreferences(FitTracker.PREFS_NAME, 0);
         }
-        String alarm = null;
-        if ((alarm = (FitTracker.mSettings.getString(ALARM_TIME_TAG, ""))).equals("")) {
+        String alarm = FitTracker.mSettings.getString(ALARM_TIME_TAG, "");
+        if (alarm.equals("")) {
             FitTracker.mSettings.edit().putString(ALARM_TIME_TAG, getActivity().getString(R.string.default_alarm_time)).apply();
             alarmTextView.setText(R.string.default_alarm_time);
         } else {
@@ -82,6 +82,9 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         disableAlarmCheckBox = (CheckBox) v.findViewById(R.id.disableAlarmCheckBox);
 
         disableAlarmCheckBox.setChecked(FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false));
+        if (disableAlarmCheckBox.isChecked()) {
+            smartAlarmLinearLayout.setVisibility(View.INVISIBLE);
+        }
         disableAlarmCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -94,7 +97,7 @@ public class SleepFragment extends android.support.v4.app.Fragment {
         });
 
         smartAlarmTimeSpinner = (Spinner) v.findViewById(R.id.smartAlarmTimeSpinner);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Constants.SMART_ALARM_TIMES);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, Constants.SMART_ALARM_TIMES);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         smartAlarmTimeSpinner.setAdapter(spinnerArrayAdapter);
         smartAlarmTimeSpinner.setSelection(FitTracker.mSettings.getInt(Constants.SMART_ALARM_TIME_INDEX, 0));
@@ -119,7 +122,7 @@ public class SleepFragment extends android.support.v4.app.Fragment {
 
                 Intent intent;
                 int daysCalibrated = FitTracker.mSettings.getInt(Constants.DAYS_CALIBRATED, -1);
-                Log.d("SleepFragment", daysCalibrated + "");
+                Log.d("SleepFragment", "Days calibrated: " + daysCalibrated);
                 if (daysCalibrated == -1 || daysCalibrated >= 7) {
                     intent = new Intent(getActivity(), CalibrateActivity.class);
                 } else {

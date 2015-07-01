@@ -40,7 +40,7 @@ public class TimePickerFragment extends DialogFragment implements
             minute = "" + i2;
         }
         String time = hour + ":" + minute;
-        FitTracker.mSettings.edit().putString(SleepFragment.ALARM_TIME_TAG, time);
+        FitTracker.mSettings.edit().putString(SleepFragment.ALARM_TIME_TAG, time).apply();
         mAlarmTextView.setText(time);
     }
 }

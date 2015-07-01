@@ -118,13 +118,19 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onDestroy() {
         // increment days calibrated
-        handler.removeCallbacks(alarmRunnable);
+        if (handler != null && alarmRunnable != null) {
+            handler.removeCallbacks(alarmRunnable);
+        }
         if (wl.isHeld()) {
             wl.release();
         }
         FitTracker.mSettings.edit().putInt(Constants.DAYS_CALIBRATED, FitTracker.mSettings.getInt(Constants.DAYS_CALIBRATED, 0) + 1).apply();
         if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
+            try {
+                unregisterReceiver(broadcastReceiver);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+            }
         }
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
@@ -208,6 +214,19 @@ public class SleepService extends Service implements SensorEventListener {
                 .build();
         startForeground(2014, note);
 
+        // schedule alarm
+        Date alarmDate = new Date();
+        // get hour and minute of alarm time
+        String[] splits = mAlarmTime.split(":");
+        mAlarmCalendar = Calendar.getInstance();
+        mAlarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(splits[0]));
+        mAlarmCalendar.set(Calendar.MINUTE, Integer.parseInt(splits[1]));
+        mAlarmCalendar.set(Calendar.SECOND, 0);
+        if (alarmDate.getTime() >= mAlarmCalendar.getTimeInMillis()) {
+            Log.d(TAG, "Add day");
+            mAlarmCalendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
         if (!FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false)) {
             handler = new Handler();
             alarmRunnable = new Runnable() {
@@ -215,7 +234,11 @@ public class SleepService extends Service implements SensorEventListener {
                 public void run() {
                     // stop recording sleep
                     if (broadcastReceiver != null) {
-                        unregisterReceiver(broadcastReceiver);
+                        try {
+                            unregisterReceiver(broadcastReceiver);
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                        }
                     }
                     // wake-up phone
                     PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
@@ -300,8 +323,8 @@ public class SleepService extends Service implements SensorEventListener {
                     if (!FitTracker.mSettings.getBoolean(Constants.DISABLE_ALARM, false)) {
                         int smartAlarmTimeIndex = FitTracker.mSettings.getInt(Constants.SMART_ALARM_TIME_INDEX, 0);
                         if (!(smartAlarmTimeIndex== 5)) {
-                            if (mAlarmCalendar.getTimeInMillis() - c.getTimeInMillis() < Integer.parseInt(Constants.SMART_ALARM_TIMES[smartAlarmTimeIndex]) * 60000) {
-                                if (currentLightSleepMins >= 5) {
+                            if ((mAlarmCalendar.getTimeInMillis() - c.getTimeInMillis()) < (Integer.parseInt(Constants.SMART_ALARM_TIMES[smartAlarmTimeIndex]) * 60000)) {
+                                if (currentLightSleepMins >= 3) {
                                     alarmRunnable.run();
                                 }
                             }
@@ -329,19 +352,6 @@ public class SleepService extends Service implements SensorEventListener {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
         wl.acquire();
-
-        // schedule alarm
-        Date alarmDate = new Date();
-        // get hour and minute of alarm time
-        String[] splits = mAlarmTime.split(":");
-        mAlarmCalendar = Calendar.getInstance();
-        mAlarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(splits[0]));
-        mAlarmCalendar.set(Calendar.MINUTE, Integer.parseInt(splits[1]));
-        mAlarmCalendar.set(Calendar.SECOND, 0);
-        if (alarmDate.getTime() >= mAlarmCalendar.getTimeInMillis()) {
-            Log.d(TAG, "Add a day");
-            mAlarmCalendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
         /*alarmDate.setTime(c.getTimeInMillis());
         final TimerTask timerTask = new TimerTask() {
             @Override
