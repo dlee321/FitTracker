@@ -31,7 +31,11 @@ import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -316,7 +320,7 @@ public class HistoryFragment extends Fragment {
                     .bucketByTime(1, TimeUnit.DAYS)
                     .setTimeRange(startTime, endTime, TimeUnit.MILLISECONDS)
                     .build();
-            Log.i(TAG, "Reading step data");
+            Log.i(TAG, "Reading step data...");
             DataReadResult result =
                     Fitness.HistoryApi.readData(mClient, readRequest).await(1, TimeUnit.MINUTES);
             return result;
@@ -330,7 +334,32 @@ public class HistoryFragment extends Fragment {
             for (int iii = 0; iii < buckets.size(); iii++) {
                 dumpDataSet(buckets.get(iii).getDataSet(DataType.AGGREGATE_STEP_COUNT_DELTA));
             }
-            HistoryAdapter adapter = new HistoryAdapter(getActivity(), R.layout.history_list_item, days);
+            ParseUser user = ParseUser.getCurrentUser();
+            ArrayList<Sleep> sleepData = (ArrayList<Sleep>) user.get(Constants.SLEEPS_KEY);
+            Sleep[] sleepArray = new Sleep[7];
+
+            ParseQuery<Sleep> query = ParseQuery.getQuery(Sleep.class);
+            int index = 0;
+            Date startDate = new Date();
+            for (int iii = 0; iii < sleepData.size(); iii++) {
+                try {
+                    Sleep sleep = query.get(sleepData.get(iii).getObjectId());
+                    Date endDate = sleep.getCreatedAt();
+                    int difference = ((int) ((startDate.getTime() / (24 * 60 * 60 * 1000))
+                            - (int) (endDate.getTime() / (24 * 60 * 60 * 1000))));
+                    if (difference <= 1) {
+                        sleepArray[index] = sleep;
+                        index++;
+                    } else {
+                        index += difference - 1;
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IndexOutOfBoundsException e) {
+                    break;
+                }
+            }
+            HistoryAdapter adapter = new HistoryAdapter(getActivity(), R.layout.history_list_item, days, sleepArray, listView.getWidth()/2 - (int) (5 * getActivity().getResources().getDisplayMetrics().density));
             listView.setAdapter(adapter);
             // refresh listview
             listView.destroyDrawingCache();

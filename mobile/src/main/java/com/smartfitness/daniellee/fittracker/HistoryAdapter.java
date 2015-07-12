@@ -1,9 +1,6 @@
 package com.smartfitness.daniellee.fittracker;
 
-import android.app.Activity;
 import android.content.Context;
-import android.nfc.Tag;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +15,17 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
     Context mContext;
     int mLayoutResource;
     Integer[] mObjects;
+    Sleep[] mSleepData;
     int count;
+    int circleSize;
 
-    public HistoryAdapter(Context context, int resource, Integer[] objects) {
+    public HistoryAdapter(Context context, int resource, Integer[] objects, Sleep[] sleepData, int width) {
         super(context, resource, objects);
         mContext = context;
         mLayoutResource = resource;
         mObjects = objects;
+        mSleepData = sleepData;
+        circleSize = width;
         count = mObjects.length;
         for (int iii = mObjects.length - 1; objects[iii] == null; iii--) {
             count--;
@@ -33,35 +34,63 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        try {
-            int data = mObjects[count - position - 1];
-            Log.d(TAG, "GetView " + position + " " + (convertView == null) + "  " + data);
-            ViewHolder holder;
-            if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(mLayoutResource, null);
+        int data = mObjects[count - position - 1];
+        Log.d(TAG, "GetView " + position + " " + (convertView == null) + "  " + data);
+        ViewHolder holder;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(mLayoutResource, null);
 
-                holder = new ViewHolder();
-                holder.circleView = (CircleView2) convertView.findViewById(R.id.circleView);
-                holder.position = position;
-                holder.height = convertView.getHeight();
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            int parentHeight = holder.height;
-            int circleHeight = holder.height;
-            int circleWidth = holder.height;
-            int margin = (parentHeight - circleHeight) / 2;
-            Log.d(TAG, parentHeight + " " + circleHeight + " " + circleWidth + "  " + margin);
-            Log.d(TAG, "" + holder.circleView.toString());
-            holder.circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
-            holder.circleView.setStepsString(data);
-            holder.circleView.invalidate();
-            return convertView;
-        } catch (NullPointerException e) {
-            return null;
+            holder = new ViewHolder();
+            holder.circleView = (CircleView2) convertView.findViewById(R.id.circleView);
+            holder.circleViewSleep = (CircleView3) convertView.findViewById(R.id.circleViewSleep);
+            holder.position = position;
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
+        int circleHeight = circleSize;
+        int circleWidth = circleSize;
+        //int margin = (parentHeight - circleHeight) / 2;
+        Log.d(TAG, circleHeight + " " + circleWidth);
+        Log.d(TAG, "" + holder.circleView.toString());
+        //holder.circleView.layout(margin, margin, margin + circleWidth, margin + circleHeight);
+        holder.circleView.setStepsString(data);
+        holder.circleView.getLayoutParams().height = circleHeight;
+        holder.circleView.getLayoutParams().width = circleWidth;
+        holder.circleView.setLayoutParams(holder.circleView.getLayoutParams());
+        holder.circleView.invalidate();
+
+
+        holder.circleViewSleep.reset();
+
+        holder.circleViewSleep.getLayoutParams().height = circleHeight;
+        holder.circleViewSleep.getLayoutParams().width = circleWidth;
+        holder.circleViewSleep.setLayoutParams(holder.circleViewSleep.getLayoutParams());
+
+        Sleep sleep = mSleepData[position];
+        Log.d(TAG, position + " " + (sleep == null));
+        if (sleep != null) {
+            int duration = sleep.getValues().length() * 2;
+            String durationString = calculateTimeString(duration);
+            holder.circleViewSleep.setSleepTime(duration);
+            holder.circleViewSleep.setSleepTimeString(durationString);
+            holder.circleViewSleep.invalidate();
+        }
+
+        return convertView;
+    }
+
+    private String calculateTimeString(int minutes) {
+        int hours = minutes / 60;
+        int addedMinutes = minutes % 60;
+        String sleepText = hours + ":";
+        if (addedMinutes >= 10) {
+            sleepText += addedMinutes;
+        } else {
+            sleepText += "0" + addedMinutes;
+        }
+        return sleepText;
     }
 
     @Override
@@ -78,6 +107,6 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
     static class ViewHolder {
         CircleView2 circleView;
         int position;
-        int height;
+        public CircleView3 circleViewSleep;
     }
 }

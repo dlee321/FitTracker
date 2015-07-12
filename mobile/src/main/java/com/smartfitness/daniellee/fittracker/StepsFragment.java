@@ -97,7 +97,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     private int mActionBarSize;
 
 
-    // necessary swipe height to trigger refresh
+    // necessary swipe width to trigger refresh
     private int mSwipeHeight;
 
 
@@ -126,7 +126,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     double startY = 0;
 
 
-    // display width and height
+    // display width and width
     float dpHeight;
     float dpWidth;
 

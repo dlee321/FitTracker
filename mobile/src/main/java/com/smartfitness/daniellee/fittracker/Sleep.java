@@ -3,6 +3,8 @@ package com.smartfitness.daniellee.fittracker;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 
 /**
@@ -31,11 +33,11 @@ public class Sleep extends ParseObject{
         return this.getString(Constants.END);
     }
 
-    public void setValues(ArrayList<Boolean> values) {
+    public void setValues(JSONArray values) {
         this.put(Constants.VALUES, values);
     }
 
-    public ArrayList<Boolean> getValues() {
-        return (ArrayList<Boolean>) this.get(Constants.VALUES);
+    public JSONArray getValues() {
+        return this.getJSONArray(Constants.VALUES);
     }
 }

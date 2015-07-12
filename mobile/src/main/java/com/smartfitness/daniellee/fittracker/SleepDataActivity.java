@@ -17,6 +17,8 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -46,7 +48,7 @@ public class SleepDataActivity extends ActionBarActivity {
     String endText;
 
 
-    ArrayList<Boolean> values;
+    JSONArray values;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,17 +156,17 @@ public class SleepDataActivity extends ActionBarActivity {
         // calculate deep sleep time hours:mins
         int deepSleepMins = 0;
         // get values to be passed to Sleep ParseObject
-        values = new ArrayList<>();
+        values = new JSONArray();
         boolean everyOther = false;
         for (GraphView.GraphViewData d: data) {
             if (d.getY() == 1) {
                 deepSleepMins++;
                 if (everyOther) {
-                    values.add(false);
+                    values.put(false);
                 }
             } else {
                 if (everyOther) {
-                    values.add(true);
+                    values.put(true);
                 }
             }
             everyOther = !everyOther;
