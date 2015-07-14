@@ -6,6 +6,7 @@ import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,25 +67,21 @@ public class Run extends ParseObject {
         this.put(Constants.DISTANCE, distance);
     }
 
-    public ArrayList<JSONArray> getCoordinates() {
-        return (ArrayList<JSONArray>) this.get(Constants.COORDINATES);
+    public JSONArray getCoordinates() {
+        return (JSONArray) this.get(Constants.COORDINATES);
     }
 
-    public boolean setCoordinates(ArrayList<double[]> coordinates) {
+    public void setCoordinates(ArrayList<Double> coordinates) {
         int count = 1;
-        Double[] coordinateD;
         try {
-            for (double[] coordinate : coordinates) {
-                coordinateD = new Double[2];
-                coordinateD[0] = coordinate[0];
-                coordinateD[1] = coordinate[1];
-                Log.d("RUN", "" + count);
-                this.add(Constants.COORDINATES, Arrays.asList(coordinateD));
+            JSONArray coordinatesArray = new JSONArray();
+            for (double coordinate : coordinates) {
+                coordinatesArray.put(coordinate);
             }
-        } catch (OutOfMemoryError e) {
-            return true;
+            this.put(Constants.COORDINATES, coordinatesArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return false;
     }
 
 
@@ -111,7 +108,6 @@ public class Run extends ParseObject {
     public void setEndTime(long endTime) {
         this.put(Constants.END_TIME, endTime);
     }
-
 
 
 }

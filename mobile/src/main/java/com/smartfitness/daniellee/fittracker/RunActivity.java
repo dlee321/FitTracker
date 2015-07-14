@@ -101,7 +101,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
 
     SharedPreferences mSettings;
 
-    ArrayList<double[]> coordinateList;
+    ArrayList<Double> coordinateList;
     long coordinateNumber = 0;
 
 
@@ -118,7 +118,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My Tag");
         wl.acquire();
 
-        coordinateList = new ArrayList<double[]>();
+        coordinateList = new ArrayList<Double>();
 
         mSettings = getSharedPreferences(FitTracker.PREFS_NAME, 0);
 
@@ -399,7 +399,8 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(17).build()));
 
             if (coordinateNumber % 3 == 0) {
-                coordinateList.add(new double[] {latitude, longitude});
+                coordinateList.add(latitude);
+                coordinateList.add(longitude);
             }
         }
     }

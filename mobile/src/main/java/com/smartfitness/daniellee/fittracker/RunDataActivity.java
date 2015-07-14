@@ -64,7 +64,7 @@ public class RunDataActivity extends ActionBarActivity {
     long pauseLength;
     double calories;
     double distance;
-    ArrayList<double[]> coordinateList;
+    ArrayList<Double> coordinateList;
 
 
     TextView notesTextView;
@@ -93,25 +93,27 @@ public class RunDataActivity extends ActionBarActivity {
             final String description = intent.getStringExtra("description");
             setTitle(description);
 
-            coordinateList = (ArrayList<double[]>) intent.getSerializableExtra("coordinates");
+            coordinateList = (ArrayList) intent.getSerializableExtra("coordinates");
 
             // coordinates for the bounds of the map
             double minX = Integer.MAX_VALUE;
             double minY = Integer.MAX_VALUE;
             double maxX = Integer.MIN_VALUE;
             double maxY = Integer.MIN_VALUE;
-            for (double[] coordinate: coordinateList) {
-                mPoly.add(new LatLng(coordinate[0], coordinate[1]));
-                if (coordinate[0] < minX) {
-                    minX = coordinate[0];
-                } else if (coordinate[0] > maxX) {
-                    maxX = coordinate[0];
+            for (int iii = 0; iii < coordinateList.size(); iii += 2) {
+                double lat = coordinateList.get(iii);
+                double lng = coordinateList.get(iii + 1);
+                mPoly.add(new LatLng(lat, lng));
+                if (lat < minX) {
+                    minX = lat;
+                } else if (lat > maxX) {
+                    maxX = lat;
                 }
 
-                if (coordinate[1] < minY) {
-                    minY = coordinate[1];
-                } else if (coordinate[1] > maxY) {
-                    maxY = coordinate[1];
+                if (lng < minY) {
+                    minY = lng;
+                } else if (lng > maxY) {
+                    maxY = lng;
                 }
             }
 
@@ -264,12 +266,13 @@ public class RunDataActivity extends ActionBarActivity {
                 user = ParseUser.getCurrentUser();
             }
             Run run = new Run();
-            boolean outOfMemory = run.setCoordinates(coordinateList);
-            while (outOfMemory) {
+            run.setCoordinates(coordinateList);
+            //boolean outOfMemory =
+            /*while (outOfMemory) {
                 run = new Run();
                 reduceArrayList(coordinateList);
                 outOfMemory = run.setCoordinates(coordinateList);
-            }
+            }*/
             Log.d(TAG, "Coordinates set");
             run.setCalories(calories);
             Log.d(TAG, "Calories set");
