@@ -231,6 +231,7 @@ public class SleepDataActivity extends ActionBarActivity {
             sleep.setEnd(endText);
             sleep.setValues(values);
             sleep.setACL(new ParseACL(user));
+            sleep.setDuration(sleepTimeMinutes);
             user.add(Constants.SLEEPS_KEY, sleep);
             user.saveInBackground();
             returnToMainActivity();

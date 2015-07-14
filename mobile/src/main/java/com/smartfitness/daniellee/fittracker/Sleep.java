@@ -40,4 +40,12 @@ public class Sleep extends ParseObject{
     public JSONArray getValues() {
         return this.getJSONArray(Constants.VALUES);
     }
+
+    public void setDuration(int duration) {
+        this.put(Constants.DURATION, duration);
+    }
+
+    public int getDuration() {
+        return this.getInt(Constants.DURATION);
+    }
 }

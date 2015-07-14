@@ -71,7 +71,7 @@ public class HistoryAdapter extends ArrayAdapter<Integer> {
         Sleep sleep = mSleepData[position];
         Log.d(TAG, position + " " + (sleep == null));
         if (sleep != null) {
-            int duration = sleep.getValues().length() * 2;
+            int duration = sleep.getDuration();
             String durationString = calculateTimeString(duration);
             holder.circleViewSleep.setSleepTime(duration);
             holder.circleViewSleep.setSleepTimeString(durationString);

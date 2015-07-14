@@ -45,7 +45,7 @@ public class SleepService extends Service implements SensorEventListener {
     //Queue accelerometerAccuracy = new Queue();
 
     private BroadcastReceiver broadcastReceiver;
-    private int sleepingTimeMinutes;
+    private int sleepingTimeMinutes = 0;
     private double maxMovement = 0;
     private double averageMovement = 0;
     private double minMovement = 0;
@@ -141,7 +141,9 @@ public class SleepService extends Service implements SensorEventListener {
             Log.d(TAG, "" + data);
             gyroDataArray[iii] = data;
         }
-        sleepingTimeMinutes = sw.elapsedTime();
+        if (sleepingTimeMinutes == 0) {
+            sleepingTimeMinutes = sw.elapsedTime();
+        }
         averageMovement = totalMovement / sleepingTimeMinutes;
         Intent intent = new Intent(this, SleepDataActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -287,6 +289,11 @@ public class SleepService extends Service implements SensorEventListener {
                     dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
                     dialog.setCancelable(false);
                     dialog.show();
+
+                    // set sleep duration to this time
+                    if (sleepingTimeMinutes == 0) {
+                        sleepingTimeMinutes = sw.elapsedTime();
+                    }
                 }
             };
             long timeDifference = new Date().getTime() - SystemClock.uptimeMillis();

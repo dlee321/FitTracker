@@ -25,7 +25,8 @@ public class Constants {
     // Sleep ParseObject keys
     public static final String START = "start",
             END = "end",
-            VALUES = "values";
+            VALUES = "values",
+            DURATION = "duration";
 
     // Shared Preferences keys
     public static final String SENSORX = "minX",
