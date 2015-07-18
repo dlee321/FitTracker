@@ -73,6 +73,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
     TextView pauseTextView;
 
     TextView mPaceTextView;
+    TextView mCurrentPaceTextView;
 
     int timeMinutes = 0;
     int timeSeconds = 0;
@@ -103,6 +104,8 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
 
     ArrayList<Double> coordinateList;
     long coordinateNumber = 0;
+
+    long lastLocationTime = 0;
 
 
 
@@ -202,14 +205,14 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 averagePace = dMinutes/mTotalDistance;
                 Log.d(TAG, "Pace:" + averagePace);
                 averageSpeedKM = mTotalDistanceKM/(dMinutes * 60);
-                double paceSeconds = averagePace - Math.floor(averagePace);
+                /*double paceSeconds = averagePace - Math.floor(averagePace);
                 int nSeconds = (int) (paceSeconds * 60);
                 minutes = "" + (int)averagePace;
                 seconds = "" + nSeconds;
                 if (nSeconds < 10) {
                     seconds = "0" + seconds;
-                }
-                mPaceTextView.setText(minutes + ":" + seconds);
+                }*/
+                mPaceTextView.setText(calculateTimeString((int)averagePace));
                 int weight = (int) (0.453592 * mSettings.getInt(Constants.WEIGHT_TAG, 150));
                 int timeHours = (timeMinutes + timeSeconds/60)/60;
                 int age = mSettings.getInt(Constants.AGE_TAG, 20);
@@ -251,6 +254,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         mDurationTextView = (TextView)findViewById(R.id.durationTextView);
         mCaloriesTextView = (TextView)findViewById(R.id.caloriesTextView);
         mPaceTextView = (TextView)findViewById(R.id.paceTextView);
+        mCurrentPaceTextView = (TextView)findViewById(R.id.currentPaceTextView);
 
         timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -398,6 +402,17 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
             double longitude = mLastLocation.getLongitude();
             map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(17).build()));
 
+            /*============
+            Calculate current pace
+             */
+            if (lastLocationTime != 0) {
+                long timeDifferenceMil = new Date().getTime() - lastLocationTime;
+                long timeDifferenceSec = timeDifferenceMil/1000;
+                int currentPace = (int) (timeDifferenceSec/distance);
+                mCurrentPaceTextView.setText(calculateTimeString(currentPace));
+            }
+            lastLocationTime = new Date().getTime();
+
             if (coordinateNumber % 3 == 0) {
                 coordinateList.add(latitude);
                 coordinateList.add(longitude);
@@ -435,6 +450,19 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
             }
         }
         return workoutType;
+    }
+
+
+    private static String calculateTimeString(int seconds) {
+        int hours = seconds / 60;
+        int addedMinutes = seconds % 60;
+        String sleepText = hours + ":";
+        if (addedMinutes >= 10) {
+            sleepText += addedMinutes;
+        } else {
+            sleepText += "0" + addedMinutes;
+        }
+        return sleepText;
     }
 
 }

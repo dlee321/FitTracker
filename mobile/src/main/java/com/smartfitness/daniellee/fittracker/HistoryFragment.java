@@ -341,13 +341,13 @@ public class HistoryFragment extends Fragment {
             ParseQuery<Sleep> query = ParseQuery.getQuery(Sleep.class);
             int index = 0;
             Date startDate = new Date();
-            for (int iii = 0; iii < sleepData.size(); iii++) {
+            for (int iii = sleepData.size() - 1; iii >= 0; iii--) {
                 try {
                     Sleep sleep = query.get(sleepData.get(iii).getObjectId());
                     Date endDate = sleep.getCreatedAt();
                     int difference = ((int) ((startDate.getTime() / (24 * 60 * 60 * 1000))
                             - (int) (endDate.getTime() / (24 * 60 * 60 * 1000))));
-                    if (difference <= 1) {
+                    if (difference <= index) {
                         sleepArray[index] = sleep;
                         index++;
                     } else {

@@ -9,27 +9,44 @@
         android:id="@+id/durationLabelLayout"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="5dp"
+        android:weightSum="2">
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:text="Duration"
+            android:gravity="center"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Current Pace"
             android:gravity="center"/>
         </LinearLayout>
-    <RelativeLayout
+    <LinearLayout
         android:layout_below="@id/durationLabelLayout"
         android:id="@+id/topLayout"
         android:layout_width="match_parent"
         android:layout_height="90dp"
-        android:layout_marginTop="-10dp">
+        android:weightSum="2">
         <TextView
-            android:layout_centerInParent="true"
             android:id="@+id/durationTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="64sp"
-            android:text="0:00"/>
-        </RelativeLayout>
+            android:text="0:00"
+            android:gravity="center"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/currentPaceTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="64sp"
+            android:text="0:00"
+            android:gravity="center"/>
+        </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
         android:id="@+id/secondLayout"
