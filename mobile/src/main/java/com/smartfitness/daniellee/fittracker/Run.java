@@ -19,6 +19,7 @@ public class Run extends ParseObject {
 
     public static final byte WALKING = 0;
     public static final byte RUNNING = 1;
+    public static final byte CYCLING = 2;
 
     /*private ArrayList<double[]> coordinates;
     private double calories;

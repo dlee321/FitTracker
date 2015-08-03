@@ -134,7 +134,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     }
 
     private void populateDrawer() {
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, DRAWER_LIST_ITEMS));
+        mDrawerList.setAdapter(new NavigationAdapter(this, R.layout.navigation_list_item, DRAWER_LIST_ITEMS));
         mDrawerList.setOnItemClickListener(this);
     }
 

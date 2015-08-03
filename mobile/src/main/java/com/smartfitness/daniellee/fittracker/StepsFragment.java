@@ -1,9 +1,12 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -12,6 +15,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -19,8 +24,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -30,21 +41,27 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessStatusCodes;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
+import com.google.android.gms.fitness.data.Session;
 import com.google.android.gms.fitness.request.DataReadRequest;
+import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
+import com.parse.Parse;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -67,6 +84,7 @@ import java.util.concurrent.TimeUnit;
 public class StepsFragment extends android.support.v4.app.Fragment {
 
     private static final double MINUTES_PER_DAY = 1440;
+    public static final int MILL_PER_HOUR = 3600000;
 
     SharedPreferences sp;
 
@@ -92,6 +110,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     // calories text
     TextView caloriesTextView;
 
+    // floating action button
+    FloatingActionButton fabPlus;
+
     private boolean connected;
 
     private int mActionBarSize;
@@ -112,9 +133,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     private static final int REQUEST_OAUTH = 1;
 
     /**
-     *  Track whether an authorization activity is stacking over the current activity, i.e. when
-     *  a known auth error is being resolved, such as showing the account chooser or presenting a
-     *  consent dialog. This avoids common duplications as might happen on screen rotations, etc.
+     * Track whether an authorization activity is stacking over the current activity, i.e. when
+     * a known auth error is being resolved, such as showing the account chooser or presenting a
+     * consent dialog. This avoids common duplications as might happen on screen rotations, etc.
      */
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
@@ -137,6 +158,19 @@ public class StepsFragment extends android.support.v4.app.Fragment {
     // variables used in animateEnlarge()
     int x = 0;
     float totalScale = 1;
+
+
+    // calendars for alertdialog starttime and endtime
+    Calendar calStart;
+    Calendar calEnd;
+    private boolean isStartTime;
+
+
+    RadioGroup mRadioGroup;
+    EditText mStartTime;
+    EditText mEndTIme;
+    private EditText mDistanceEditText;
+    private FloatingActionButton fabActivities;
 
     public static StepsFragment newInstance() {
         return new StepsFragment();
@@ -261,16 +295,16 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         // get the actionbar size
         final TypedArray styledAttributes = view.getContext().getTheme().obtainStyledAttributes(
-                new int[] { android.R.attr.actionBarSize });
+                new int[]{android.R.attr.actionBarSize});
         mActionBarSize = (int) styledAttributes.getDimension(0, 0);
         styledAttributes.recycle();
 
-        mSwipeHeight = (int)((dpHeight - 2 * mActionBarSize) * 0.5);
+        mSwipeHeight = (int) ((dpHeight - 2 * mActionBarSize) * 0.5);
 
-        graphLayout = (LinearLayout)view.findViewById(R.id.graphLinearLayout);
+        graphLayout = (LinearLayout) view.findViewById(R.id.graphLinearLayout);
         ViewGroup.LayoutParams params = graphLayout.getLayoutParams();
 
-        params.height = (int)(dpHeight / 7);
+        params.height = (int) (dpHeight / 7);
 
 
         graphLayout.addView(graphView);
@@ -289,45 +323,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             @Override
             public void onClick(View view) {
                 animateEnlarge();
-                mProgress.setMessage("Loading activities...");
-                mProgress.show();
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-                View v = inflater1.inflate(R.layout.daily_activity_detail_dialog, null);
-                TextView textView1 = (TextView) v.findViewById(R.id.noActivitiesTextView);
-                ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
-
-                if (sp.getBoolean(Keys.ACTIVITY_YET_TODAY, true)) {
-                    ParseUser user = ParseUser.getCurrentUser();
-                    ArrayList<Run> runs = (ArrayList<Run>) user.get(Keys.RUNS_KEY);
-                    if (runs.size() > 0) {
-                        Run run = runs.get(0);
-                        int secondsInADay = 60 * 60 * 24;
-                        long timestamp1 = new Date().getTime();
-                        int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
-                        int ind = 0;
-                        try {
-                            while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
-                                ind++;
-                                run = runs.get(ind);
-                            }
-                        } catch (NullPointerException e) {
-
-                        }
-                        if (ind > 0) {
-                            textView1.setVisibility(View.GONE);
-                            listView1.setVisibility(View.VISIBLE);
-                            runs.subList(ind + 1, runs.size()).clear();
-
-                            ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
-                            listView1.setAdapter(adapter);
-                        }
-                    }
-                }
-
-                builder.setView(v);
-
-                builder.create().show();
                 mProgress.dismiss();
             }
         });*/
@@ -344,7 +340,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                 int action = MotionEventCompat.getActionMasked(event);
 
                 if (action == MotionEvent.ACTION_DOWN) {
-                    Log.d(TAG, "ACTION_DOWN");
+                    //Log.d(TAG, "ACTION_DOWN");
                     currentSteps = Integer.parseInt(circleView.getStepsString());
                 } else if (action == MotionEvent.ACTION_MOVE) {
                     currentY = event.getAxisValue(MotionEvent.AXIS_Y);
@@ -363,9 +359,9 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                         circleView.invalidate();
                     }
 
-                    Log.d(TAG, "X: " + event.getAxisValue(MotionEvent.AXIS_X) + " Y: " + event.getAxisValue(MotionEvent.AXIS_Y));
+                    //Log.d(TAG, "X: " + event.getAxisValue(MotionEvent.AXIS_X) + " Y: " + event.getAxisValue(MotionEvent.AXIS_Y));
                 } else if (action == MotionEvent.ACTION_UP) {
-                    Log.d(TAG, "ACTION_UP");
+                    //Log.d(TAG, "ACTION_UP");
                     if (currentY - startY > mSwipeHeight) {
                         refresh();
                     } else {
@@ -384,6 +380,145 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         RectF box = new RectF(0,0, 200, 200);
         float sweep = 360 * 50 * 0.01f;
         circle.addArc(box, 0, sweep);*/
+
+        // setup floating action bar
+        fabPlus = (FloatingActionButton) view.findViewById(R.id.floatingActionButton1);
+        fabActivities = (FloatingActionButton) view.findViewById(R.id.floatingActionButton2);
+        if (sp.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
+            fabActivities.setVisibility(View.VISIBLE);
+            fabActivities.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mProgress.setMessage("Loading activities...");
+                    mProgress.show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                    View v = inflater1.inflate(R.layout.dialog_daily_activity_detail, null);
+                    TextView textView1 = (TextView) v.findViewById(R.id.noActivitiesTextView);
+                    ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
+
+                    if (sp.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
+                        ParseUser user = ParseUser.getCurrentUser();
+                        ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
+                        if (runs.size() > 0) {
+                            Run run = runs.get(0);
+                            int secondsInADay = 60 * 60 * 24;
+                            long timestamp1 = new Date().getTime();
+                            int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
+                            int ind = 0;
+                            try {
+                                while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
+                                    ind++;
+                                    run = runs.get(ind);
+                                }
+                            } catch (NullPointerException e) {
+
+                            }
+                            if (ind > 0) {
+                                textView1.setVisibility(View.GONE);
+                                listView1.setVisibility(View.VISIBLE);
+                                runs.subList(ind + 1, runs.size()).clear();
+
+                                ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+                                listView1.setAdapter(adapter);
+                            }
+                        }
+                    }
+
+                    builder.setView(v);
+
+                    builder.create().show();
+                }
+            });
+        }
+        fabPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+                View v = inflater1.inflate(R.layout.dialog_add_activity, null);
+                mRadioGroup = (RadioGroup) v.findViewById(R.id.activityTypeRadioGroup);
+                mDistanceEditText = (EditText) v.findViewById(R.id.distanceEditText);
+                mStartTime = (EditText) v.findViewById(R.id.startTime);
+                mEndTIme = (EditText) v.findViewById(R.id.endTime);
+                calEnd = Calendar.getInstance();
+                SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+                String endTimeText = format.format(calEnd.getTime());
+                calStart = Calendar.getInstance();
+                calStart.add(Calendar.MINUTE, -30);
+                String startTimeText = format.format(calStart.getTime());
+                mStartTime.setText(startTimeText);
+                mEndTIme.setText(endTimeText);
+
+                mStartTime.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        isStartTime = true;
+                        showTimePicker(calStart);
+                    }
+                });
+
+                mEndTIme.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        isStartTime = false;
+                        showTimePicker(calEnd);
+                    }
+                });
+
+                builder.setTitle("Add Activity")
+                        .setView(v)
+                        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                try {
+                                    Calendar calStart = Calendar.getInstance();
+                                    int year = calStart.get(Calendar.YEAR);
+                                    int month = calStart.get(Calendar.MONTH);
+                                    int dayOfMonth = calStart.get(Calendar.DAY_OF_MONTH);
+                                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                                    calStart.setTime(sdf.parse(mStartTime.getText().toString()));
+                                    calStart.set(Calendar.YEAR, year);
+                                    calStart.set(Calendar.MONTH, month);
+                                    calStart.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                                    Calendar calEnd = Calendar.getInstance();
+                                    year = calEnd.get(Calendar.YEAR);
+                                    month = calEnd.get(Calendar.MONTH);
+                                    dayOfMonth = calEnd.get(Calendar.DAY_OF_MONTH);
+                                    calEnd.setTime(sdf.parse(mEndTIme.getText().toString()));
+                                    calEnd.set(Calendar.YEAR, year);
+                                    calEnd.set(Calendar.MONTH, month);
+                                    calEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                                    long startTimeMillis = calStart.getTimeInMillis();
+                                    long endTimeMillis = calEnd.getTimeInMillis();
+
+                                    long distanceLong = Double.doubleToRawLongBits(Double.parseDouble(mDistanceEditText.getText().toString()));
+
+
+                                    int radioButtonID = mRadioGroup.getCheckedRadioButtonId();
+                                    View radioButton = mRadioGroup.findViewById(radioButtonID);
+                                    long workoutType = mRadioGroup.indexOfChild(radioButton);
+
+                                    Log.d(TAG, "Activity Times: " + startTimeMillis + " " + endTimeMillis);
+
+                                    if (startTimeMillis >= endTimeMillis) {
+                                        Toast.makeText(getActivity(), "Please make sure the start time is before the end time", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        new InputSessionTask().execute(startTimeMillis, endTimeMillis, distanceLong, workoutType);
+                                    }
+                                } catch (java.text.ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+
+                builder.create().show();
+            }
+        });
+
+
         return view;
     }
 
@@ -409,6 +544,20 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         x = 0;
         totalScale = 1;
     }*/
+
+
+    private void showTimePicker(Calendar time) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Constants.TIME_PICKER_FRAGMENT_TIME, time);
+        DialogFragment fragment;
+        if (isStartTime) {
+            fragment = new TimePickerFragment2(mStartTime);
+        } else {
+            fragment = new TimePickerFragment2(mEndTIme);
+        }
+        fragment.setArguments(bundle);
+        fragment.show(getFragmentManager(), "timePicker");
+    }
 
     private static boolean isTimeToday(long time2) {
         Calendar cal1 = Calendar.getInstance();
@@ -507,6 +656,8 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                             }
                         }
                 )
+                .addApi(Fitness.SESSIONS_API)
+                .addApi(Fitness.RECORDING_API)
                 .build();
     }
 
@@ -543,7 +694,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             Log.i(TAG, "\tStart: " + dateFormat.format(startTime));
             long endTime = dp.getEndTime(TimeUnit.MILLISECONDS);
             Log.i(TAG, "\tEnd: " + dateFormat.format(endTime));
-            for(Field field : dp.getDataType().getFields()) {
+            for (Field field : dp.getDataType().getFields()) {
                 int bucketValue = dp.getValue(field).asInt();
                 double temp = data[hour].getY();
                 data[hour] = new GraphView.GraphViewData(hour, temp + bucketValue);
@@ -553,6 +704,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             }
         }
     }
+
     int delay = 5;//milli seconds
 
     int steps;
@@ -582,7 +734,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             }
         }, delay);
     }*/
-
 
 
     private void animateOut() {
@@ -672,6 +823,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         mListener = null;
     }
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -692,7 +844,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         outState.putInt(STEPS_KEY, totalStepsToday);
         outState.putBoolean(AUTH_PENDING, authInProgress);
     }
-
 
 
     public class GetReadResultTask extends AsyncTask<Void, Void, DataReadResult> {
@@ -747,16 +898,59 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }
     }
 
+    private int calculateActivityCalories(long time, double distance) {
+        double distanceKM = distance * 1.60934;
+        double timeHours = ((double) time / MILL_PER_HOUR);
+        double averageSpeedKM = distanceKM / timeHours;
+        double mph = distance/timeHours;
+        int age = FitTracker.mSettings.getInt(Constants.AGE_TAG, 20);
+        int weightLB = FitTracker.mSettings.getInt(Constants.WEIGHT_TAG, 150);
+        int weightKG = (int) (0.453592 * weightLB);
+        double calories = 0;
+        int radioButtonID = mRadioGroup.getCheckedRadioButtonId();
+        View radioButton = mRadioGroup.findViewById(radioButtonID);
+        int workoutType = mRadioGroup.indexOfChild(radioButton);
+        if (workoutType == Run.RUNNING) {
+            double TF = 0.84;
+            double vO2max = 15.03 * ((208 - 0.7 * age) / 70);
+            double CFF;
+            if (vO2max >= 56) {
+                CFF = 1.00;
+            } else if (vO2max >= 54) {
+                CFF = 1.01;
+            } else if (vO2max >= 52) {
+                CFF = 1.02;
+            } else if (vO2max >= 50) {
+                CFF = 1.03;
+            } else if (vO2max >= 48) {
+                CFF = 1.04;
+            } else if (vO2max >= 46) {
+                CFF = 1.05;
+            } else if (vO2max >= 44) {
+                CFF = 1.06;
+            } else {
+                CFF = 1.07;
+            }
+            calories = (0.95 * weightKG + TF) * distanceKM * 1.60934 * CFF;
+        } else if (workoutType == Run.WALKING) {
+            calories = (0.0215 * Math.pow(averageSpeedKM, 3) - 0.1765 * averageSpeedKM * averageSpeedKM +
+                    0.8710 * averageSpeedKM + 1.4577) * weightKG * timeHours;
+        } else if (workoutType == Run.CYCLING) {
+            int totalWeight = weightLB + 20;
+            calories = ((0.046 * mph * totalWeight) + (0.066 * mph * mph * mph)) * timeHours;
+        }
+        return (int) Math.round(calories);
+    }
+
     private static int calculateCalories(int totalStepsToday) {
-        Log.d(TAG, "calculateCalories");
         int cals;
         ParseUser user = ParseUser.getCurrentUser();
-        double height = user.getInt(Constants.HEIGHT_FEET_TAG) + user.getInt(Constants.HEIGHT_INCH_TAG)/12.0;
+        double height = user.getInt(Constants.HEIGHT_FEET_TAG) + user.getInt(Constants.HEIGHT_INCH_TAG) / 12.0;
         double stride = .414 * height;
         double weight = user.getDouble(Constants.WEIGHT_TAG);
         double weightKG = weight * 0.453592;
         double caloriesPerMile = weight * .57;
-        double miles = stride * totalStepsToday/5280;
+        double miles = stride * totalStepsToday / 5280;
         cals = (int) (caloriesPerMile * miles);
         if (FitTracker.mSettings.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
             Log.d(TAG, "Adding activity calories");
@@ -783,8 +977,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         int restingCals;
         if (user.getBoolean(Constants.GENDER_TAG) == Constants.MALE) {
             restingCals = (int) Math.round((88.4 + 13.4 * weightKG) + 2.54 * 4.8 * height - 5.68 * calculateAge(user.getString(Constants.DATE_BIRTH_TAG)));
-        }
-        else {
+        } else {
             restingCals = (int) Math.round((447.6 + 9.25 * weightKG) + 2.54 * 3.1 * height - 4.33 * calculateAge(user.getString(Constants.DATE_BIRTH_TAG)));
         }
         Log.d(TAG, "RestingCals: " + restingCals);
@@ -797,7 +990,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         Calendar c = Calendar.getInstance();
         int minutes = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
         Log.d(TAG, "Minute: " + minutes);
-        double factor = minutes/ MINUTES_PER_DAY;
+        double factor = minutes / MINUTES_PER_DAY;
         Log.d(TAG, "Factor: " + factor);
         return factor;
     }
@@ -820,5 +1013,96 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         }
         Log.d(TAG, "Age: " + age);
         return age;
+    }
+
+
+    public class InputSessionTask extends AsyncTask<Long, Void, Void> {
+
+        protected Void doInBackground(Long... times) {
+            double distance = Double.longBitsToDouble(times[2]);
+            long time = times[1] - times[0];
+            Log.d(TAG, "Time distance: " + time + " " + distance);
+            int calories = calculateActivityCalories(time, distance);
+            // set that there is an activity today
+            FitTracker.mSettings.edit().putBoolean(Constants.ACTIVITY_YET_TODAY, true).apply();
+            // PARSE
+            ParseUser user = ParseUser.getCurrentUser();
+            Run run = new Run();
+            //boolean outOfMemory =
+            /*while (outOfMemory) {
+                run = new Run();
+                reduceArrayList(coordinateList);
+                outOfMemory = run.setCoordinates(coordinateList);
+            }*/
+            run.setCalories(calories);
+            Log.d(TAG, "Calories set");
+            run.setStartTime(times[0]);
+            Log.d(TAG, "Start time set");
+            run.setEndTime(times[1]);
+            Log.d(TAG, "End time set");
+            run.setDistance(distance);
+            Log.d(TAG, "Distance set");
+            run.setACL(new ParseACL(user));
+            Log.d(TAG, "ACL set");
+
+            byte workoutType = (byte) (long) times[3];
+
+            run.setActivityType(workoutType);
+            Log.d(TAG, "Activity type set");
+            user.add(Constants.RUNS_KEY, run);
+            Log.d(TAG, "Run added");
+            user.saveInBackground();
+            Log.d(TAG, "Saving user");
+
+            // GOOGLE FIT
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            int day = c.get(Calendar.DAY_OF_MONTH);
+            int month = c.get(Calendar.MONTH);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            String sWorkoutType = "";
+
+            switch (workoutType) {
+                case 0: sWorkoutType = FitnessActivities.WALKING;
+                    break;
+                case 1: sWorkoutType = FitnessActivities.RUNNING;
+                    break;
+                case 2: sWorkoutType = FitnessActivities.BIKING;
+            }
+
+            Session session = new Session.Builder()
+                    .setName(workoutType + month + "-" + day + ":" + hour + ":" + minute)
+                    .setIdentifier(RunDataActivity.IDENTIFIER)
+                    .setActivity(sWorkoutType)
+                    .setStartTime(times[0], TimeUnit.MILLISECONDS)
+                    .setEndTime(times[1], TimeUnit.MILLISECONDS)
+                    .build();
+
+            SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
+                    .setSession(session)
+                    .build();
+
+            // Then, invoke the Sessions API to insert the session and await the result,
+            // which is possible here because of the AsyncTask. Always include a timeout when
+            // calling await() to avoid hanging that can occur from the service being shutdown
+            // because of low memory or other conditions.
+            Log.i(TAG, "Inserting the session in the History API");
+            com.google.android.gms.common.api.Status insertStatus =
+                    Fitness.SessionsApi.insertSession(mClient, insertRequest)
+                            .await(1, TimeUnit.MINUTES);
+
+            // Before querying the session, check to see if the insertion succeeded.
+            if (!insertStatus.isSuccess()) {
+                Log.i(TAG, "There was a problem inserting the session: " +
+                        insertStatus.getStatusMessage());
+            }
+
+            // At this point, the session has been inserted and can be read.
+            Log.i(TAG, "Session insert was successful!");
+
+            return null;
+        }
     }
 }

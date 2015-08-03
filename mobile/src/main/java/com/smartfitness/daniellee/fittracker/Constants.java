@@ -51,4 +51,6 @@ public class Constants {
 
 
     public static final String[] SMART_ALARM_TIMES = new String[]{"30", "25", "20", "15", "10", "None"};
+
+    public static final String TIME_PICKER_FRAGMENT_TIME = "activitytime";
 }

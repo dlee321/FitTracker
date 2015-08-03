@@ -77,6 +77,8 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
                 holder.imageView.setImageResource(R.drawable.walking);
             } else if (data.getActivityType() == Run.RUNNING) {
                 holder.imageView.setImageResource(R.drawable.running);
+            } else if (data.getActivityType() == Run.CYCLING) {
+                holder.imageView.setImageResource(R.drawable.biking);
             }
 
             long duration = data.getEndTime() - data.getStartTime();
@@ -143,7 +145,5 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
         TextView paceTextView;
         TextView calorieTextView;
         TextView dateTextView;
-        int position;
-        int height;
     }
 }
