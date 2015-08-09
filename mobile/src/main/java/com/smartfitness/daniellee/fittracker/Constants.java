@@ -33,7 +33,7 @@ public class Constants {
             SENSORY = "minY",
             SENSORZ = "minZ",
             DAYS_CALIBRATED = "dayscalibrated",
-
+            ACTIVITY_TRACKING_TYPE = "activitytype",
             DISABLE_ALARM = "disablealarm",
             SMART_ALARM_TIME_INDEX = "smartalarmtime";
 

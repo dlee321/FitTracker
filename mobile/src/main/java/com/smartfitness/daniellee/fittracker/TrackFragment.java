@@ -17,7 +17,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -142,6 +145,33 @@ public class TrackFragment extends android.support.v4.app.Fragment {
             }
         });
 
+        Spinner spinner = (Spinner) v.findViewById(R.id.activityTypeSpinner);
+        spinner.bringToFront();
+// Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                R.array.activity_types_array, android.R.layout.simple_spinner_item);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        // set selected item to last one selected (default first item--walking)
+        spinner.setSelection(FitTracker.mSettings.getInt(Constants.ACTIVITY_TRACKING_TYPE, 0));
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d(TAG, "Position: " + i);
+                Log.d(TAG, "ID: " + l);
+                FitTracker.mSettings.edit().putInt(Constants.ACTIVITY_TRACKING_TYPE, i).apply();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         return v;
     }
 
@@ -247,9 +277,6 @@ public class TrackFragment extends android.support.v4.app.Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
     }
 
     @Override

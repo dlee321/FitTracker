@@ -37,20 +37,24 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessStatusCodes;
+import com.google.android.gms.fitness.HistoryApi;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.Session;
+import com.google.android.gms.fitness.request.DailyTotalRequest;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
+import com.google.android.gms.fitness.result.DailyTotalResult;
 import com.google.android.gms.fitness.result.DataReadResult;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
@@ -397,33 +401,32 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                     TextView textView1 = (TextView) v.findViewById(R.id.noActivitiesTextView);
                     ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
 
-                    if (sp.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
-                        ParseUser user = ParseUser.getCurrentUser();
-                        ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
-                        if (runs.size() > 0) {
-                            Run run = runs.get(0);
-                            int secondsInADay = 60 * 60 * 24;
-                            long timestamp1 = new Date().getTime();
-                            int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
-                            int ind = 0;
-                            try {
-                                while (daysSinceEpoch1 == run.getCreatedAt().getTime() / secondsInADay) {
-                                    ind++;
-                                    run = runs.get(ind);
-                                }
-                            } catch (NullPointerException e) {
-
+                    ParseUser user = ParseUser.getCurrentUser();
+                    ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
+                    if (runs.size() > 0) {
+                        Run run = runs.get(runs.size() - 1);
+                        int secondsInADay = 60 * 60 * 24;
+                        long timestamp1 = new Date().getTime();
+                        int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
+                        int ind = runs.size() - 1;
+                        try {
+                            while (daysSinceEpoch1 == run.getStartTime() / secondsInADay) {
+                                ind++;
+                                run = runs.get(ind);
                             }
-                            if (ind > 0) {
-                                textView1.setVisibility(View.GONE);
-                                listView1.setVisibility(View.VISIBLE);
-                                runs.subList(ind + 1, runs.size()).clear();
+                        } catch (NullPointerException e) {
 
-                                ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
-                                listView1.setAdapter(adapter);
-                            }
+                        }
+                        if (ind > 0) {
+                            textView1.setVisibility(View.GONE);
+                            listView1.setVisibility(View.VISIBLE);
+                            runs.subList(ind + 1, runs.size()).clear();
+
+                            ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+                            listView1.setAdapter(adapter);
                         }
                     }
+
 
                     builder.setView(v);
 
@@ -575,6 +578,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         mProgress.setMessage("Loading Step Data...");
         mProgress.show();
         new GetReadResultTask().execute();
+        new GetReadResultTask2().execute();
     }
 
     /*private void drawCircle() {
@@ -613,6 +617,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
                                 new GetReadResultTask().execute();
+                                new GetReadResultTask2().execute();
                             }
 
                             @Override
@@ -868,7 +873,6 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
         @Override
         protected void onPostExecute(DataReadResult dataReadResult) {
-            totalStepsToday = 0;
             if (dataReadResult != null && connected) {
                     /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
                     AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
@@ -883,6 +887,39 @@ public class StepsFragment extends android.support.v4.app.Fragment {
                     fadeIn.setDuration(1200);
                     fadeIn.setFillAfter(true);*/
                 series.resetData(data);
+            }
+        }
+    }
+
+    public class GetReadResultTask2 extends AsyncTask<Void, Void, DailyTotalResult> {
+
+        protected DailyTotalResult doInBackground(Void... voids) {
+            Calendar cal = Calendar.getInstance();
+            Date now = new Date();
+            cal.setTime(now);
+            long endTime = cal.getTimeInMillis();
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            long startTime = cal.getTimeInMillis();
+
+            PendingResult<DailyTotalResult> readRequest = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_STEP_COUNT_DELTA);
+            DailyTotalResult result =
+                    readRequest.await(1, TimeUnit.MINUTES);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(DailyTotalResult dailyTotalResult) {
+            totalStepsToday = 0;
+            if (dailyTotalResult != null && connected) {
+                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    stepsTextView.setAnimation(fadeOut);
+                    fadeOut.setDuration(1200);
+                    fadeOut.setFillAfter(true);*/
+                DataSet totalSet = dailyTotalResult.getTotal();
+                totalStepsToday = totalSet.isEmpty()
+                        ? 0
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS).asInt();
             }
             Log.d(TAG, "" + totalStepsToday);
 
@@ -902,7 +939,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
         double distanceKM = distance * 1.60934;
         double timeHours = ((double) time / MILL_PER_HOUR);
         double averageSpeedKM = distanceKM / timeHours;
-        double mph = distance/timeHours;
+        double mph = distance / timeHours;
         int age = FitTracker.mSettings.getInt(Constants.AGE_TAG, 20);
         int weightLB = FitTracker.mSettings.getInt(Constants.WEIGHT_TAG, 150);
         int weightKG = (int) (0.453592 * weightLB);
@@ -1065,11 +1102,14 @@ public class StepsFragment extends android.support.v4.app.Fragment {
             String sWorkoutType = "";
 
             switch (workoutType) {
-                case 0: sWorkoutType = FitnessActivities.WALKING;
+                case 0:
+                    sWorkoutType = FitnessActivities.WALKING;
                     break;
-                case 1: sWorkoutType = FitnessActivities.RUNNING;
+                case 1:
+                    sWorkoutType = FitnessActivities.RUNNING;
                     break;
-                case 2: sWorkoutType = FitnessActivities.BIKING;
+                case 2:
+                    sWorkoutType = FitnessActivities.BIKING;
             }
 
             Session session = new Session.Builder()

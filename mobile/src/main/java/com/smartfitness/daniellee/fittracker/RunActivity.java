@@ -205,18 +205,20 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 averagePace = dMinutes/mTotalDistance;
                 Log.d(TAG, "Pace:" + averagePace);
                 averageSpeedKM = mTotalDistanceKM/(dMinutes * 60);
-                /*double paceSeconds = averagePace - Math.floor(averagePace);
+                double paceSeconds = averagePace - Math.floor(averagePace);
                 int nSeconds = (int) (paceSeconds * 60);
                 minutes = "" + (int)averagePace;
                 seconds = "" + nSeconds;
                 if (nSeconds < 10) {
                     seconds = "0" + seconds;
-                }*/
-                mPaceTextView.setText(calculateTimeString((int)averagePace));
+                }
+                mPaceTextView.setText(minutes + ":" + seconds);
                 int weight = (int) (0.453592 * mSettings.getInt(Constants.WEIGHT_TAG, 150));
+                int weightLB = (int) (weight * 2.20462);
                 int timeHours = (timeMinutes + timeSeconds/60)/60;
                 int age = mSettings.getInt(Constants.AGE_TAG, 20);
-                if (calculateWorkoutType().equals(FitnessActivities.RUNNING) || calculateWorkoutType().equals(FitnessActivities.RUNNING_JOGGING)) {
+                String workoutType = calculateWorkoutType();
+                if (workoutType.equals(FitnessActivities.RUNNING)) {
                     double TF = 0.84;
                     double vO2max = 15.03 * ((208 - 0.7*age)/70);
                     double CFF;
@@ -238,9 +240,13 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                         CFF = 1.07;
                     }
                     mCalories = (0.95 * weight + TF) * mTotalDistanceKM * CFF;
-                } else {
+                } else if (workoutType.equals(FitnessActivities.WALKING)) {
                     mCalories = (0.0215 * Math.pow(averageSpeedKM, 3) - 0.1765 * averageSpeedKM * averageSpeedKM +
                             0.8710 * averageSpeedKM + 1.4577) * weight * timeHours;
+                } else {
+                    int totalWeight = weightLB + 20;
+                    double mph = (1/averagePace) / 60;
+                    mCalories = ((0.046 * mph * totalWeight) + (0.066 * mph * mph * mph)) * timeHours;
                 }
                 long calories = Math.round(mCalories);
                 mCaloriesTextView.setText("" + calories);
@@ -408,8 +414,10 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
             if (lastLocationTime != 0) {
                 long timeDifferenceMil = new Date().getTime() - lastLocationTime;
                 long timeDifferenceSec = timeDifferenceMil/1000;
-                int currentPace = (int) (timeDifferenceSec/distance);
-                mCurrentPaceTextView.setText(calculateTimeString(currentPace));
+                int currentPace = (int) (timeDifferenceSec/(distance * 0.621371));
+                if (currentPace != 0 && distance != 0) {
+                    mCurrentPaceTextView.setText(calculateTimeString(currentPace));
+                }
             }
             lastLocationTime = new Date().getTime();
 
@@ -438,31 +446,29 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
 
     private String calculateWorkoutType() {
         String workoutType = "";
-        if (averagePace > 20) {
-            workoutType = FitnessActivities.WALKING;
-        } else if (averagePace <= 20) {
-            workoutType = FitnessActivities.WALKING_FITNESS;
-            if (averagePace <= 12) {
-                workoutType = FitnessActivities.RUNNING_JOGGING;
-            }
-            if (averagePace <= 10) {
-                workoutType = FitnessActivities.RUNNING;
-            }
+        int workout = FitTracker.mSettings.getInt(Constants.ACTIVITY_TRACKING_TYPE, 0);
+        switch (workout) {
+            case 0: workoutType = FitnessActivities.WALKING;
+                break;
+            case 1: workoutType = FitnessActivities.RUNNING;
+                break;
+            case 2: workoutType = FitnessActivities.BIKING;
+                break;
         }
         return workoutType;
     }
 
 
-    private static String calculateTimeString(int seconds) {
-        int hours = seconds / 60;
-        int addedMinutes = seconds % 60;
-        String sleepText = hours + ":";
-        if (addedMinutes >= 10) {
-            sleepText += addedMinutes;
+    private static String calculateTimeString(long seconds) {
+        int minutes = (int) seconds/60;
+        int secondsLeft = (int)seconds % 60;
+        String timeText = minutes + ":";
+        if (secondsLeft >= 10) {
+            timeText += secondsLeft;
         } else {
-            sleepText += "0" + addedMinutes;
+            timeText += "0" + secondsLeft;
         }
-        return sleepText;
+        return timeText;
     }
 
 }
