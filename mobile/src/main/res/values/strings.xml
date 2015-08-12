@@ -33,5 +33,6 @@
     <string name="action_edit">Edit</string>
     <string name="title_activity_calibrate">CalibrateActivity</string>
     <string name="pref_stepsGoal">Steps Goal</string>
+    <string name="pref_vibrateAlarm">Vibrate when alarm goes off</string>
 
 </resources>

@@ -54,6 +54,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         if (key.equals("pref_stepsGoal")) {
             String stepsGoal = sharedPreferences.getString(key, "");
             FitTracker.mSettings.edit().putString("pref_stepsGoal", stepsGoal).apply();
+        } else if (key.equals("pref_vibrateAlarm")) {
+            boolean vibrate = sharedPreferences.getBoolean(key, false);
+            FitTracker.mSettings.edit().putBoolean("pref_vibrateAlarm", vibrate).apply();
         }
     }
 }

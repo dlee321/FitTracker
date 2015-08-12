@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.WindowManager;
@@ -260,6 +261,12 @@ public class SleepService extends Service implements SensorEventListener {
                         mMediaPlayer.start();
                     } catch (IOException e) {
                         e.printStackTrace();
+                    }
+
+                    if (FitTracker.mSettings.getBoolean("pref_vibrateAlarm", false)) {
+                        final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                        long[] pattern = {0, 500, 500};
+                        vibrator.vibrate(pattern, 0);
                     }
                     // show wake up dialog
                     AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(SleepService.this);

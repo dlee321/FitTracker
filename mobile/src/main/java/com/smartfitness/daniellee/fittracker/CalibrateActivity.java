@@ -57,9 +57,9 @@ public class CalibrateActivity extends ActionBarActivity {
                 stopService(serviceIntent);
                 progressDialog.dismiss();
                 final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                long [] pattern = {0,500, 500};
+                long[] pattern = {0, 500, 500};
                 vibrator.vibrate(pattern, 0);
-               final  AlertDialog.Builder builder = new AlertDialog.Builder(CalibrateActivity.this);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(CalibrateActivity.this);
                 builder.setTitle("Calibration Finished")
                         .setMessage("Would you like to recalibrate or begin sleep tracking?")
                         .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
