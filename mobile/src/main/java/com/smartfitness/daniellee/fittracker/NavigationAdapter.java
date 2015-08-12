@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 public class NavigationAdapter extends ArrayAdapter {
 
-    static final int LIST_SIZE = 3;
+    static final int LIST_SIZE = 4;
 
     private static final String TAG = HistoryAdapter.class.getSimpleName();
 
@@ -46,6 +46,9 @@ public class NavigationAdapter extends ArrayAdapter {
                 break;
             case 2: imageId = R.drawable.activities;
                 text = labels[2];
+                break;
+            case 3: imageId = R.drawable.settings;
+                text = labels[3];
                 break;
             default: imageId = 0;
                 text = "";

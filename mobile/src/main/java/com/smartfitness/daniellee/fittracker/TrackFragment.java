@@ -12,7 +12,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
+import android.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -42,7 +43,7 @@ import com.google.android.gms.maps.model.LatLng;
  * Use the {@link TrackFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrackFragment extends android.support.v4.app.Fragment {
+public class TrackFragment extends Fragment {
 
     public static final String TAG = "TrackFragment";
 
@@ -67,7 +68,7 @@ public class TrackFragment extends android.support.v4.app.Fragment {
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
 
-    SupportMapFragment fragment;
+    MapFragment fragment;
     GoogleMap map;
 
     GoogleApiClient mGoogleApiClient;
@@ -242,9 +243,9 @@ public class TrackFragment extends android.support.v4.app.Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         FragmentManager fm = getChildFragmentManager();
-        fragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+        fragment = (MapFragment) fm.findFragmentById(R.id.map);
         if (fragment == null) {
-            fragment = SupportMapFragment.newInstance();
+            fragment = MapFragment.newInstance();
             fm.beginTransaction().replace(R.id.map, fragment).commit();
         }
     }

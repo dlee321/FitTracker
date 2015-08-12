@@ -2,7 +2,7 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.support.v4.app.DialogFragment;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
@@ -28,7 +28,7 @@ import android.widget.TextView;
  * Use the {@link SleepFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SleepFragment extends android.support.v4.app.Fragment {
+public class SleepFragment extends Fragment {
 
     protected static final String ALARM_TIME_TAG = "alarmtime";
 

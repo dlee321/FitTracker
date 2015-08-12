@@ -16,7 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.DialogFragment;
+import android.app.DialogFragment;
 import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -85,7 +85,7 @@ import java.util.concurrent.TimeUnit;
  * Use the {@link StepsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StepsFragment extends android.support.v4.app.Fragment {
+public class StepsFragment extends Fragment {
 
     private static final double MINUTES_PER_DAY = 1440;
     public static final int MILL_PER_HOUR = 3600000;
@@ -613,7 +613,7 @@ public class StepsFragment extends android.support.v4.app.Fragment {
 
                             @Override
                             public void onConnected(Bundle bundle) {
-                                Log.i(TAG, "Connected!!!");
+                                Log.i(TAG, "Connected!!");
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
                                 new GetReadResultTask().execute();

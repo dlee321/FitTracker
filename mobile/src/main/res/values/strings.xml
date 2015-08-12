@@ -32,5 +32,6 @@
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="title_activity_calibrate">CalibrateActivity</string>
+    <string name="pref_stepsGoal">Steps Goal</string>
 
 </resources>

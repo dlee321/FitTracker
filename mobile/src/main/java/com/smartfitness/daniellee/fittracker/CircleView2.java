@@ -17,6 +17,7 @@ public class CircleView2 extends View {
 
     int width;
     int height;
+    int goal;
 
     String stepsString;
 
@@ -28,6 +29,7 @@ public class CircleView2 extends View {
     }
 
     private void init() {
+        goal = Integer.parseInt(FitTracker.mSettings.getString("pref_stepsGoal", "10000"));
 
         stepsString = "0";
         mPaint = new Paint();
@@ -53,7 +55,7 @@ public class CircleView2 extends View {
     protected void onDraw(Canvas canvas) {
         // TODO: replace with actual goal
         box.set(50, 50, width - 50, height - 50);
-        float sweep = 360 * Integer.parseInt(stepsString) / 10000;
+        float sweep = 360 * Integer.parseInt(stepsString) / goal;
         circle.reset();
         circle.addArc(box, 270, sweep);
 

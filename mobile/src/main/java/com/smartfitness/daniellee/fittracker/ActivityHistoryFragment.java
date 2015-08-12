@@ -3,7 +3,7 @@ package com.smartfitness.daniellee.fittracker;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.ContextMenu;

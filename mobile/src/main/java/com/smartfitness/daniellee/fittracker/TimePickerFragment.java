@@ -2,7 +2,7 @@ package com.smartfitness.daniellee.fittracker;
 
 
 import android.app.Dialog;
-import android.support.v4.app.DialogFragment;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
 import android.os.Bundle;

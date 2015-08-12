@@ -1,11 +1,13 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -32,7 +34,7 @@ public class CircleView extends View {
     private void init() {
 
         stepsString = "0";
-        goalString = "10000";
+        goalString = FitTracker.mSettings.getString("pref_stepsGoal", "10000");
         mPaint = new Paint();
         mPaint.setColor(getResources().getColor(R.color.accentColor));
         mPaint.setStyle(Paint.Style.STROKE);
@@ -63,7 +65,7 @@ public class CircleView extends View {
     protected void onDraw(Canvas canvas) {
         // TODO: replace with actual goal
         box.set(50, 50, width - 50, height - 50);
-        float sweep = 360 * Integer.parseInt(stepsString) / 10000;
+        float sweep = 360 * Integer.parseInt(stepsString) / Integer.parseInt(goalString);
         circle.reset();
         circle.addArc(box, 270, sweep);
 

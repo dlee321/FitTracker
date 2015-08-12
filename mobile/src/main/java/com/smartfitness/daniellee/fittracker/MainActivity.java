@@ -7,8 +7,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -24,7 +24,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
 
-    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities"};
+    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities", "Settings"};
 
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -57,7 +57,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
         // START MAINFRAGMENT **********************
         MainFragment fragment = MainFragment.newInstance();
-        mFragmentManager = getSupportFragmentManager();
+        mFragmentManager = getFragmentManager();
         mFragmentManager.beginTransaction()
                 .replace(R.id.content_frame, fragment)
                 .commit();
@@ -201,6 +201,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             fragment = HistoryFragment.newInstance();
         } else if (i == 2) {
             fragment = ActivityHistoryFragment.newInstance();
+        } else if (i == 3) {
+            fragment = SettingsFragment.newInstance();
         }
         currentFragmentName = DRAWER_LIST_ITEMS[i];
         mFragmentManager.beginTransaction()
