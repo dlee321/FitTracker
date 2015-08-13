@@ -34,5 +34,6 @@
     <string name="title_activity_calibrate">CalibrateActivity</string>
     <string name="pref_stepsGoal">Steps Goal</string>
     <string name="pref_vibrateAlarm">Vibrate when alarm goes off</string>
+    <string name="pref_alarmSound">Alarm Sound</string>
 
 </resources>

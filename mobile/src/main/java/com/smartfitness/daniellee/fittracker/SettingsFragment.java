@@ -1,9 +1,15 @@
 package com.smartfitness.daniellee.fittracker;
 
 
+import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Environment;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -12,11 +18,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+
+    private ArrayList<String> soundList;
+    private ArrayList<String> absolutePathList;
+    MediaPlayer mMediaPlayer;
+
+    ProgressDialog mProgress;
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -26,8 +43,26 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mProgress = new ProgressDialog(getActivity());
+        mProgress.setMessage("Loading Settings...");
+        mProgress.show();
+
         // load preferences
         addPreferencesFromResource(R.xml.preference_screen);
+
+        soundList = new ArrayList<>();
+        absolutePathList = new ArrayList<>();
+
+        findSoundFiles(Environment.getExternalStorageDirectory());
+
+        final ListPreference listPreference = (ListPreference) findPreference("pref_alarmSound");
+        soundList.add(0, "Default");
+        absolutePathList.add(0, "android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm);
+        listPreference.setEntries(soundList.toArray(new String[0]));
+        listPreference.setEntryValues(absolutePathList.toArray(new String[0]));
+        listPreference.setDefaultValue("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm);
+
+        mProgress.dismiss();
     }
 
     @Override
@@ -44,6 +79,31 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // Unregister the listener whenever a key changes
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
+        if (mMediaPlayer != null) {
+            if (mMediaPlayer.isPlaying()) {
+                mMediaPlayer.stop();
+            }
+        }
+    }
+
+    public void findSoundFiles(File dir) {
+        String msqPattern = ".mp3";// Can include more strings for more extensions and check it.
+
+        File[] listFile = dir.listFiles();
+
+        if (listFile != null) {
+            for (int i = 0; i < listFile.length; i++) {
+
+                if (listFile[i].isDirectory()) {
+                    findSoundFiles(listFile[i]);
+                } else {
+                    if (listFile[i].getName().endsWith(msqPattern)) {
+                        soundList.add(listFile[i].getName());
+                        absolutePathList.add(listFile[i].getAbsolutePath());
+                    }
+                }
+            }
+        }
     }
 
 
@@ -51,12 +111,34 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
         Log.d("TAG", "onSharedPreferenceChanged key: " + key);
-        if (key.equals("pref_stepsGoal")) {
-            String stepsGoal = sharedPreferences.getString(key, "");
-            FitTracker.mSettings.edit().putString("pref_stepsGoal", stepsGoal).apply();
-        } else if (key.equals("pref_vibrateAlarm")) {
-            boolean vibrate = sharedPreferences.getBoolean(key, false);
-            FitTracker.mSettings.edit().putBoolean("pref_vibrateAlarm", vibrate).apply();
+        switch (key) {
+            case "pref_stepsGoal":
+                String stepsGoal = sharedPreferences.getString(key, "");
+                FitTracker.mSettings.edit().putString(key, stepsGoal).apply();
+                break;
+            case "pref_vibrateAlarm":
+                boolean vibrate = sharedPreferences.getBoolean(key, false);
+                FitTracker.mSettings.edit().putBoolean(key, vibrate).apply();
+                break;
+            case "pref_alarmSound":
+                String entryValue = sharedPreferences.getString(key, "android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm);
+                FitTracker.mSettings.edit().putString(key, entryValue).apply();
+                if (mMediaPlayer == null) {
+                    mMediaPlayer = new MediaPlayer();
+                }
+                if (mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.stop();
+                    mMediaPlayer.reset();
+                }
+                try {
+                    mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                    mMediaPlayer.setDataSource(getActivity(), Uri.parse(entryValue));
+                    mMediaPlayer.prepare();
+                    mMediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
     }
 }

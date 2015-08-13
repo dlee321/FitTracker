@@ -253,9 +253,10 @@ public class SleepService extends Service implements SensorEventListener {
                     keyguardLock.disableKeyguard();
                     // play sounds
                     final MediaPlayer mMediaPlayer = new MediaPlayer();
+                    String uri = FitTracker.mSettings.getString("pref_alarmSound", "android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm);
                     try {
                         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                        mMediaPlayer.setDataSource(SleepService.this, Uri.parse("android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm));
+                        mMediaPlayer.setDataSource(SleepService.this, Uri.parse(uri));
                         mMediaPlayer.setLooping(true);
                         mMediaPlayer.prepare();
                         mMediaPlayer.start();

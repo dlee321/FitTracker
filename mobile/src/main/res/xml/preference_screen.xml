@@ -20,6 +20,11 @@
             android:key="pref_vibrateAlarm"
             android:title="@string/pref_vibrateAlarm"
             android:defaultValue="false"/>
+        <ListPreference
+            android:key="pref_alarmSound"
+            android:title="@string/pref_alarmSound"
+            android:dialogTitle="@string/pref_alarmSound"
+            android:summary="%s"/>
     </PreferenceCategory>
 
 
