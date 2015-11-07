@@ -264,8 +264,8 @@ public class SleepService extends Service implements SensorEventListener {
                         e.printStackTrace();
                     }
 
+                    final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                     if (FitTracker.mSettings.getBoolean("pref_vibrateAlarm", false)) {
-                        final Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                         long[] pattern = {0, 500, 500};
                         vibrator.vibrate(pattern, 0);
                     }
@@ -278,6 +278,7 @@ public class SleepService extends Service implements SensorEventListener {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialog.dismiss();
                                     mMediaPlayer.stop();
+                                    vibrator.cancel();
                                     wakeLock.release();
                                     keyguardLock.reenableKeyguard();
                                     stopSelf();
@@ -287,6 +288,7 @@ public class SleepService extends Service implements SensorEventListener {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     mMediaPlayer.stop();
+                                    vibrator.cancel();
                                     handler.postDelayed(alarmRunnable, 300000);
                                     dialog.dismiss();
                                     wakeLock.release();
