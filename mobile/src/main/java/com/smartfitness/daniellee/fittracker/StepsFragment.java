@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
@@ -86,6 +88,8 @@ import java.util.concurrent.TimeUnit;
  * create an instance of this fragment.
  */
 public class StepsFragment extends Fragment {
+
+    private ObservableScrollView mScrollView;
 
     private static final double MINUTES_PER_DAY = 1440;
     public static final int MILL_PER_HOUR = 3600000;
@@ -337,7 +341,7 @@ public class StepsFragment extends Fragment {
 
 
         // set ontouchevent to detect swipes
-        view.setOnTouchListener(new View.OnTouchListener() {
+        /*view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
 
@@ -375,7 +379,7 @@ public class StepsFragment extends Fragment {
                 }
                 return true;
             }
-        });
+        });*/
 
         caloriesTextView = (TextView) view.findViewById(R.id.dailyCaloriesTextView);
 
@@ -523,6 +527,14 @@ public class StepsFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollView);
+
+        MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
     }
 
     /*private void animateEnlarge() {
@@ -774,6 +786,12 @@ public class StepsFragment extends Fragment {
             mClient.connect();
         }
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
     }
 
     @Override

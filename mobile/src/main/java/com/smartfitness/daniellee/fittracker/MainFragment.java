@@ -1,6 +1,7 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,9 +9,15 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.github.florent37.materialviewpager.MaterialViewPager;
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.florent37.materialviewpager.header.HeaderDesign;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 
 import java.util.Locale;
 
@@ -29,7 +36,7 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
     public static SleepFragment mSleepFragment;
     private static StepsFragment sf = null;
 
-    ViewPager mViewPager;
+    private MaterialViewPager mViewPager;
 
     private OnFragmentInteractionListener mListener;
 
@@ -53,16 +60,40 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
         mSectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager());
+        Log.d("ASDF", "asdfasd");
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) v.findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager = (MaterialViewPager) v.findViewById(R.id.materialViewPager);
+        ViewPager viewPager = mViewPager.getViewPager();
+        viewPager.setAdapter(mSectionsPagerAdapter);
 
         // get pagertabstrip and set indicator color
-        PagerTabStrip pts = (PagerTabStrip) v.findViewById(R.id.pagerTabStrip);
-        pts.setTabIndicatorColorResource(R.color.accentColor);
+        /*PagerTabStrip pts = (PagerTabStrip) v.findViewById(R.id.pagerTabStrip);
+        pts.setTabIndicatorColorResource(R.color.accentColor);*/
 
-        mViewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(1);
+        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
+
+        mViewPager.setMaterialViewPagerListener(new MaterialViewPager.Listener() {
+            @Override
+            public HeaderDesign getHeaderDesign(int page) {
+                switch (page) {
+                    case 0:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.accentColor, getResources().getDrawable(R.drawable.header_image_pink));
+                    case 1:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.colorPrimary, getResources().getDrawable(R.drawable.header_image_blue));
+                    case 2:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.colorPrimaryDark, getResources().getDrawable(R.drawable.header_image_night));
+                }
+
+                //execute others actions if needed (ex : modify your header logo)
+
+                return null;
+            }
+        });
         return v;
     }
 
@@ -153,4 +184,9 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
         }
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+    }
 }

@@ -97,8 +97,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setHomeButtonEnabled(true);
 
 
         // Set up the action bar.

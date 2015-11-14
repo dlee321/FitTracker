@@ -19,6 +19,9 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,6 +32,8 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class SleepFragment extends Fragment {
+
+    private ObservableScrollView mScrollView;
 
     protected static final String ALARM_TIME_TAG = "alarmtime";
 
@@ -62,7 +67,10 @@ public class SleepFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_sleep, container, false);
-        layout = (RelativeLayout)v.findViewById(R.id.relativeLayout);
+        mScrollView = (ObservableScrollView) v.findViewById(R.id.scrollView1);
+
+        MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
+        //layout = (RelativeLayout)v.findViewById(R.id.relativeLayout);
 
         alarmTextView = (TextView)v.findViewById(R.id.alarmTextView);
 
@@ -97,7 +105,7 @@ public class SleepFragment extends Fragment {
         });
 
         smartAlarmTimeSpinner = (Spinner) v.findViewById(R.id.smartAlarmTimeSpinner);
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, Constants.SMART_ALARM_TIMES);
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.spinner_item, Constants.SMART_ALARM_TIMES);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         smartAlarmTimeSpinner.setAdapter(spinnerArrayAdapter);
         smartAlarmTimeSpinner.setSelection(FitTracker.mSettings.getInt(Constants.SMART_ALARM_TIME_INDEX, 0));
