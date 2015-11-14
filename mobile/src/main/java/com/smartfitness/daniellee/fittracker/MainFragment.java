@@ -1,6 +1,7 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +10,9 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,22 +63,23 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager());
-        Log.d("ASDF", "asdfasd");
 
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager());
         // Set up the ViewPager with the sections adapter.
         mViewPager = (MaterialViewPager) v.findViewById(R.id.materialViewPager);
         ViewPager viewPager = mViewPager.getViewPager();
         viewPager.setAdapter(mSectionsPagerAdapter);
+        viewPager.setCurrentItem(1);
+        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
+
+        Log.d("ASDF", "asdfasdfasdfasdfasdfa");
 
         // get pagertabstrip and set indicator color
         /*PagerTabStrip pts = (PagerTabStrip) v.findViewById(R.id.pagerTabStrip);
         pts.setTabIndicatorColorResource(R.color.accentColor);*/
 
-        viewPager.setCurrentItem(1);
-        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
 
-        mViewPager.setMaterialViewPagerListener(new MaterialViewPager.Listener() {
+        /*mViewPager.setMaterialViewPagerListener(new MaterialViewPager.Listener() {
             @Override
             public HeaderDesign getHeaderDesign(int page) {
                 switch (page) {
@@ -93,8 +98,31 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
 
                 return null;
             }
-        });
+        });*/
         return v;
+    }
+
+    private void setupToolbar() {
+        if (mViewPager != null) {
+            Toolbar toolbar = mViewPager.getToolbar();
+            Log.d("MainFragment", "setupToolbar");
+
+            if (toolbar != null) {
+                ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+                Log.d("MainFragment", "setupToolbarInner");
+
+                ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayUseLogoEnabled(false);
+                actionBar.setHomeButtonEnabled(true);
+                actionBar.setTitle("");
+
+            }
+            getActivity().invalidateOptionsMenu();
+            ((MainActivity)getActivity()).mDrawerToggle.syncState();
+        }
     }
 
     public void onButtonPressed(Uri uri) {
@@ -104,8 +132,32 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("MainFragment", "onResume");
+        setupToolbar();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d("MainFragment", "onAttachContext");
+        Activity activity = null;
+
+        if (context instanceof Activity){
+            activity = (Activity) context;
+        }
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d("MainFragment", "onAttachActivity");
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
