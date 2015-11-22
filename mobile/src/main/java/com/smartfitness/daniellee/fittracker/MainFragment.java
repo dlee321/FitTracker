@@ -1,6 +1,8 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,9 +10,18 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.github.florent37.materialviewpager.MaterialViewPager;
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.florent37.materialviewpager.header.HeaderDesign;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 
 import java.util.Locale;
 
@@ -29,7 +40,7 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
     public static SleepFragment mSleepFragment;
     private static StepsFragment sf = null;
 
-    ViewPager mViewPager;
+    private MaterialViewPager mViewPager;
 
     private OnFragmentInteractionListener mListener;
 
@@ -52,18 +63,66 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager());
 
+        mSectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager());
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) v.findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager = (MaterialViewPager) v.findViewById(R.id.materialViewPager);
+        ViewPager viewPager = mViewPager.getViewPager();
+        viewPager.setAdapter(mSectionsPagerAdapter);
+        viewPager.setCurrentItem(1);
+        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
+
+        Log.d("ASDF", "asdfasdfasdfasdfasdfa");
 
         // get pagertabstrip and set indicator color
-        PagerTabStrip pts = (PagerTabStrip) v.findViewById(R.id.pagerTabStrip);
-        pts.setTabIndicatorColorResource(R.color.accentColor);
+        /*PagerTabStrip pts = (PagerTabStrip) v.findViewById(R.id.pagerTabStrip);
+        pts.setTabIndicatorColorResource(R.color.accentColor);*/
 
-        mViewPager.setCurrentItem(1);
+
+        /*mViewPager.setMaterialViewPagerListener(new MaterialViewPager.Listener() {
+            @Override
+            public HeaderDesign getHeaderDesign(int page) {
+                switch (page) {
+                    case 0:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.accentColor, getResources().getDrawable(R.drawable.header_image_pink));
+                    case 1:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.colorPrimary, getResources().getDrawable(R.drawable.header_image_blue));
+                    case 2:
+                        return HeaderDesign.fromColorResAndDrawable(
+                                R.color.colorPrimaryDark, getResources().getDrawable(R.drawable.header_image_night));
+                }
+
+                //execute others actions if needed (ex : modify your header logo)
+
+                return null;
+            }
+        });*/
         return v;
+    }
+
+    private void setupToolbar() {
+        if (mViewPager != null) {
+            Toolbar toolbar = mViewPager.getToolbar();
+            Log.d("MainFragment", "setupToolbar");
+
+            if (toolbar != null) {
+                ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+                Log.d("MainFragment", "setupToolbarInner");
+
+                ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayUseLogoEnabled(false);
+                actionBar.setHomeButtonEnabled(true);
+                actionBar.setTitle("");
+
+            }
+            getActivity().invalidateOptionsMenu();
+            ((MainActivity)getActivity()).mDrawerToggle.syncState();
+        }
     }
 
     public void onButtonPressed(Uri uri) {
@@ -73,8 +132,32 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("MainFragment", "onResume");
+        setupToolbar();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d("MainFragment", "onAttachContext");
+        Activity activity = null;
+
+        if (context instanceof Activity){
+            activity = (Activity) context;
+        }
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d("MainFragment", "onAttachActivity");
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -153,4 +236,9 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
         }
     }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+    }
 }

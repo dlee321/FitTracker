@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
@@ -87,6 +89,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class StepsFragment extends Fragment {
 
+    private ObservableScrollView mScrollView;
+
     private static final double MINUTES_PER_DAY = 1440;
     public static final int MILL_PER_HOUR = 3600000;
 
@@ -116,6 +120,7 @@ public class StepsFragment extends Fragment {
 
     // floating action button
     FloatingActionButton fabPlus;
+    FloatingActionButton fabHistory;
 
     private boolean connected;
 
@@ -174,7 +179,7 @@ public class StepsFragment extends Fragment {
     EditText mStartTime;
     EditText mEndTIme;
     private EditText mDistanceEditText;
-    private FloatingActionButton fabActivities;
+    //private FloatingActionButton fabActivities;
 
     public static StepsFragment newInstance() {
         return new StepsFragment();
@@ -337,7 +342,7 @@ public class StepsFragment extends Fragment {
 
 
         // set ontouchevent to detect swipes
-        view.setOnTouchListener(new View.OnTouchListener() {
+        /*view.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
 
@@ -375,7 +380,7 @@ public class StepsFragment extends Fragment {
                 }
                 return true;
             }
-        });
+        });*/
 
         caloriesTextView = (TextView) view.findViewById(R.id.dailyCaloriesTextView);
 
@@ -387,7 +392,7 @@ public class StepsFragment extends Fragment {
 
         // setup floating action bar
         fabPlus = (FloatingActionButton) view.findViewById(R.id.floatingActionButton1);
-        fabActivities = (FloatingActionButton) view.findViewById(R.id.floatingActionButton2);
+        /*fabActivities = (FloatingActionButton) view.findViewById(R.id.floatingActionButton2);
         if (sp.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
             fabActivities.setVisibility(View.VISIBLE);
             fabActivities.setOnClickListener(new View.OnClickListener() {
@@ -433,7 +438,7 @@ public class StepsFragment extends Fragment {
                     builder.create().show();
                 }
             });
-        }
+        }*/
         fabPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -521,8 +526,25 @@ public class StepsFragment extends Fragment {
             }
         });
 
+        fabHistory = (FloatingActionButton) view.findViewById(R.id.floatingActionButtonHistory);
+        fabHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), StepsHistoryActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mScrollView = (ObservableScrollView) view.findViewById(R.id.scrollView);
+
+        MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
     }
 
     /*private void animateEnlarge() {
@@ -774,6 +796,12 @@ public class StepsFragment extends Fragment {
             mClient.connect();
         }
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
     }
 
     @Override

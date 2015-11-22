@@ -12,6 +12,7 @@ import android.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +23,7 @@ import android.widget.ListView;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 
-public class MainActivity extends ActionBarActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
 
     public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities", "Settings"};
 
@@ -36,7 +37,7 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
     private DrawerLayout mDrawerLayout;
 
     // ActionBar toggle for drawerlayout
-    private ActionBarDrawerToggle mDrawerToggle;
+    protected ActionBarDrawerToggle mDrawerToggle;
     private ListView mDrawerList;
 
     FragmentManager mFragmentManager;
@@ -78,17 +79,14 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
                 int p = mDrawerList.getCheckedItemPosition();
-                if (p >= 0 && p < DRAWER_LIST_ITEMS.length) {
+                if (p >= 1 && p < DRAWER_LIST_ITEMS.length) {
                     getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[p]);
-                } else if (p < 0) {
-                    getSupportActionBar().setTitle(currentFragmentName);
                 }
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle(R.string.drawer_title);
             }
         };
 
@@ -97,8 +95,8 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setHomeButtonEnabled(true);
 
 
         // Set up the action bar.

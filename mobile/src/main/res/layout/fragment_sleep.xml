@@ -1,69 +1,87 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<com.github.ksoichiro.android.observablescrollview.ObservableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView1"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.smartfitness.daniellee.fittracker.SleepFragment"
-    android:id="@+id/relativeLayout">
+    android:scrollbars="none">
 
-
-    <LinearLayout
-        android:id="@+id/centerLayout"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="horizontal"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="128sp"
-        android:text="0:00"
-        android:id="@+id/alarmTextView"
-        android:layout_above="@id/centerLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"/>
+        <include layout="@layout/material_view_pager_placeholder" />
 
-    <CheckBox
-        android:id="@+id/disableAlarmCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Disable Alarm"
-        android:layout_below="@id/alarmTextView"
-        android:layout_centerHorizontal="true"/>
-
-    <LinearLayout
-        android:id="@+id/smartAlarmLinearLayout"
-        android:layout_marginTop="16dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/disableAlarmCheckBox"
-        android:layout_centerHorizontal="true">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Smart alarm time:"
-            android:textColor="#000"
-            />
+            android:layout_marginBottom="@dimen/cardMarginVertical"
+            android:layout_marginLeft="@dimen/cardMarginHorizontal"
+            android:layout_marginRight="@dimen/cardMarginHorizontal"
+            android:layout_marginTop="@dimen/cardMarginVertical"
+            android:background="@android:color/white"
+            app:cardElevation="4dp">
 
-        <Spinner
-            android:id="@+id/smartAlarmTimeSpinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:orientation="vertical">
 
-        </Spinner>
+                <TextView
+                    android:id="@+id/alarmTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:text="0:00"
+                    android:textSize="128sp" />
 
+                <CheckBox
+                    android:id="@+id/disableAlarmCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Disable Alarm"
+                    android:textColor="@color/text_color"
+                    android:buttonTint="@color/text_color"/>
+
+                <LinearLayout
+                    android:id="@+id/smartAlarmLinearLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Smart alarm time:"
+                        android:textColor="@color/text_color" />
+
+                    <Spinner
+                        android:id="@+id/smartAlarmTimeSpinner"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        >
+
+                    </Spinner>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/sleepTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:text="Sleep"
+                    android:textSize="64sp" />
+            </LinearLayout>
+        </android.support.v7.widget.CardView>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/sleepTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sleep"
-        android:layout_below="@id/centerLayout"
-        android:layout_centerHorizontal="true"
-        android:textSize="64dp"
-        android:layout_marginTop="100dp"
-        android:clickable="true"/>
-</RelativeLayout>
+</com.github.ksoichiro.android.observablescrollview.ObservableScrollView>

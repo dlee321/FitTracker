@@ -23,6 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -44,6 +46,8 @@ import com.google.android.gms.maps.model.LatLng;
  * create an instance of this fragment.
  */
 public class TrackFragment extends Fragment {
+
+    private ObservableScrollView mScrollView;
 
     public static final String TAG = "TrackFragment";
 
@@ -96,6 +100,9 @@ public class TrackFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_track, container, false);
+        mScrollView = (ObservableScrollView) v.findViewById(R.id.scrollView2);
+
+        MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView, null);
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
@@ -189,6 +196,7 @@ public class TrackFragment extends Fragment {
                                     double latitude = mLastLocation.getLatitude();
                                     double longitude = mLastLocation.getLongitude();
                                     if (map != null) {
+                                        map.getUiSettings().setScrollGesturesEnabled(false);
                                         map.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(17).build()));
                                     }
                                 }
