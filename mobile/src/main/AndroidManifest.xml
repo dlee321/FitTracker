@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -27,9 +27,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
-
-    <!--permission to use vibrating after sensor calibration-->
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- permission to use vibrating after sensor calibration -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".FitTracker"
@@ -103,6 +102,15 @@
             android:enabled="true"
             android:exported="true" >
         </service>
+
+        <activity
+            android:name=".StepsHistoryActivity"
+            android:label="@string/title_activity_steps_history"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.smartfitness.daniellee.fittracker.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

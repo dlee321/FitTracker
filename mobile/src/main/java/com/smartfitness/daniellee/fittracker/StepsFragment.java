@@ -120,6 +120,7 @@ public class StepsFragment extends Fragment {
 
     // floating action button
     FloatingActionButton fabPlus;
+    FloatingActionButton fabHistory;
 
     private boolean connected;
 
@@ -178,7 +179,7 @@ public class StepsFragment extends Fragment {
     EditText mStartTime;
     EditText mEndTIme;
     private EditText mDistanceEditText;
-    private FloatingActionButton fabActivities;
+    //private FloatingActionButton fabActivities;
 
     public static StepsFragment newInstance() {
         return new StepsFragment();
@@ -391,7 +392,7 @@ public class StepsFragment extends Fragment {
 
         // setup floating action bar
         fabPlus = (FloatingActionButton) view.findViewById(R.id.floatingActionButton1);
-        fabActivities = (FloatingActionButton) view.findViewById(R.id.floatingActionButton2);
+        /*fabActivities = (FloatingActionButton) view.findViewById(R.id.floatingActionButton2);
         if (sp.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
             fabActivities.setVisibility(View.VISIBLE);
             fabActivities.setOnClickListener(new View.OnClickListener() {
@@ -437,7 +438,7 @@ public class StepsFragment extends Fragment {
                     builder.create().show();
                 }
             });
-        }
+        }*/
         fabPlus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -522,6 +523,15 @@ public class StepsFragment extends Fragment {
                         });
 
                 builder.create().show();
+            }
+        });
+
+        fabHistory = (FloatingActionButton) view.findViewById(R.id.floatingActionButtonHistory);
+        fabHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), StepsHistoryActivity.class);
+                startActivity(intent);
             }
         });
 

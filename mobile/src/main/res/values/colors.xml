@@ -8,5 +8,6 @@
     <color name="sleep_color">#4527A0</color>
     <color name="actionbar_text">#FFFFFF</color>
     <color name="text_color">#282828</color>
+    <color name="light_gray">#d1d1d1</color>
 
 </resources>
