@@ -26,7 +26,8 @@ public class Constants {
     public static final String START = "start",
             END = "end",
             VALUES = "values",
-            DURATION = "duration";
+            DURATION = "duration",
+            DEEP_SLEEP_DURATION = "deepsleepduration";
 
     // Shared Preferences keys
     public static final String SENSORX = "minX",

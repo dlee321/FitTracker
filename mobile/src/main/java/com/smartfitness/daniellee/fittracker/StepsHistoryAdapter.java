@@ -23,6 +23,7 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
     Calendar mCalendar;
     SimpleDateFormat mFormat;
     long timeMillis;
+    int length;
 
     Context context;
 
@@ -35,6 +36,7 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
         mFormat = new SimpleDateFormat("MMMM dd");
 
         context = c;
+        length = mDataSet.length;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -72,9 +74,10 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (mDataSet[position] != null) {
-            holder.mStepsTextView.setText(String.valueOf(mDataSet[position]));
-            holder.mHorizontalProgress.setPartDone((float) mDataSet[position] / 10000);
+        Integer data = mDataSet[length-position-1];
+        if (data != null) {
+            holder.mStepsTextView.setText(String.valueOf(data));
+            holder.mHorizontalProgress.setPartDone((float) data / 10000);
             holder.mHorizontalProgress.invalidate();
 
             mCalendar.setTimeInMillis(timeMillis);
@@ -82,7 +85,7 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
             String date = mFormat.format(mCalendar.getTime());
             holder.mDateTextView.setText(date);
 
-            if (mDataSet[position] >= 10000) {
+            if (data >= 10000) {
                 holder.mStepsTextView.setTextColor(Color.WHITE);
                 holder.mDateTextView.setTextColor(Color.WHITE);
                 holder.mGoalTextView.setTextColor(Color.WHITE);
@@ -112,6 +115,6 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
 
     @Override
     public int getItemCount() {
-        return mDataSet.length;
+        return length;
     }
 }

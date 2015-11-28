@@ -36,5 +36,7 @@
     <string name="pref_vibrateAlarm">Vibrate when alarm goes off</string>
     <string name="pref_alarmSound">Alarm Sound</string>
     <string name="title_activity_steps_history">StepsHistoryActivity</string>
+    <string name="title_activity_sleep_history">SleepHistoryActivity</string>
+    <string name="sleep_list_text">%1$s total sleep with %2$s deep sleep</string>
 
 </resources>

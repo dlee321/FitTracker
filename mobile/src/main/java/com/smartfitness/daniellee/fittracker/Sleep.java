@@ -48,4 +48,12 @@ public class Sleep extends ParseObject{
     public int getDuration() {
         return this.getInt(Constants.DURATION);
     }
+
+    public void setDeepSleepDuration(int duration) {
+        this.put(Constants.DEEP_SLEEP_DURATION, duration);
+    }
+
+    public int getDeepSleepDuration() {
+        return this.getInt(Constants.DEEP_SLEEP_DURATION);
+    }
 }

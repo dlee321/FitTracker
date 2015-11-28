@@ -24,6 +24,9 @@ dependencies {
     wearApp project(':wear')
     //compile 'com.melnkov:floatingactionbutton:1.1.0'
     compile files('libs/Parse-1.8.0.jar')
+    compile('com.github.florent37:materialviewpager:1.1.2@aar') {
+        transitive = true
+    }
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.android.gms:play-services:8.3.0'
     compile 'com.jjoe64:graphview:3.1.3'
@@ -32,8 +35,8 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:support-v13:+'
-    compile ('com.github.florent37:materialviewpager:1.1.2@aar'){
-        transitive = true
-    }
+    compile 'com.android.support:support-v13:23.1.1'
+    compile 'com.google.android.gms:play-services-ads:8.3.0'
+    compile 'com.google.android.gms:play-services-identity:8.3.0'
+    compile 'com.google.android.gms:play-services-gcm:8.3.0'
 }

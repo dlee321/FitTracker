@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,7 @@ public class SleepFragment extends Fragment {
     TextView alarmTextView;
     CheckBox disableAlarmCheckBox;
     Spinner smartAlarmTimeSpinner;
+    FloatingActionButton mFAB;
 
     RelativeLayout layout;
 
@@ -139,6 +141,15 @@ public class SleepFragment extends Fragment {
                 intent.putExtra(ALARM_TIME_TAG, alarmTextView.getText());
                 getActivity().startActivity(intent);
                 getActivity().finish();
+            }
+        });
+
+        mFAB = (FloatingActionButton) v.findViewById(R.id.floatingActionButton);
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SleepHistoryActivity.class);
+                startActivity(intent);
             }
         });
 

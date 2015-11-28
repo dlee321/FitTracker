@@ -3,6 +3,8 @@ package com.smartfitness.daniellee.fittracker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 
-public class SleepDataActivity extends ActionBarActivity {
+public class SleepDataActivity extends AppCompatActivity {
 
     public static final String EXTRA_DOUBLE = "extra_double";
     public static final String EXTRA_INT = "extra_int";
@@ -33,6 +35,7 @@ public class SleepDataActivity extends ActionBarActivity {
 
     private double averageMovement = 0.0;
     private int sleepTimeMinutes = 0;
+    private int deepSleepMins;
     private double[] movementArray = null;
 
     //private int[] accuracyArray = null;
@@ -64,6 +67,12 @@ public class SleepDataActivity extends ActionBarActivity {
 
             //accuracyArray = intent.getIntArrayExtra(EXTRA_ACCURACY_ARRAY);
         }
+
+        /* SETUP TOOLBAR */
+        Toolbar toolbar = (Toolbar) findViewById(R.id.sleep_data_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Steps History");
 
         totalSleepTextView = (TextView) findViewById(R.id.sleepTimeTextView);
         deepSleepTextView = (TextView) findViewById(R.id.deepSleepTextView);
@@ -154,7 +163,7 @@ public class SleepDataActivity extends ActionBarActivity {
         GraphViewSeries series = new GraphViewSeries(data);
 
         // calculate deep sleep time hours:mins
-        int deepSleepMins = 0;
+        deepSleepMins = 0;
         // get values to be passed to Sleep ParseObject
         values = new JSONArray();
         boolean everyOther = false;
@@ -232,6 +241,7 @@ public class SleepDataActivity extends ActionBarActivity {
             sleep.setValues(values);
             sleep.setACL(new ParseACL(user));
             sleep.setDuration(sleepTimeMinutes);
+            sleep.setDeepSleepDuration(deepSleepMins);
             user.add(Constants.SLEEPS_KEY, sleep);
             user.saveInBackground();
             returnToMainActivity();
