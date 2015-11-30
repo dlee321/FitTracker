@@ -34,7 +34,7 @@ public class SleepHistoryActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.sleep_history_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Steps History");
+        getSupportActionBar().setTitle("Sleep History");
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Loading Sleep History...");
@@ -86,7 +86,7 @@ public class SleepHistoryActivity extends AppCompatActivity {
                 }
                 RecyclerView recyclerView = (RecyclerView) findViewById(R.id.sleep_history_list);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SleepHistoryActivity.this));
-                SleepHistoryAdapter adapter = new SleepHistoryAdapter(duration, duration, getApplicationContext());
+                SleepHistoryAdapter adapter = new SleepHistoryAdapter(duration, deepSleep, getApplicationContext());
                 recyclerView.setAdapter(adapter);
             } else {
                 noHistoryTextView.setVisibility(View.VISIBLE);

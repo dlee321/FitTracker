@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,14 +53,14 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
             mSleepTextView = (TextView) v.findViewById(R.id.list_sleep_data);
             mDateTextView = (TextView) v.findViewById(R.id.sleep_history_date);
             mHorizontalProgress = (HorizontalProgress) v.findViewById(R.id.sleep_horizontal_progress);
-            mCardView = (CardView) v.findViewById(R.id.card_list_item);
+            mCardView = (CardView) v.findViewById(R.id.card_list_item_sleep);
         }
     }
 
     @Override
     public SleepHistoryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.steps_list_item, parent, false);
+                .inflate(R.layout.sleep_list_item, parent, false);
 
         ViewHolder vh = new ViewHolder(v);
         return vh;
@@ -67,6 +68,7 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        Log.d("asdf", "asdff");
         int duration = mDuration[position];
         int deepSleep = mDeepSleep[position];
         
@@ -80,10 +82,10 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
         String date = mFormat.format(mCalendar.getTime());
         holder.mDateTextView.setText(date);
 
-        if ((position + 1) % 2 == 0) {
+        if ((position) % 2 == 0) {
             holder.mCardView.setCardBackgroundColor(Color.WHITE);
         } else {
-            holder.mCardView.setCardBackgroundColor(Color.LTGRAY);
+            holder.mCardView.setCardBackgroundColor(Color.parseColor("#efefef"));
         }
     }
 
