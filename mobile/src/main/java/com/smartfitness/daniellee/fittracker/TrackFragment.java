@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.FragmentManager;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,7 +80,7 @@ public class TrackFragment extends Fragment {
 
     Location mLastLocation;
 
-    RelativeLayout buttonLayout;
+    CardView buttonLayout;
 
     public static TrackFragment newInstance() {
         TrackFragment fragment = new TrackFragment();
@@ -108,7 +109,7 @@ public class TrackFragment extends Fragment {
         }
         buildGoogleApiClient();
 
-        buttonLayout = (RelativeLayout)v.findViewById(R.id.buttonLayout);
+        buttonLayout = (CardView)v.findViewById(R.id.buttonLayout);
         buttonLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

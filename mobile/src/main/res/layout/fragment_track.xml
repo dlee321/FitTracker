@@ -13,54 +13,96 @@
 
         <include layout="@layout/material_view_pager_placeholder" />
 
-        <android.support.v7.widget.CardView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/cardMarginVertical"
-            android:layout_marginLeft="@dimen/cardMarginHorizontal"
-            android:layout_marginRight="@dimen/cardMarginHorizontal"
-            android:layout_marginTop="@dimen/cardMarginVertical"
-            android:background="@android:color/white"
-            app:cardElevation="4dp">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
+            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="vertical">
+                android:layout_marginBottom="@dimen/cardMarginVertical"
+                android:layout_marginLeft="@dimen/cardMarginHorizontal"
+                android:layout_marginRight="@dimen/cardMarginHorizontal"
+                android:layout_marginTop="@dimen/cardMarginVertical"
+                android:background="@android:color/white"
+                card_view:cardCornerRadius="4dp"
+                card_view:cardElevation="4dp">
 
-
-                <RelativeLayout
-                    android:id="@+id/map"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="500dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
 
-                <RelativeLayout
-                    android:id="@+id/buttonLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="75dp"
-                    android:background="@color/buttoncolors"
-                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/map"
+                        android:layout_width="match_parent"
+                        android:layout_height="500dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="Start Activity!"
-                        android:textColor="@color/buttontext"
-                        android:textSize="32sp" />
-                </RelativeLayout>
+<!--
+                    <RelativeLayout
+                        android:id="@+id/buttonLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="75dp"
+                        android:background="@color/buttoncolors"
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="Start Activity!"
+                            android:textColor="@color/buttontext"
+                            android:textSize="32sp" />
+                    </RelativeLayout> -->
+
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_margin="32dp"
+                android:layout_marginBottom="@dimen/cardMarginVertical"
+                android:layout_marginLeft="@dimen/cardMarginHorizontal"
+                android:layout_marginRight="@dimen/cardMarginHorizontal"
+                android:layout_marginTop="@dimen/cardMarginVertical"
+                card_view:cardBackgroundColor="@color/colorPrimary"
+                card_view:cardCornerRadius="4dp"
+                card_view:cardElevation="4dp">
 
                 <Spinner
                     android:id="@+id/activityTypeSpinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-500dp"/>
+                    android:layout_margin="12dp" />
+            </android.support.v7.widget.CardView>
+        </FrameLayout>
 
+        <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_marginBottom="@dimen/cardMarginVertical"
+            android:layout_marginLeft="@dimen/cardMarginHorizontal"
+            android:layout_marginRight="@dimen/cardMarginHorizontal"
+            android:layout_marginTop="@dimen/cardMarginVertical"
+            android:background="@android:color/white"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            card_view:cardCornerRadius="4dp"
+            card_view:cardElevation="4dp"
+            android:id="@+id/buttonLayout">
 
-            </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:text="Start Activity!"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
         </android.support.v7.widget.CardView>
     </LinearLayout>
 </com.github.ksoichiro.android.observablescrollview.ObservableScrollView>
