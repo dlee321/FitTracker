@@ -69,8 +69,8 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.d("asdf", "asdff");
-        int duration = mDuration[position];
-        int deepSleep = mDeepSleep[position];
+        int duration = mDuration[length - position - 1];
+        int deepSleep = mDeepSleep[length - position - 1];
         
         holder.mSleepTextView.setText(mContext.getString(R.string.sleep_list_text,
                 calculateTimeString(duration), calculateTimeString(deepSleep)));
