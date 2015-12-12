@@ -13,6 +13,8 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,11 +23,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.parse.ParseUser;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, AdapterView.OnItemClickListener, HistoryFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, HistoryFragment.OnFragmentInteractionListener {
 
-    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "History", "Activities", "Settings"};
+    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "Steps History", "Sleep History", "Activity History", "Settings"};
+    public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.walking, R.drawable.moon, R.drawable.running, R.drawable.settings};
 
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -38,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
 
     // ActionBar toggle for drawerlayout
     protected ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
+    private RecyclerView mDrawerList;
 
     FragmentManager mFragmentManager;
 
@@ -66,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
         currentFragmentName = DRAWER_LIST_ITEMS[0];
 
         // Setup Navigation Drawer
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerList = (RecyclerView) findViewById(R.id.left_drawer);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -78,10 +82,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                int p = mDrawerList.getCheckedItemPosition();
-                if (p >= 1 && p < DRAWER_LIST_ITEMS.length) {
-                    getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[p]);
-                }
             }
 
             @Override
@@ -131,8 +131,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
     }
 
     private void populateDrawer() {
-        mDrawerList.setAdapter(new NavigationAdapter(this, R.layout.navigation_list_item, DRAWER_LIST_ITEMS));
-        mDrawerList.setOnItemClickListener(this);
+        ParseUser user = ParseUser.getCurrentUser();
+        String name = user.getUsername();
+        String email = user.getEmail();
+
+        mDrawerList.setAdapter(new NavigationAdapter(DRAWER_LIST_ITEMS, DRAWER_ICONS, name, email, R.drawable.profile_pic, this));
+        mDrawerList.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -188,29 +192,21 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
 
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+    public void onItemClick(int i) {
         Fragment fragment = null;
-        getSupportActionBar().setTitle(DRAWER_LIST_ITEMS[i]);
-        if (i == 0) {
-            fragment = MainFragment.newInstance();
-        } else if (i == 1) {
-            fragment = HistoryFragment.newInstance();
-        } else if (i == 2) {
-            fragment = ActivityHistoryFragment.newInstance();
+        Intent intent = null;
+        if (i == 2) {
+            intent = new Intent(this, StepsHistoryActivity.class);
+            startActivity(intent);
         } else if (i == 3) {
-            fragment = SettingsFragment.newInstance();
+            intent = new Intent(this, SleepHistoryActivity.class);
+            startActivity(intent);
+        } else if (i == 5) {
+            intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
-        currentFragmentName = DRAWER_LIST_ITEMS[i];
-        mFragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment)
-                .commit();
-
-        mDrawerList.setItemChecked(i, true);
         mDrawerLayout.closeDrawer(mDrawerList);
     }
-
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {

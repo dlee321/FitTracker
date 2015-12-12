@@ -10,7 +10,7 @@
             android:entryValues="@array/pref_stepsGoal_entries"
             android:key="pref_stepsGoal"
             android:summary="%s"
-            android:title="@string/pref_stepsGoal" />
+            android:title="@string/pref_stepsGoal"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -19,7 +19,7 @@
         <CheckBoxPreference
             android:key="pref_vibrateAlarm"
             android:title="@string/pref_vibrateAlarm"
-            android:defaultValue="false"/>
+            android:defaultValue="false" />
         <ListPreference
             android:key="pref_alarmSound"
             android:title="@string/pref_alarmSound"

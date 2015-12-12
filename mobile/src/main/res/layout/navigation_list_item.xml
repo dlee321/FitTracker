@@ -4,17 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:padding="15dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?android:attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/navigationImageView"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"/>
 
     <TextView
         android:id="@+id/navigationTextView"
         android:text="asdf"
-        style="@style/Base.TextAppearance.AppCompat.Large"
+        android:paddingLeft="12dp"
+        android:paddingTop="4dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"/>

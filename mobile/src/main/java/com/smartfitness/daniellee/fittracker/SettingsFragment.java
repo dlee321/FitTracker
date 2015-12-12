@@ -116,7 +116,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 String entryValue = sharedPreferences.getString(key, "android.resource://com.smartfitness.daniellee.fittracker/raw/" + R.raw.alarm);
                 Log.d("SettingsFragment", "Value: " + entryValue);
                 FitTracker.mSettings.edit().putString(key, entryValue).apply();
-                if (mMediaPlayer == null) {
+                /*if (mMediaPlayer == null) {
                     mMediaPlayer = new MediaPlayer();
                 }
                 if (mMediaPlayer.isPlaying()) {
@@ -130,7 +130,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                     mMediaPlayer.start();
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
+                }*/
                 break;
         }
     }

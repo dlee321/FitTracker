@@ -41,7 +41,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="com.google.android.gms.version"
@@ -54,7 +54,7 @@
         <activity
             android:name=".RunActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
@@ -68,33 +68,39 @@
         <activity
             android:name=".SignUpActivity"
             android:label="@string/title_activity_sign_up"
-            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
         <service
             android:name=".SleepService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
 
         <activity
             android:name=".SleepActivity"
             android:label="@string/title_activity_sleep"
             android:screenOrientation="portrait"
-            android:theme="@style/SleepTheme"></activity>
+            android:theme="@style/SleepTheme"/>
         <activity
             android:name=".SleepDataActivity"
             android:label="@string/title_activity_sleep_data"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".RunDataActivity"
-            android:label="@string/title_activity_run_data"></activity>
+            android:label="@string/title_activity_run_data"/>
         <activity
             android:name=".CalibrateActivity"
-            android:label="@string/title_activity_calibrate"></activity>
+            android:label="@string/title_activity_calibrate"/>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/SettingsTheme"/>
 
         <service
             android:name=".CalibrationService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
 
         <activity
             android:name=".StepsHistoryActivity"

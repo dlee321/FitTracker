@@ -94,7 +94,7 @@ public class MainFragment extends Fragment implements StepsFragment.OnFragmentIn
                                 R.color.colorPrimaryDark, getResources().getDrawable(R.drawable.header_image_night));
                 }
 
-                //execute others actions if needed (ex : modify your header logo)
+                //execute others actions if needed (ex : modify your header_background logo)
 
                 return null;
             }

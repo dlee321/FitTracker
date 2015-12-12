@@ -9,9 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     <!-- the navigation drawer -->
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:choiceMode="singleChoice"
