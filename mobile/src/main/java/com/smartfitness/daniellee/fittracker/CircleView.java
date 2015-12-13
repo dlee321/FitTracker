@@ -9,6 +9,7 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 public class CircleView extends View {
@@ -22,7 +23,6 @@ public class CircleView extends View {
     int height;
 
     static String stepsString;
-    String goalString;
 
     RectF box;
 
@@ -34,7 +34,6 @@ public class CircleView extends View {
     private void init() {
 
         stepsString = "0";
-        goalString = FitTracker.mSettings.getString("pref_stepsGoal", "10000");
         mPaint = new Paint();
         mPaint.setColor(getResources().getColor(R.color.accentColor));
         mPaint.setStyle(Paint.Style.STROKE);
@@ -63,6 +62,8 @@ public class CircleView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.d("CircleView", "onDraw");
+        String goalString = FitTracker.mSettings.getString(Constants.PREF_STEPS_GOAL, "10000");
         // TODO: replace with actual goal
         box.set(50, 50, width - 50, height - 50);
         float sweep = 360 * Integer.parseInt(stepsString) / Integer.parseInt(goalString);

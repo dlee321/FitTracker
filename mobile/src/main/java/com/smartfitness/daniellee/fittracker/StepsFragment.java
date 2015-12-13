@@ -689,7 +689,15 @@ public class StepsFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onresume");
+        circleView.invalidate();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onactivityresult");
         if (requestCode == REQUEST_OAUTH) {
             authInProgress = false;
             if (resultCode == Activity.RESULT_OK) {

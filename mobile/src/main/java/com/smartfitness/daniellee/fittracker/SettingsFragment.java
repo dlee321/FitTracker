@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -55,6 +56,18 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         absolutePathList = new ArrayList<>();
 
         new GetAlarmSoundsAsyncTask().execute();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v =  super.onCreateView(inflater, container, savedInstanceState);
+        if(v != null) {
+            ListView lv = (ListView) v.findViewById(android.R.id.list);
+            float density = getActivity().getResources().getDisplayMetrics().density;
+            int px = (int)(64 * density);
+            lv.setPadding(0, px, 0, 0);
+        }
+        return v;
     }
 
     @Override

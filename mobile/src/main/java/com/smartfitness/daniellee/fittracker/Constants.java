@@ -12,6 +12,12 @@ public class Constants {
     public static final String RUNS_KEY = "runs";
     public static final String SLEEPS_KEY = "sleep";
 
+    // settings fragment sharedpreference keys
+    public static final String PREF_STEPS_GOAL = "pref_stepsGoal",
+            PREF_VIBRATE_ALARM = "pref_vibrateAlarm",
+            PREF_ALARM_SOUND = "pref_alarmSound";
+
+
     // Run ParseObject keys
     public static final String ACTIVITY_TYPE = "activitytype",
             DESCRIPTION = "description",
@@ -48,7 +54,7 @@ public class Constants {
             HEIGHT_INCH_TAG = "heightin",
             DATE_BIRTH_TAG = "dateofbirth",
             AGE_TAG = "age",
-            GENDER_TAG="gender";
+            GENDER_TAG = "gender";
 
 
     public static final String[] SMART_ALARM_TIMES = new String[]{"30", "25", "20", "15", "10", "None"};

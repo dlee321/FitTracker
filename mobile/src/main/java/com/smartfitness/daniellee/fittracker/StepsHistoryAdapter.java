@@ -1,8 +1,11 @@
 package com.smartfitness.daniellee.fittracker;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,9 +28,10 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
     long timeMillis;
     int length;
 
-    Context context;
+    static Context context;
 
     public static int textColor = 0;
+    static int goal;
 
     public StepsHistoryAdapter(Integer[] dataSet, Context c) {
         mDataSet = dataSet;
@@ -37,6 +41,8 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
 
         context = c;
         length = mDataSet.length;
+
+        goal = Integer.parseInt(FitTracker.mSettings.getString(Constants.PREF_STEPS_GOAL, "10000"));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -52,7 +58,10 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
             super(v);
             mStepsTextView = (TextView) v.findViewById(R.id.listStepCount);
             mDateTextView = (TextView) v.findViewById(R.id.steps_history_date);
+
             mGoalTextView = (TextView) v.findViewById(R.id.listStepGoal);
+            mGoalTextView.setText(context.getString(R.string.steps_list_item_goal, goal));
+
             mImageView = (ImageView) v.findViewById(R.id.steps_icon);
             mHorizontalProgress = (HorizontalProgress) v.findViewById(R.id.steps_horizontal_progress);
             mCardView = (CardView) v.findViewById(R.id.card_list_item);
@@ -77,7 +86,7 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
         Integer data = mDataSet[length-position-1];
         if (data != null) {
             holder.mStepsTextView.setText(String.valueOf(data));
-            holder.mHorizontalProgress.setPartDone((float) data / 10000);
+            holder.mHorizontalProgress.setPartDone((float) data / goal);
             holder.mHorizontalProgress.invalidate();
 
             mCalendar.setTimeInMillis(timeMillis);
@@ -85,7 +94,7 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
             String date = mFormat.format(mCalendar.getTime());
             holder.mDateTextView.setText(date);
 
-            if (data >= 10000) {
+            if (data >= goal) {
                 holder.mStepsTextView.setTextColor(Color.WHITE);
                 holder.mDateTextView.setTextColor(Color.WHITE);
                 holder.mGoalTextView.setTextColor(Color.WHITE);
