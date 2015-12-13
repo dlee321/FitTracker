@@ -18,6 +18,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SleepHistoryActivity extends AppCompatActivity {
 
@@ -78,15 +79,17 @@ public class SleepHistoryActivity extends AppCompatActivity {
             if (length > 0) {
                 int[] duration = new int[length];
                 int[] deepSleep = new int[length];
+                Date[] dates = new Date[length];
                 int iii = 0;
                 for (Sleep sleep : arrayList) {
                     duration[iii] = sleep.getDuration();
                     deepSleep[iii] = sleep.getDeepSleepDuration();
+                    dates[iii] = sleep.getCreatedAt();
                     iii++;
                 }
                 RecyclerView recyclerView = (RecyclerView) findViewById(R.id.sleep_history_list);
                 recyclerView.setLayoutManager(new LinearLayoutManager(SleepHistoryActivity.this));
-                SleepHistoryAdapter adapter = new SleepHistoryAdapter(duration, deepSleep, getApplicationContext());
+                SleepHistoryAdapter adapter = new SleepHistoryAdapter(duration, deepSleep, dates, getApplicationContext());
                 recyclerView.setAdapter(adapter);
             } else {
                 noHistoryTextView.setVisibility(View.VISIBLE);

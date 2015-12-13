@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by danie_000 on 11/23/2015.
@@ -23,6 +25,7 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
 
     int[] mDuration;
     int[] mDeepSleep;
+    Date[] mDates;
     int length;
     Context mContext;
 
@@ -30,15 +33,17 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
     long timeMillis;
     SimpleDateFormat mFormat;
 
-    public SleepHistoryAdapter(int[] duration, int[] deepSleep, Context context) {
+    public SleepHistoryAdapter(int[] duration, int[] deepSleep, Date[] dates, Context context) {
         mDuration = duration;
         mDeepSleep = deepSleep;
+        mDates = dates;
         length = mDuration.length;
         mContext = context;
 
         mCalendar = Calendar.getInstance();
         timeMillis = mCalendar.getTimeInMillis();
         mFormat = new SimpleDateFormat("MMMM dd");
+        mFormat.setTimeZone(TimeZone.getDefault());
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -71,16 +76,17 @@ public class SleepHistoryAdapter extends RecyclerView.Adapter<SleepHistoryAdapte
         Log.d("asdf", "asdff");
         int duration = mDuration[length - position - 1];
         int deepSleep = mDeepSleep[length - position - 1];
+        Date date = mDates[length - position - 1];
         
         holder.mSleepTextView.setText(mContext.getString(R.string.sleep_list_text,
                 calculateTimeString(duration), calculateTimeString(deepSleep)));
         holder.mHorizontalProgress.setPartDone((float) deepSleep / duration);
         holder.mHorizontalProgress.invalidate();
 
-        mCalendar.setTimeInMillis(timeMillis);
-        mCalendar.add(Calendar.DATE, 0 - (position + 1));
-        String date = mFormat.format(mCalendar.getTime());
-        holder.mDateTextView.setText(date);
+        mCalendar.setTime(date);
+        mCalendar.add(Calendar.DATE, -1);
+        String dateString = mFormat.format(mCalendar.getTime());
+        holder.mDateTextView.setText(dateString);
 
         if ((position) % 2 == 0) {
             holder.mCardView.setCardBackgroundColor(Color.WHITE);
