@@ -114,9 +114,9 @@ public class StepsHistoryAdapter extends RecyclerView.Adapter<StepsHistoryAdapte
                 holder.mCardView.setCardBackgroundColor(Color.WHITE);
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    holder.mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.walking, context.getTheme()));
+                    holder.mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.steps, context.getTheme()));
                 } else {
-                    holder.mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.walking));
+                    holder.mImageView.setImageDrawable(context.getResources().getDrawable(R.drawable.steps));
                 }
             }
         }

@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +30,7 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, HistoryFragment.OnFragmentInteractionListener {
 
     public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "Steps History", "Sleep History", "Activity History", "Settings"};
-    public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.walking, R.drawable.moon, R.drawable.running, R.drawable.settings};
+    public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.steps, R.drawable.moon, R.drawable.running, R.drawable.settings};
 
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d("asdf", "asdf");
 
         // if currently sleep tracking, start SleepActivity
         if (isMyServiceRunning(SleepService.class)) {

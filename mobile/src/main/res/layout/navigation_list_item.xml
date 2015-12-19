@@ -12,9 +12,15 @@
 
     <ImageView
         android:id="@+id/navigationImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingLeft="16dp"/>
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:maxWidth="24dp"
+        android:maxHeight="24dp"
+        android:minWidth="24dp"
+        android:minHeight="24dp"
+        android:scaleType="fitXY"
+        android:layout_marginLeft="16dp"
+        android:layout_gravity="center_vertical"/>
 
     <TextView
         android:id="@+id/navigationTextView"
