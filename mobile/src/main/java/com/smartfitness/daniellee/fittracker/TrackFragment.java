@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
@@ -36,6 +37,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.w3c.dom.Text;
 
 
 /**
@@ -81,6 +84,7 @@ public class TrackFragment extends Fragment {
     Location mLastLocation;
 
     CardView buttonLayout;
+    TextView startButtonText;
 
     public static TrackFragment newInstance() {
         TrackFragment fragment = new TrackFragment();
@@ -109,6 +113,7 @@ public class TrackFragment extends Fragment {
         }
         buildGoogleApiClient();
 
+        startButtonText = (TextView) v.findViewById(R.id.start_button_text);
         buttonLayout = (CardView)v.findViewById(R.id.buttonLayout);
         buttonLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -165,7 +170,9 @@ public class TrackFragment extends Fragment {
         spinner.setAdapter(adapter);
 
         // set selected item to last one selected (default first item--walking)
-        spinner.setSelection(FitTracker.mSettings.getInt(Constants.ACTIVITY_TRACKING_TYPE, 0));
+        int activityType = FitTracker.mSettings.getInt(Constants.ACTIVITY_TRACKING_TYPE, 0);
+        spinner.setSelection(activityType);
+        setStartButtonText(activityType);
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -173,6 +180,7 @@ public class TrackFragment extends Fragment {
                 Log.d(TAG, "Position: " + i);
                 Log.d(TAG, "ID: " + l);
                 FitTracker.mSettings.edit().putInt(Constants.ACTIVITY_TRACKING_TYPE, i).apply();
+                setStartButtonText(i);
             }
 
             @Override
@@ -182,6 +190,19 @@ public class TrackFragment extends Fragment {
         });
 
         return v;
+    }
+
+    private void setStartButtonText(int i) {
+        String activityType = "";
+        switch (i) {
+            case 0: activityType = "WALKING";
+                break;
+            case 1: activityType = "RUNNING";
+                break;
+            case 2: activityType = "CYCLING";
+                break;
+        }
+        startButtonText.setText(getResources().getString(R.string.activity_button_text, activityType));
     }
 
     private void buildGoogleApiClient() {
