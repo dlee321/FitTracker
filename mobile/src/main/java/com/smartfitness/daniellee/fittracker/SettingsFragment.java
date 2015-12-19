@@ -13,6 +13,9 @@ import android.os.Environment;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +55,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         // load preferences
         addPreferencesFromResource(R.xml.preference_screen);
 
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) getActivity().findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+
+
+        ActionBar bar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        bar.setHomeButtonEnabled(true);
+        bar.setDisplayHomeAsUpEnabled(true);
+        bar.setDisplayShowTitleEnabled(true);
+        bar.setTitle("Settings");
+
         soundList = new ArrayList<>();
         absolutePathList = new ArrayList<>();
 
@@ -60,14 +73,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v =  super.onCreateView(inflater, container, savedInstanceState);
-        if(v != null) {
-            ListView lv = (ListView) v.findViewById(android.R.id.list);
-            float density = getActivity().getResources().getDisplayMetrics().density;
-            int px = (int)(64 * density);
-            lv.setPadding(0, px, 0, 0);
-        }
-        return v;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override

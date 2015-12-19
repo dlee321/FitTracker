@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,20 +16,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.app.DialogFragment;
-import android.support.v4.view.MotionEventCompat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
@@ -46,14 +40,12 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.FitnessStatusCodes;
-import com.google.android.gms.fitness.HistoryApi;
 import com.google.android.gms.fitness.data.Bucket;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSet;
 import com.google.android.gms.fitness.data.DataType;
 import com.google.android.gms.fitness.data.Field;
 import com.google.android.gms.fitness.data.Session;
-import com.google.android.gms.fitness.request.DailyTotalRequest;
 import com.google.android.gms.fitness.request.DataReadRequest;
 import com.google.android.gms.fitness.request.SessionInsertRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
@@ -61,13 +53,11 @@ import com.google.android.gms.fitness.result.DataReadResult;
 import com.jjoe64.graphview.BarGraphView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
-import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -600,7 +590,7 @@ public class StepsFragment extends Fragment {
         mProgress.setMessage("Loading Step Data...");
         mProgress.show();
         new GetReadResultTask().execute();
-        new GetReadResultTask2().execute();
+        new GetReadResultTaskStepCount().execute();
     }
 
     /*private void drawCircle() {
@@ -639,7 +629,8 @@ public class StepsFragment extends Fragment {
                                 // Now you can make calls to the Fitness APIs.
                                 // Put application specific code here.
                                 new GetReadResultTask().execute();
-                                new GetReadResultTask2().execute();
+                                new GetReadResultTaskStepCount().execute();
+                                new GetReadResultTaskCalories().execute();
                             }
 
                             @Override
@@ -697,7 +688,7 @@ public class StepsFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onactivityresult");
+        Log.d(TAG, "onActivityResult");
         if (requestCode == REQUEST_OAUTH) {
             authInProgress = false;
             if (resultCode == Activity.RESULT_OK) {
@@ -927,7 +918,7 @@ public class StepsFragment extends Fragment {
         }
     }
 
-    public class GetReadResultTask2 extends AsyncTask<Void, Void, DailyTotalResult> {
+    public class GetReadResultTaskStepCount extends AsyncTask<Void, Void, DailyTotalResult> {
 
         protected DailyTotalResult doInBackground(Void... voids) {
             Calendar cal = Calendar.getInstance();
@@ -959,7 +950,38 @@ public class StepsFragment extends Fragment {
             }
             Log.d(TAG, "" + totalStepsToday);
 
-            int calories = calculateCalories(totalStepsToday);
+            //stepsTextView.setText("" + totalStepsToday);
+
+            mProgress.dismiss();
+
+            animateOut();
+        }
+    }
+
+    public class GetReadResultTaskCalories extends AsyncTask<Void, Void, DailyTotalResult> {
+
+        protected DailyTotalResult doInBackground(Void... voids) {
+            PendingResult<DailyTotalResult> readRequest = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_CALORIES_EXPENDED);
+            DailyTotalResult result =
+                    readRequest.await(1, TimeUnit.MINUTES);
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(DailyTotalResult dailyTotalResult) {
+            int calories = 0;
+            if (dailyTotalResult != null && connected) {
+                    /*AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+                    stepsTextView.setAnimation(fadeOut);
+                    fadeOut.setDuration(1200);
+                    fadeOut.setFillAfter(true);*/
+                DataSet totalSet = dailyTotalResult.getTotal();
+                calories = totalSet.isEmpty()
+                        ? 0
+                        : (int) totalSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES).asFloat();
+            }
+            Log.d(TAG, "" + totalStepsToday);
 
             caloriesTextView.setText("" + calories);
 
@@ -1015,7 +1037,7 @@ public class StepsFragment extends Fragment {
         return (int) Math.round(calories);
     }
 
-    private static int calculateCalories(int totalStepsToday) {
+    /*private static int calculateCalories(int totalStepsToday) {
         int cals;
         ParseUser user = ParseUser.getCurrentUser();
         double height = user.getInt(Constants.HEIGHT_FEET_TAG) + user.getInt(Constants.HEIGHT_INCH_TAG) / 12.0;
@@ -1057,7 +1079,7 @@ public class StepsFragment extends Fragment {
         double factor = fractionOfDay();
         cals += factor * restingCals;
         return cals;
-    }
+    }*/
 
     private static double fractionOfDay() {
         Calendar c = Calendar.getInstance();

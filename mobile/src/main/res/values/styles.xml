@@ -33,6 +33,8 @@
         <item name="android:textColorTertiary">@android:color/black</item>
     </style>
 
+    <!--Settings Actionbar white text style-->
+
     <style name="AppTheme.ActionBarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
         <!-- White arrow -->
         <item name="colorControlNormal">@android:color/white</item>
