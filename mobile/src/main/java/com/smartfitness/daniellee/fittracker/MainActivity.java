@@ -27,7 +27,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.parse.ParseUser;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener, HistoryFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener{
 
     public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "Steps History", "Sleep History", "Activity History", "Settings"};
     public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.steps, R.drawable.moon, R.drawable.running, R.drawable.settings};
@@ -203,7 +203,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
         } else if (i == 3) {
             intent = new Intent(this, SleepHistoryActivity.class);
             startActivity(intent);
-        } else if (i == 5) {
+        } else if (i == 4) {
+            intent = new Intent(this, ActivityHistoryActivity.class);
+            startActivity(intent);
+        }
+        else if (i == 5) {
             intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }

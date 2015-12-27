@@ -4,7 +4,10 @@ package com.smartfitness.daniellee.fittracker;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -58,12 +61,33 @@ public class ActivityHistoryFragment extends Fragment {
         ParseUser user = ParseUser.getCurrentUser();
         runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
         cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
+
+        Run[] runData = new Run[runs.size()];
+        ParseQuery<Run> query = new ParseQuery<Run>(Run.class);
+        int iii = 0;
+        try {
+            for (Run run : runs) {
+                runData[iii] = query.get(run.getObjectId());
+                iii++;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         if (runs.size() == 0) {
             cardView.setVisibility(CardView.VISIBLE);
         } else {
-            adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+            adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_history_list_item, runData);
             listView.setAdapter(adapter);
         }
+
+
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.activity_history_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         return view;
     }
 

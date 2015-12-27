@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.app.FragmentManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -85,6 +86,7 @@ public class TrackFragment extends Fragment {
 
     CardView buttonLayout;
     TextView startButtonText;
+    FloatingActionButton fab;
 
     public static TrackFragment newInstance() {
         TrackFragment fragment = new TrackFragment();
@@ -113,6 +115,14 @@ public class TrackFragment extends Fragment {
         }
         buildGoogleApiClient();
 
+        fab = (FloatingActionButton) v.findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ActivityHistoryActivity.class);
+                startActivity(intent);
+            }
+        });
         startButtonText = (TextView) v.findViewById(R.id.start_button_text);
         buttonLayout = (CardView)v.findViewById(R.id.buttonLayout);
         buttonLayout.setOnClickListener(new View.OnClickListener() {

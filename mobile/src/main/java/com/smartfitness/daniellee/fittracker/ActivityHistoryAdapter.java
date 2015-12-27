@@ -23,48 +23,44 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
 
     Context mContext;
     int mLayoutResource;
-    ArrayList<Run> mObjects;
+    Run[] mObjects;
     int count;
 
-    public ActivityHistoryAdapter(Context context, int resource, ArrayList<Run> objects) {
+    public ActivityHistoryAdapter(Context context, int resource, Run[] objects) {
         super(context, resource, objects);
         mContext = context;
         mLayoutResource = resource;
         mObjects = objects;
-        count = mObjects.size();
-        for (int iii = mObjects.size() - 1; objects.get(iii) == null; iii--) {
+        count = mObjects.length;
+        for (int iii = mObjects.length - 1; objects[iii] == null; iii--) {
             count--;
         }
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        String id = mObjects.get(count - position - 1).getObjectId();
-        ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
-        Run data;
-        try {
-            data = query.get(id);
-            ViewHolder holder;
-            if (data == null) {
+        Run data = mObjects[count - position - 1];
+        ViewHolder holder;
+            /*if (data == null) {
                 mObjects.remove(count-position-1);
                 return convertView;
-            }
+            }*/
 
-            if (convertView == null) {
-                LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
-                convertView = inflater.inflate(mLayoutResource, parent, false);
+        if (convertView == null) {
+            LayoutInflater inflater = ((Activity) mContext).getLayoutInflater();
+            convertView = inflater.inflate(mLayoutResource, parent, false);
 
-                holder = new ViewHolder();
-                holder.imageView = (ImageView) convertView.findViewById(R.id.activityImage);
-                holder.durationTextView = (TextView) convertView.findViewById(R.id.listTimeTextView);
-                holder.distanceTextView = (TextView) convertView.findViewById(R.id.listDistanceTextView);
-                holder.paceTextView = (TextView) convertView.findViewById(R.id.listPaceTextView);
-                holder.calorieTextView = (TextView) convertView.findViewById(R.id.listCalorieTextView);
-                holder.dateTextView = (TextView) convertView.findViewById(R.id.listDateTextView);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
+            holder = new ViewHolder();
+            holder.imageView = (ImageView) convertView.findViewById(R.id.activity_history_icon);
+            holder.durationTextView = (TextView) convertView.findViewById(R.id.activity_history_duration);
+            holder.distanceTextView = (TextView) convertView.findViewById(R.id.activity_history_distance);
+            holder.paceTextView = (TextView) convertView.findViewById(R.id.activity_history_pace);
+            holder.calorieTextView = (TextView) convertView.findViewById(R.id.activity_history_calories);
+            holder.dateTextView = (TextView) convertView.findViewById(R.id.activity_history_date);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
             /*CardView cardView = (CardView) convertView.findViewById(R.id.activityCardView);
             ImageView imageView = (ImageView) cardView.findViewById(R.id.activityImage);
             TextView durationTextView = (TextView) cardView.findViewById(R.id.listTimeTextView);
@@ -73,27 +69,24 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
             TextView calorieTextView = (TextView) cardView.findViewById(R.id.listCalorieTextView);
             TextView dateTextView = (TextView) cardView.findViewById(R.id.listDateTextView);*/
 
-            if (data.getActivityType() == Run.WALKING) {
-                holder.imageView.setImageResource(R.drawable.walking);
-            } else if (data.getActivityType() == Run.RUNNING) {
-                holder.imageView.setImageResource(R.drawable.running);
-            } else if (data.getActivityType() == Run.CYCLING) {
-                holder.imageView.setImageResource(R.drawable.biking);
-            }
-
-            long duration = data.getEndTime() - data.getStartTime();
-            double distance = data.getDistance();
-
-            holder.durationTextView.setText(convertToTimeString(duration));
-            holder.distanceTextView.setText((((double)Math.round(distance*100.0))/100.0) + "\nmi");
-            holder.paceTextView.setText(convertToTimeString(Math.round(duration/distance)));
-            holder.calorieTextView.setText("" + Math.round(data.getCalories()));
-
-            String date = calculateDate(data.getStartTime());
-            holder.dateTextView.setText(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if (data.getActivityType() == Run.WALKING) {
+            holder.imageView.setImageResource(R.drawable.walking);
+        } else if (data.getActivityType() == Run.RUNNING) {
+            holder.imageView.setImageResource(R.drawable.running);
+        } else if (data.getActivityType() == Run.CYCLING) {
+            holder.imageView.setImageResource(R.drawable.biking);
         }
+
+        long duration = data.getEndTime() - data.getStartTime();
+        double distance = data.getDistance();
+
+        holder.durationTextView.setText(convertToTimeString(duration));
+        holder.distanceTextView.setText((((double)Math.round(distance*100.0))/100.0) + "");
+        holder.paceTextView.setText(convertToTimeString(Math.round(duration/distance)));
+        holder.calorieTextView.setText("" + Math.round(data.getCalories()));
+
+        String date = calculateDate(data.getStartTime());
+        holder.dateTextView.setText(date);
 
         return convertView;
     }
@@ -102,7 +95,7 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
         cal.set(Calendar.HOUR_OF_DAY, 0);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat format = new SimpleDateFormat("MMM d");
         return format.format(cal.getTime());
     }
 
@@ -135,7 +128,7 @@ public class ActivityHistoryAdapter extends ArrayAdapter<Run> {
 
     @Override
     public Run getItem(int position) {
-        return mObjects.get(position);
+        return mObjects[position];
     }
 
     static class ViewHolder {
