@@ -2,6 +2,7 @@ package com.smartfitness.daniellee.fittracker;
 
 
 import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -34,13 +35,16 @@ public class ActivityHistoryFragment extends Fragment {
     private static final String TAG = ActivityHistoryFragment.class.getSimpleName();
 
 
-    ArrayList<Run> runs;
+    ArrayList<Run> mRuns;
 
     ActivityHistoryAdapter adapter;
 
     private static ProgressDialog mProgress;
 
-    CardView cardView;
+    CardView mCardView;
+
+
+    ListView mListView;
 
     public ActivityHistoryFragment() {
         // Required empty public constructor
@@ -56,17 +60,25 @@ public class ActivityHistoryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_activity_history, container, false);
-        ListView listView = (ListView) view.findViewById(R.id.activityList);
-        registerForContextMenu(listView);
-        ParseUser user = ParseUser.getCurrentUser();
-        runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
-        cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
 
-        Run[] runData = new Run[runs.size()];
+        mProgress = new ProgressDialog(getActivity());
+        mProgress.setMessage("Loading Activity History....");
+        mProgress.show();
+
+        mListView = (ListView) view.findViewById(R.id.activityList);
+        registerForContextMenu(mListView);
+        ParseUser user = ParseUser.getCurrentUser();
+        mRuns = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
+        mCardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
+
+        new ParseRunDataTask().execute();
+
+
+        /*Run[] runData = new Run[mRuns.size()];
         ParseQuery<Run> query = new ParseQuery<>(Run.class);
         int iii = 0;
         try {
-            for (Run run : runs) {
+            for (Run run : mRuns) {
                 runData[iii] = query.get(run.getObjectId());
                 iii++;
             }
@@ -74,12 +86,12 @@ public class ActivityHistoryFragment extends Fragment {
             e.printStackTrace();
         }
 
-        if (runs.size() == 0) {
-            cardView.setVisibility(CardView.VISIBLE);
+        if (mRuns.size() == 0) {
+            mCardView.setVisibility(CardView.VISIBLE);
         } else {
             adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_history_list_item, runData);
             listView.setAdapter(adapter);
-        }
+        }*/
 
 
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.activity_history_toolbar);
@@ -100,7 +112,7 @@ public class ActivityHistoryFragment extends Fragment {
         }
     }
 
-    @Override
+    /*@Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
@@ -121,21 +133,50 @@ public class ActivityHistoryFragment extends Fragment {
     private void deleteItem(int position) {
         ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
         try {
-            Run data = query.get(runs.get(position).getObjectId());
-            runs.remove(position);
-            if (runs.size() > 0) {
-                adapter.addAll(runs);
+            Run data = query.get(mRuns.get(position).getObjectId());
+            mRuns.remove(position);
+            if (mRuns.size() > 0) {
+                adapter.addAll(mRuns);
                 adapter.notifyDataSetChanged();
             } else {
-                cardView.setVisibility(CardView.VISIBLE);
+                mCardView.setVisibility(CardView.VISIBLE);
             }
-            // update runs list in parse
+            // update mRuns list in parse
             ParseUser user = ParseUser.getCurrentUser();
             user.removeAll(Constants.RUNS_KEY, Arrays.asList(data));
             data.deleteInBackground();
             mProgress.dismiss();
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }*/
+
+    private class ParseRunDataTask extends AsyncTask<Void, Void, Run[]> {
+        @Override
+        protected Run[] doInBackground(Void... params) {
+            Run[] runData = new Run[mRuns.size()];
+            ParseQuery<Run> query = new ParseQuery<>(Run.class);
+            int iii = 0;
+            try {
+                for (Run run : mRuns) {
+                    runData[iii] = query.get(run.getObjectId());
+                    iii++;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return runData;
+        }
+
+        @Override
+        protected void onPostExecute(Run[] runData) {
+            if (mRuns.size() == 0) {
+                mCardView.setVisibility(CardView.VISIBLE);
+            } else {
+                adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_history_list_item, runData);
+                mListView.setAdapter(adapter);
+            }
+            mProgress.dismiss();
         }
     }
 }

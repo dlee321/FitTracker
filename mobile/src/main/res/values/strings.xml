@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FitTracker</string>
+    <string name="app_name">Limitless Fitness</string>
     <string name="title_section1">Track</string>
     <string name="title_section2">Steps</string>
     <string name="title_section3">Sleep</string>
@@ -16,30 +16,30 @@
     <string name="weight_hint">Weight</string>
     <string name="height_hint">Height</string>
     <string name="default_alarm_time">7:00</string>
-    <string name="title_activity_sleep">SleepActivity</string>
+    <string name="title_activity_sleep">Sleep</string>
     <string name="done_sleeping_text">Done Sleeping</string>
-    <string name="title_activity_sleep_data">SleepDataActivity</string>
+    <string name="title_activity_sleep_data">Sleep Data</string>
     <string name="total_sleep_label">Total Sleep</string>
     <string name="deep_sleep_label">Deep Sleep</string>
     <string name="drawer_open">open drawer</string>
     <string name="drawer_close">close drawer</string>
     <string name="drawer_title">Navigation</string>
     <string name="history_activity_title">History</string>
-    <string name="title_activity_run_data">RunDataActivity</string>
+    <string name="title_activity_run_data">Run Data</string>
     <string name="action_discard">Discard</string>
     <string name="no_activities_text">No activities recorded yet</string>
     <string name="label_activitytype">ActivityType</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
-    <string name="title_activity_calibrate">CalibrateActivity</string>
+    <string name="title_activity_calibrate">Calibrate</string>
     <string name="pref_stepsGoal">Steps Goal</string>
     <string name="pref_vibrateAlarm">Vibrate when alarm goes off</string>
     <string name="pref_alarmSound">Alarm Sound</string>
-    <string name="title_activity_steps_history">StepsHistoryActivity</string>
-    <string name="title_activity_sleep_history">SleepHistoryActivity</string>
+    <string name="title_activity_steps_history">Steps History</string>
+    <string name="title_activity_sleep_history">Sleep History</string>
     <string name="sleep_list_text">%1$s total sleep with %2$s deep sleep</string>
     <string name="steps_list_item_goal">/%d steps</string>
     <string name="activity_button_text">GO %s</string>
-    <string name="title_activity_activity_history">ActivityHistoryActivity</string>
+    <string name="title_activity_activity_history">Activity History</string>
 
 </resources>

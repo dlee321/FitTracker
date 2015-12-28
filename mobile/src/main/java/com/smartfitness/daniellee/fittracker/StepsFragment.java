@@ -397,17 +397,17 @@ public class StepsFragment extends Fragment {
                     ListView listView1 = (ListView) v.findViewById(R.id.dailyActivitiesList);
 
                     ParseUser user = ParseUser.getCurrentUser();
-                    ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
-                    if (runs.size() > 0) {
-                        Run run = runs.get(runs.size() - 1);
+                    ArrayList<Run> mRuns = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
+                    if (mRuns.size() > 0) {
+                        Run run = mRuns.get(mRuns.size() - 1);
                         int secondsInADay = 60 * 60 * 24;
                         long timestamp1 = new Date().getTime();
                         int daysSinceEpoch1 = (int) (timestamp1 / secondsInADay);
-                        int ind = runs.size() - 1;
+                        int ind = mRuns.size() - 1;
                         try {
                             while (daysSinceEpoch1 == run.getStartTime() / secondsInADay) {
                                 ind++;
-                                run = runs.get(ind);
+                                run = mRuns.get(ind);
                             }
                         } catch (NullPointerException e) {
 
@@ -415,9 +415,9 @@ public class StepsFragment extends Fragment {
                         if (ind > 0) {
                             textView1.setVisibility(View.GONE);
                             listView1.setVisibility(View.VISIBLE);
-                            runs.subList(ind + 1, runs.size()).clear();
+                            mRuns.subList(ind + 1, mRuns.size()).clear();
 
-                            ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, runs);
+                            ArrayAdapter adapter = new ActivityHistoryAdapter(getActivity(), R.layout.activity_list_item, mRuns);
                             listView1.setAdapter(adapter);
                         }
                     }
@@ -1041,10 +1041,10 @@ public class StepsFragment extends Fragment {
         if (FitTracker.mSettings.getBoolean(Constants.ACTIVITY_YET_TODAY, true)) {
             Log.d(TAG, "Adding activity calories");
             boolean first = true;
-            ArrayList<Run> runs = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
-            for (int iii = runs.size() - 1; iii >= 0; iii--) {
+            ArrayList<Run> mRuns = (ArrayList<Run>) user.get(Constants.RUNS_KEY);
+            for (int iii = mRuns.size() - 1; iii >= 0; iii--) {
                 try {
-                    String id = runs.get(iii).getObjectId();
+                    String id = mRuns.get(iii).getObjectId();
                     ParseQuery<Run> query = ParseQuery.getQuery(Run.class);
                     Run run = query.get(id);
                     long time = run.getCreatedAt().getTime();
