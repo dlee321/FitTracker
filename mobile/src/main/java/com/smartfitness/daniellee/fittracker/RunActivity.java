@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -218,6 +219,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 int timeHours = (timeMinutes + timeSeconds/60)/60;
                 int age = mSettings.getInt(Constants.AGE_TAG, 20);
                 String workoutType = calculateWorkoutType();
+                mCalories = calculateCaloriesBurned(weight, timeMinutes + timeSeconds/60.0, workoutType, averageSpeedKM);
                 if (workoutType.equals(FitnessActivities.RUNNING)) {
                     double TF = 0.84;
                     double vO2max = 15.03 * ((208 - 0.7*age)/70);
@@ -295,6 +297,34 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         buildGoogleApiClient();
+    }
+
+    public static double calculateCaloriesBurned(int weight, double time, String workoutType, double kmPerSecond) {
+        double MET = 7;
+        double mph = kmPerSecond / 2236.936;
+        // determine MET
+        if (workoutType.equals(FitnessActivities.RUNNING)) {
+            MET = -0.2 + 1.56*mph;
+        } else if (workoutType.equals(FitnessActivities.BIKING)) {
+            if (mph <= 10) {
+                MET = 4.0;
+            } else if (mph <= 11.9) {
+                MET = 6.8;
+            } else if (mph <= 13.9) {
+                MET = 8.0;
+            } else if (mph <= 15.9) {
+                MET = 10.0;
+            } else if (mph < 20) {
+                MET = 12.0;
+            } else if (mph >= 20) {
+                MET = 15.8;
+            }
+        } else if (workoutType.equals(FitnessActivities.WALKING)) {
+            MET = 4.0;
+        }
+        double caloriesPerMinute = MET * 3.5 * weight / 200;
+
+        return caloriesPerMinute * time;
     }
 
     private void buildGoogleApiClient() {

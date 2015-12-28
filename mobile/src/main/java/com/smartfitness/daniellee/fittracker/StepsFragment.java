@@ -682,7 +682,7 @@ public class StepsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onresume");
+        Log.d(TAG, "onResume");
         circleView.invalidate();
     }
 
@@ -993,47 +993,38 @@ public class StepsFragment extends Fragment {
         }
     }
 
-    private int calculateActivityCalories(long time, double distance) {
-        double distanceKM = distance * 1.60934;
-        double timeHours = ((double) time / MILL_PER_HOUR);
-        double averageSpeedKM = distanceKM / timeHours;
-        double mph = distance / timeHours;
-        int age = FitTracker.mSettings.getInt(Constants.AGE_TAG, 20);
-        int weightLB = FitTracker.mSettings.getInt(Constants.WEIGHT_TAG, 150);
-        int weightKG = (int) (0.453592 * weightLB);
-        double calories = 0;
+    private int calculateActivityCalories(long time, double distance, double weight) {
         int radioButtonID = mRadioGroup.getCheckedRadioButtonId();
         View radioButton = mRadioGroup.findViewById(radioButtonID);
         int workoutType = mRadioGroup.indexOfChild(radioButton);
+
+        double timeMinutes = time/60000.0;
+        double timeHours = timeMinutes/60.0;
+        double MET = 7;
+        double mph = distance/timeHours;
+        // determine MET
         if (workoutType == Run.RUNNING) {
-            double TF = 0.84;
-            double vO2max = 15.03 * ((208 - 0.7 * age) / 70);
-            double CFF;
-            if (vO2max >= 56) {
-                CFF = 1.00;
-            } else if (vO2max >= 54) {
-                CFF = 1.01;
-            } else if (vO2max >= 52) {
-                CFF = 1.02;
-            } else if (vO2max >= 50) {
-                CFF = 1.03;
-            } else if (vO2max >= 48) {
-                CFF = 1.04;
-            } else if (vO2max >= 46) {
-                CFF = 1.05;
-            } else if (vO2max >= 44) {
-                CFF = 1.06;
-            } else {
-                CFF = 1.07;
-            }
-            calories = (0.95 * weightKG + TF) * distanceKM * 1.60934 * CFF;
-        } else if (workoutType == Run.WALKING) {
-            calories = (0.0215 * Math.pow(averageSpeedKM, 3) - 0.1765 * averageSpeedKM * averageSpeedKM +
-                    0.8710 * averageSpeedKM + 1.4577) * weightKG * timeHours;
+            MET = -0.2 + 1.56*mph;
         } else if (workoutType == Run.CYCLING) {
-            int totalWeight = weightLB + 20;
-            calories = ((0.046 * mph * totalWeight) + (0.066 * mph * mph * mph)) * timeHours;
+            if (mph <= 10) {
+                MET = 4.0;
+            } else if (mph <= 11.9) {
+                MET = 6.8;
+            } else if (mph <= 13.9) {
+                MET = 8.0;
+            } else if (mph <= 15.9) {
+                MET = 10.0;
+            } else if (mph < 20) {
+                MET = 12.0;
+            } else if (mph >= 20) {
+                MET = 15.8;
+            }
+        } else if (workoutType == Run.WALKING) {
+            MET = 4.0;
         }
+        double caloriesPerMinute = MET * 3.5 * weight / 200;
+        Log.d(TAG, "timeMinutes: " + timeMinutes + " distance: " + distance + " mph: " + mph + " MET: " + MET + " weight: " + weight);
+        double calories = caloriesPerMinute * timeMinutes;
         return (int) Math.round(calories);
     }
 
@@ -1115,14 +1106,15 @@ public class StepsFragment extends Fragment {
 
         protected Void doInBackground(Long... times) {
             double distance = Double.longBitsToDouble(times[2]);
-            long time = times[1] - times[0];
+            int time = (int)(times[1] - times[0]);
             Log.d(TAG, "Time distance: " + time + " " + distance);
-            int calories = calculateActivityCalories(time, distance);
             // set that there is an activity today
             FitTracker.mSettings.edit().putBoolean(Constants.ACTIVITY_YET_TODAY, true).apply();
             // PARSE
             ParseUser user = ParseUser.getCurrentUser();
             Run run = new Run();
+
+            int calories = calculateActivityCalories(time, distance, (int) user.getNumber(Constants.WEIGHT_TAG)/2.20462);
             //boolean outOfMemory =
             /*while (outOfMemory) {
                 run = new Run();

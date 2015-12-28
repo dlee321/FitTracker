@@ -63,7 +63,7 @@ public class ActivityHistoryFragment extends Fragment {
         cardView = (CardView) view.findViewById(R.id.noActivitiesCardView);
 
         Run[] runData = new Run[runs.size()];
-        ParseQuery<Run> query = new ParseQuery<Run>(Run.class);
+        ParseQuery<Run> query = new ParseQuery<>(Run.class);
         int iii = 0;
         try {
             for (Run run : runs) {
