@@ -4,7 +4,16 @@
     tools:context="com.smartfitness.daniellee.fittracker.RunActivity"
     android:keepScreenOn="true">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/run_toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        />
+
     <LinearLayout
+        android:layout_below="@id/run_toolbar"
         android:orientation="horizontal"
         android:id="@+id/durationLabelLayout"
         android:layout_width="match_parent"

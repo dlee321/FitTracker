@@ -12,8 +12,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -40,7 +43,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class RunActivity extends ActionBarActivity implements LocationListener {
+public class RunActivity extends AppCompatActivity implements LocationListener {
 
     public static final String TAG = RunActivity.class.getSimpleName();
 
@@ -116,6 +119,12 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.run_toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         // make sure CPU doesn't sleep
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -204,7 +213,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
                 mDurationTextView.setText(minutes + ":" + seconds);
                 double dMinutes = (timeSeconds + timeMinutes * 60)/60.0;
                 averagePace = dMinutes/mTotalDistance;
-                Log.d(TAG, "Pace:" + averagePace);
+                Log.d(TAG, "Pace: " + averagePace);
                 averageSpeedKM = mTotalDistanceKM/(dMinutes * 60);
                 double paceSeconds = averagePace - Math.floor(averagePace);
                 int nSeconds = (int) (paceSeconds * 60);
@@ -420,6 +429,22 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
     }
 
     @Override
+    public void onBackPressed() {
+        timer.cancel();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            timer.cancel();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onLocationChanged(Location location) {
         if (!paused) {
             mCurrentLocation = location;
@@ -474,7 +499,7 @@ public class RunActivity extends ActionBarActivity implements LocationListener {
 
 
 
-    private String calculateWorkoutType() {
+    static String calculateWorkoutType() {
         String workoutType = "";
         int workout = FitTracker.mSettings.getInt(Constants.ACTIVITY_TRACKING_TYPE, 0);
         switch (workout) {

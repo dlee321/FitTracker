@@ -3,9 +3,12 @@ package com.smartfitness.daniellee.fittracker;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,9 +17,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
 import com.google.android.gms.fitness.data.Session;
@@ -69,10 +75,23 @@ public class RunDataActivity extends ActionBarActivity {
 
     TextView notesTextView;
 
+    String description;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_data);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.run_data_toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
@@ -90,7 +109,60 @@ public class RunDataActivity extends ActionBarActivity {
 
             mPoly = new PolylineOptions().width(9).color(Color.BLUE).visible(true).zIndex(30);
 
-            final String description = intent.getStringExtra("description");
+            description = intent.getStringExtra("description");
+            if (description.equals("")) {
+                Calendar c = Calendar.getInstance();
+                int hour = c.get(Calendar.HOUR_OF_DAY);
+                int day = c.get(Calendar.DAY_OF_WEEK);
+
+                // day of week
+                switch (day) {
+                    case Calendar.SUNDAY:
+                        description = "Sunday";
+                        break;
+                    case Calendar.MONDAY:
+                        description = "Monday";
+                        break;
+                    case Calendar.TUESDAY:
+                        description = "Tuesday";
+                        break;
+                    case Calendar.WEDNESDAY:
+                        description = "Wednesday";
+                        break;
+                    case Calendar.THURSDAY:
+                        description = "Thursday";
+                        break;
+                    case Calendar.FRIDAY:
+                        description = "Friday";
+                        break;
+                    case Calendar.SATURDAY:
+                        description = "Saturday";
+                        break;
+                }
+
+                // time of day
+                if (hour < 12) {
+                    description += " morning";
+                } else if (hour < 18) {
+                    description += " afternoon";
+                } else {
+                    description += " evening";
+                }
+
+                // type of activity
+                String workout = RunActivity.calculateWorkoutType();
+                switch (workout) {
+                    case FitnessActivities.RUNNING:
+                        description += " run";
+                        break;
+                    case FitnessActivities.WALKING:
+                        description += " walk";
+                        break;
+                    case FitnessActivities.BIKING:
+                        description += " bike";
+                        break;
+                }
+            }
             setTitle(description);
 
             coordinateList = (ArrayList) intent.getSerializableExtra("coordinates");
@@ -143,10 +215,10 @@ public class RunDataActivity extends ActionBarActivity {
             durationTextView.setText(duration);
 
             // round distance to 2 decimal places
-            distanceTextView.setText("" + (((double)Math.round(distance*100.0))/100.0) + "\nmi");
+            distanceTextView.setText("" + (((double) Math.round(distance * 100.0)) / 100.0) + "\nmi");
 
             String paceString = "" + (int) averagePace;
-            paceString += ":\n" + (int)((averagePace - Math.floor(averagePace)) * 60);
+            paceString += ":\n" + (int) ((averagePace - Math.floor(averagePace)) * 60);
 
             paceTextView.setText(paceString);
 
@@ -160,13 +232,16 @@ public class RunDataActivity extends ActionBarActivity {
                     //user.remove(getString(R.string.run_key));
                     Toast.makeText(RunDataActivity.this, "Saving activity...", Toast.LENGTH_LONG).show();
 
-                    new InputSessionTask().execute(description);
+                    new InputSessionTask().execute(description, notesTextView.getText().toString());
 
                     returnToMainActivity();
 
                 }
             });
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private void reduceArrayList(ArrayList<double[]> coordinateList) {
@@ -236,7 +311,23 @@ public class RunDataActivity extends ActionBarActivity {
     @Override
     public void onStart() {
         super.onStart();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
         mGoogleApiClient.connect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "RunData Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.smartfitness.daniellee.fittracker/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 
     @Override
@@ -250,9 +341,25 @@ public class RunDataActivity extends ActionBarActivity {
     @Override
     public void onStop() {
         super.onStop();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "RunData Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.smartfitness.daniellee.fittracker/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     public class InputSessionTask extends AsyncTask<String, Void, Void> {
@@ -284,15 +391,23 @@ public class RunDataActivity extends ActionBarActivity {
             Log.d(TAG, "Distance set");
             run.setACL(new ParseACL(user));
             Log.d(TAG, "ACL set");
-            String workoutType = calculateWorkoutType();
-            if (workoutType.equals(FitnessActivities.WALKING) || workoutType.equals(FitnessActivities.WALKING_FITNESS)) {
-                run.setActivityType(Run.WALKING);
-            } else if (workoutType.equals(FitnessActivities.RUNNING) || workoutType.equals(FitnessActivities.RUNNING_JOGGING)) {
-                run.setActivityType(Run.RUNNING);
+            String workoutType = RunActivity.calculateWorkoutType();
+
+            switch (workoutType) {
+                case FitnessActivities.WALKING:
+                    run.setActivityType(Run.WALKING);
+                    break;
+                case FitnessActivities.RUNNING:
+                    run.setActivityType(Run.RUNNING);
+                    break;
+                case FitnessActivities.BIKING:
+                    run.setActivityType(Run.CYCLING);
+                    break;
             }
+
             Log.d(TAG, "Activity type set");
             run.setDescription(description[0]);
-            run.setNotes(notesTextView.getText().toString());
+            run.setNotes(description[1]);
             user.add(Constants.RUNS_KEY, run);
             Log.d(TAG, "Run added");
             user.saveInBackground();
@@ -311,8 +426,8 @@ public class RunDataActivity extends ActionBarActivity {
                     .setIdentifier(IDENTIFIER)
                     .setDescription(description[0])
                     .setActivity(workoutType)
-                    .setStartTime(startTime + (pauseLength/2), TimeUnit.MILLISECONDS)
-                    .setEndTime(endTime - (pauseLength/2), TimeUnit.MILLISECONDS)
+                    .setStartTime(startTime + (pauseLength / 2), TimeUnit.MILLISECONDS)
+                    .setEndTime(endTime - (pauseLength / 2), TimeUnit.MILLISECONDS)
                     .build();
 
             SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
