@@ -213,30 +213,6 @@ public class StepsFragment extends Fragment {
         }*/
 
 
-        // build fitness client then subscribe if not already subscribed
-        buildFitnessClient();
-
-        Fitness.RecordingApi.subscribe(mClient, DataType.AGGREGATE_STEP_COUNT_DELTA)
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            if (status.getStatusCode()
-                                    == FitnessStatusCodes.SUCCESS_ALREADY_SUBSCRIBED) {
-                                Log.i(TAG, "Existing subscription for activity detected.");
-                            } else {
-                                Log.i(TAG, "Successfully subscribed!");
-                            }
-                            connected = true;
-                        } else {
-                            Log.i(TAG, "There was a problem subscribing.");
-                        }
-
-                    }
-                });
-        Log.i(TAG, "Connecting...");
-        mClient.connect();
-
         /*swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_container);
         swipeRefreshLayout.setColorSchemeResources(R.color.accentColor, R.color.colorPrimary, R.color.colorPrimaryDark);*/
 
@@ -676,6 +652,7 @@ public class StepsFragment extends Fragment {
                 )
                 .addApi(Fitness.SESSIONS_API)
                 .addApi(Fitness.RECORDING_API)
+                .addApi(Fitness.CONFIG_API)
                 .build();
     }
 
@@ -684,6 +661,32 @@ public class StepsFragment extends Fragment {
         super.onResume();
         Log.d(TAG, "onResume");
         circleView.invalidate();
+
+        // build fitness client then subscribe if not already subscribed
+        buildFitnessClient();
+
+        Fitness.RecordingApi.subscribe(mClient, DataType.AGGREGATE_STEP_COUNT_DELTA)
+                .setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        if (status.isSuccess()) {
+                            if (status.getStatusCode()
+                                    == FitnessStatusCodes.SUCCESS_ALREADY_SUBSCRIBED) {
+                                Log.i(TAG, "Existing subscription for activity detected.");
+                            } else {
+                                Log.i(TAG, "Successfully subscribed!");
+                            }
+                            connected = true;
+                        } else {
+                            Log.i(TAG, "There was a problem subscribing.");
+                        }
+
+                    }
+                });
+        Log.i(TAG, "Connecting...");
+
+
+        mClient.connect();
     }
 
     @Override
@@ -791,8 +794,10 @@ public class StepsFragment extends Fragment {
         super.onStart();
         //Log.d(TAG, "onStart");
         // Connect to the Fitness API
-        if (!mClient.isConnected()) {
-            mClient.connect();
+        if (mClient != null) {
+            if (!mClient.isConnected()) {
+                mClient.connect();
+            }
         }
 
     }
@@ -998,13 +1003,13 @@ public class StepsFragment extends Fragment {
         View radioButton = mRadioGroup.findViewById(radioButtonID);
         int workoutType = mRadioGroup.indexOfChild(radioButton);
 
-        double timeMinutes = time/60000.0;
-        double timeHours = timeMinutes/60.0;
+        double timeMinutes = time / 60000.0;
+        double timeHours = timeMinutes / 60.0;
         double MET = 7;
-        double mph = distance/timeHours;
+        double mph = distance / timeHours;
         // determine MET
         if (workoutType == Run.RUNNING) {
-            MET = -0.2 + 1.56*mph;
+            MET = -0.2 + 1.56 * mph;
         } else if (workoutType == Run.CYCLING) {
             if (mph <= 10) {
                 MET = 4.0;
@@ -1106,7 +1111,7 @@ public class StepsFragment extends Fragment {
 
         protected Void doInBackground(Long... times) {
             double distance = Double.longBitsToDouble(times[2]);
-            int time = (int)(times[1] - times[0]);
+            int time = (int) (times[1] - times[0]);
             Log.d(TAG, "Time distance: " + time + " " + distance);
             // set that there is an activity today
             FitTracker.mSettings.edit().putBoolean(Constants.ACTIVITY_YET_TODAY, true).apply();
@@ -1114,7 +1119,7 @@ public class StepsFragment extends Fragment {
             ParseUser user = ParseUser.getCurrentUser();
             Run run = new Run();
 
-            int calories = calculateActivityCalories(time, distance, (int) user.getNumber(Constants.WEIGHT_TAG)/2.20462);
+            int calories = calculateActivityCalories(time, distance, (int) user.getNumber(Constants.WEIGHT_TAG) / 2.20462);
             //boolean outOfMemory =
             /*while (outOfMemory) {
                 run = new Run();

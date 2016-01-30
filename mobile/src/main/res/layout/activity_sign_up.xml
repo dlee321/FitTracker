@@ -132,7 +132,6 @@
                         android:id="@+id/radio_male"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onRadioButtonClicked"
                         android:drawableRight="@drawable/male"
                         android:drawableEnd="@drawable/male"/>
 
@@ -140,7 +139,6 @@
                         android:id="@+id/radio_female"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onRadioButtonClicked"
                         android:drawableRight="@drawable/female"
                         android:drawableEnd="@drawable/female" />
                 </RadioGroup>

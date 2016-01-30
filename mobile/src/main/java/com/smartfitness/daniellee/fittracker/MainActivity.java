@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.app.Fragment;
@@ -24,13 +25,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.fitness.ConfigApi;
+import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.data.DataType;
 import com.parse.ParseUser;
 
 
 public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener, StepsFragment.OnFragmentInteractionListener, SleepFragment.OnFragmentInteractionListener, TrackFragment.OnFragmentInteractionListener{
 
-    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "Steps History", "Sleep History", "Activity History", "Settings"};
-    public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.steps, R.drawable.moon, R.drawable.running, R.drawable.settings};
+    public static final String[] DRAWER_LIST_ITEMS = new String[] {"Home", "Steps History", "Sleep History", "Activity History", "Settings", "Sign Out"};
+    public static final int[] DRAWER_ICONS = new int[] {R.drawable.home, R.drawable.steps, R.drawable.moon, R.drawable.running, R.drawable.settings, R.drawable.signout};
 
 
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -54,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("asdf", "asdf");
+        Log.d("asdf", "asdfasdf");
 
         // if currently sleep tracking, start SleepActivity
         if (isMyServiceRunning(SleepService.class)) {
@@ -210,6 +216,17 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
         else if (i == 5) {
             intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
+        } else if (i == 6) {
+            ParseUser user = ParseUser.getCurrentUser();
+            user.logOut();
+
+            // unsubscribe from google fit
+            Fitness.ConfigApi.disableFit(StepsFragment.mClient);
+
+            intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         }
         mDrawerLayout.closeDrawer(mDrawerList);
     }
